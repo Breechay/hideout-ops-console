@@ -21,6 +21,7 @@ const GROSS_TARGET = 8914;
 const PHASE2_TARGET = 7100;
 const PHASE1_TARGET = 5500;
 const DAILY_TARGET = 1438; // $8,914 / 6.2 operating days
+const DAILY_FLOOR_TARGET = 500; // near-term consistency floor
 const NET_TARGET = 4000;
 const FIXED_COSTS = 992;
 const COGS_PCT = 0.30;
@@ -149,6 +150,11 @@ function isQueueItemDone(q, item) {
 }
 
 function queueItemVisible(item) {
+  if (item === 'anchorInv') {
+    // Open-time safety check only; not a close-time task.
+    const n = getMiamiNow();
+    return n.hour < 12;
+  }
   if (item === 'sundayDJ') {
     // Show Thu–Sun (days 4, 5, 6, 0)
     const d = getMiamiNow().day;
@@ -212,7 +218,7 @@ function renderRequiredQueue() {
     </div>`;
   }).join('');
   const allInvSet = ANCHOR_ITEMS.every(a => savedInv[a.key]);
-  html += renderQueueRow('anchorInv', 'Anchor inventory', invDone, `
+  html += renderQueueRow('anchorInv', 'Anchor inventory (open check)', invDone, `
     <div style="margin-bottom:6px;">${invInputs}</div>
     <button class="btn btn-sm${allInvSet ? '' : ' btn-o'}" onclick="queueSaveInv()" style="font-size:13px;">${invDone ? 'Saved ✓ · update' : 'Save inventory check'}</button>`);
 
@@ -535,8 +541,8 @@ function logDay() {
     alert('Enter orders before logging.');
     return;
   }
-  if (!l || isNaN(loyaltyN) || loyaltyN < 0) {
-    alert('Enter loyalty signups before logging.');
+  if (l && (isNaN(loyaltyN) || loyaltyN < 0)) {
+    alert('Loyalty signups must be a valid number.');
     return;
   }
   if (!d || isNaN(r)) return;
@@ -792,7 +798,7 @@ function renderLogHist(target) {
   if (!el) return;
   if (!S.logs.length) { el.innerHTML = '<div style="font-size:14px;color:var(--ink-light);padding:3px 0;">No entries yet</div>'; return; }
   el.innerHTML = S.logs.slice(0, 8).map(l => {
-    const cls = l.rev >= DAILY_TARGET ? 'g' : l.rev < 600 ? 'l' : '';
+    const cls = l.rev >= DAILY_FLOOR_TARGET ? 'g' : l.rev < 300 ? 'l' : '';
     const contactStr = l.contacts ? ` · ${l.contacts} new` : '';
     const loyaltyStr = l.loyalty ? ` · ${l.loyalty} loyalty` : '';
     return `<div class="le">
@@ -825,12 +831,17 @@ function updateWTD() {
     if (todayEl) todayEl.textContent = '$' + r.toLocaleString();
     const gapToday = document.getElementById('sc-today-gap');
     if (gapToday) {
-      const diff = r - DAILY_TARGET;
-      if (diff >= 0) { gapToday.textContent = '+$' + diff + ' ahead'; gapToday.style.color = 'var(--green)'; }
-      else { gapToday.textContent = '$' + Math.abs(diff) + ' below $1,438 target'; gapToday.style.color = 'var(--accent)'; }
+      const diffFloor = r - DAILY_FLOOR_TARGET;
+      if (diffFloor >= 0) {
+        gapToday.textContent = '+$' + diffFloor + ' above $500 floor';
+        gapToday.style.color = 'var(--green)';
+      } else {
+        gapToday.textContent = '$' + Math.abs(diffFloor) + ' below $500 floor';
+        gapToday.style.color = 'var(--accent)';
+      }
     }
     const todayMetric = document.getElementById('sc-today-metric');
-    if (todayMetric) todayMetric.style.borderLeft = '3px solid ' + (r >= DAILY_TARGET ? 'var(--green)' : r >= 700 ? 'var(--amber)' : 'var(--red)');
+    if (todayMetric) todayMetric.style.borderLeft = '3px solid ' + (r >= DAILY_FLOOR_TARGET ? 'var(--green)' : r >= 350 ? 'var(--amber)' : 'var(--red)');
   }
   renderWeeklyRisk();
   renderCaptureStatus();
@@ -845,12 +856,18 @@ function updatePaceLine() {
     return;
   }
   const todayRev = S.logs[0].rev;
-  const diff = todayRev - DAILY_TARGET;
-  if (diff >= 0) {
-    el.textContent = 'You are $' + diff + ' ahead today.';
-    el.style.color = 'var(--green)';
+  const diffFloor = todayRev - DAILY_FLOOR_TARGET;
+  if (diffFloor >= 0) {
+    const northStarGap = DAILY_TARGET - todayRev;
+    if (northStarGap > 0) {
+      el.textContent = 'Above $500 floor by $' + diffFloor + '. North star gap: $' + northStarGap + ' to $1,438.';
+      el.style.color = 'var(--amber)';
+    } else {
+      el.textContent = 'Above floor and north star. +$' + diffFloor + ' vs $500.';
+      el.style.color = 'var(--green)';
+    }
   } else {
-    el.textContent = 'You are $' + Math.abs(diff) + ' behind today ($1,438 target → $8,914 gross/wk → $4k net).';
+    el.textContent = '$' + Math.abs(diffFloor) + ' below $500 floor today.';
     el.style.color = 'var(--accent)';
   }
 }

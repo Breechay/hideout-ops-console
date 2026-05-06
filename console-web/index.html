@@ -372,14 +372,14 @@ table.dj tr:last-child td{border-bottom:none;}
   <!-- Revenue row -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.25rem;">
     <div class="metric" id="sc-today-metric">
-      <div class="m-lbl">Today · target $1,438</div>
+      <div class="m-lbl">Today · floor $500 · target $1,438</div>
       <div class="m-val" id="sc-today">$—</div>
       <div class="m-sub" id="sc-today-gap">not logged</div>
     </div>
     <div class="metric" id="sc-wtd-metric">
       <div class="m-lbl">Week-to-date</div>
       <div class="m-val" id="sc-wtd">$0</div>
-      <div class="m-sub" id="sc-wtd-gap">$8,914 gross target</div>
+      <div class="m-sub" id="sc-wtd-gap">$8,914 expansion north star</div>
       <div class="prog" style="margin-top:6px;"><div class="prog-f d" id="wtd-bar" style="width:0%"></div></div>
     </div>
     <div class="metric" id="sc-cogs-card">
@@ -513,9 +513,9 @@ table.dj tr:last-child td{border-bottom:none;}
           <span style="font-size:13px;color:var(--ink-light);margin-left:4px;">new numbers collected today</span>
         </div>
         <div class="ig" style="margin-bottom:2px;">
-          <div class="ig-lbl">Loyalty signups <span style="color:var(--red);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;">required</span></div>
+          <div class="ig-lbl">Loyalty signups <span style="color:var(--ink-light);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;">manual until Square sync</span></div>
           <input type="number" id="l-loyalty" placeholder="0" style="width:65px;">
-          <span style="font-size:13px;color:var(--ink-light);margin-left:4px;">new members today (primary KPI)</span>
+          <span style="font-size:13px;color:var(--ink-light);margin-left:4px;">new members today (leave blank if not tracked manually)</span>
         </div>
         <div style="font-size:12px;color:var(--ink-light);margin-top:5px;margin-bottom:6px;font-style:italic;">If you don't log, you don't know if the business works.</div>
         <div id="log-hist"></div>
