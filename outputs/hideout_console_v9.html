@@ -1,0 +1,2912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hideout — Console</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #f5f2ec;
+  --ink: #2a2620;
+  --ink-mid: #6b6660;
+  --ink-light: #a09a94;
+  --ink-faint: #d8d2c8;
+  --accent: #c4593a;
+  --accent-light: #f0e0da;
+  --amber: #b8881e;
+  --amber-light: #faf0d7;
+  --green: #376644;
+  --green-light: #dfeae3;
+  --red: #a02e2e;
+  --red-light: #f5e0e0;
+  --surface: #edeae3;
+  --border: rgba(42,38,32,0.09);
+  --border-mid: rgba(42,38,32,0.17);
+  --border-strong: rgba(42,38,32,0.26);
+  --white: #fff;
+  --sb-width: 200px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: 'DM Mono', monospace; background: var(--cream); color: var(--ink); font-size: 13px; line-height: 1.6; }
+
+/* Shell */
+.shell { display: flex; height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: var(--sb-width); min-width: var(--sb-width); background: var(--ink); display: flex; flex-direction: column; padding: 1.5rem 0 1rem; }
+.sb-brand { padding: 0 1.1rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 1.1rem; }
+.sb-eye { font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(245,242,236,0.3); margin-bottom: 5px; }
+.sb-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; color: var(--cream); line-height: 1.15; }
+.sb-status { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 9px; color: rgba(245,242,236,0.38); letter-spacing: 0.03em; }
+.sdot { width: 5px; height: 5px; border-radius: 50%; background: #5cb87a; flex-shrink: 0; }
+.sdot.off { background: #666; }
+.sb-sec { padding: 0 0.6rem; margin-bottom: 0.9rem; }
+.sb-sec-lbl { font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(245,242,236,0.25); padding: 0 0.5rem; margin-bottom: 3px; }
+.nb { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 9px; border-radius: 4px; border: none; background: none; color: rgba(245,242,236,0.48); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; text-align: left; transition: all 0.12s; letter-spacing: 0.01em; }
+.nb:hover { background: rgba(255,255,255,0.07); color: var(--cream); }
+.nb.active { background: rgba(255,255,255,0.1); color: var(--cream); }
+.ni { width: 13px; text-align: center; font-size: 10px; opacity: 0.6; flex-shrink: 0; }
+.sb-foot { margin-top: auto; padding: 1rem 1.1rem 0; border-top: 1px solid rgba(255,255,255,0.06); font-size: 8.5px; color: rgba(245,242,236,0.18); letter-spacing: 0.04em; line-height: 1.8; }
+
+/* Main */
+.main { flex: 1; overflow-y: auto; padding: 2rem 2.25rem; min-width: 0; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* Page header */
+.ph { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--border-mid); }
+.ph-l {}
+.ph-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; line-height: 1; color: var(--ink); }
+.ph-sub { font-size: 10px; color: var(--ink-light); margin-top: 4px; letter-spacing: 0.04em; }
+.ph-tag { font-size: 9.5px; background: var(--surface); padding: 4px 11px; border-radius: 20px; color: var(--ink-mid); letter-spacing: 0.05em; }
+
+/* Status banner */
+.status-banner { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.s-card { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; flex: 1; min-width: 140px; }
+.s-card.green { border-left: 3px solid var(--green); }
+.s-card.red { border-left: 3px solid var(--red); }
+.s-card.amber { border-left: 3px solid var(--amber); }
+.s-card.neutral { border-left: 3px solid var(--ink-faint); }
+.sc-val { font-size: 18px; font-family: 'Cormorant Garamond', serif; font-weight: 300; color: var(--ink); line-height: 1; }
+.sc-lbl { font-size: 8.5px; color: var(--ink-light); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+.sc-icon { font-size: 16px; opacity: 0.5; }
+
+/* Metrics */
+.mrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+.metric { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+.m-lbl { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 6px; }
+.m-val { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: var(--ink); line-height: 1; }
+.m-sub { font-size: 9px; color: var(--ink-light); margin-top: 4px; }
+
+/* Sl */
+.sl { font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 8px; font-weight: 500; }
+
+/* Card */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.1rem; margin-bottom: 9px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 9px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; margin-bottom: 9px; }
+
+/* Row */
+.row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.row:last-child { border-bottom: none; }
+.row-name { font-size: 12px; font-weight: 500; color: var(--ink); }
+.row-meta { font-size: 10px; color: var(--ink-light); margin-top: 1px; line-height: 1.5; }
+.row-note { font-size: 9.5px; color: var(--ink-light); font-style: italic; margin-top: 3px; }
+
+/* Badges */
+.badge { display: inline-block; font-size: 8px; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 500; white-space: nowrap; }
+.bg { background: var(--green-light); color: var(--green); }
+.ba { background: var(--amber-light); color: var(--amber); }
+.br { background: var(--red-light); color: var(--red); }
+.bc { background: var(--accent-light); color: var(--accent); }
+.bn { background: var(--surface); color: var(--ink-mid); }
+
+/* Progress */
+.prog { background: var(--surface); border-radius: 3px; height: 4px; overflow: hidden; margin-top: 5px; }
+.prog-f { height: 100%; border-radius: 3px; background: var(--ink); transition: width 0.4s; }
+.prog-f.g { background: var(--green); }
+.prog-f.w { background: var(--amber); }
+.prog-f.d { background: var(--accent); }
+
+/* Check */
+.ci { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+.ci:last-child { border-bottom: none; }
+.cb { width: 14px; height: 14px; border: 1.5px solid var(--ink-faint); border-radius: 3px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+.cb.on { background: var(--ink); border-color: var(--ink); }
+.cb.on::after { content: ''; width: 6px; height: 3.5px; border-left: 1.5px solid white; border-bottom: 1.5px solid white; transform: rotate(-45deg) translateY(-1px); }
+.cb-body { flex: 1; }
+.cb-main { font-size: 11px; color: var(--ink); }
+.cb-main.done { text-decoration: line-through; color: var(--ink-light); }
+.cb-note { font-size: 9px; color: var(--ink-light); margin-top: 1px; }
+
+/* Inputs */
+.ig { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; flex-wrap: wrap; }
+.ig-lbl { font-size: 9px; color: var(--ink-mid); min-width: 65px; letter-spacing: 0.06em; text-transform: uppercase; }
+input[type="text"], input[type="number"], textarea, select {
+  border: 1px solid var(--border-mid); border-radius: 4px; padding: 5px 9px;
+  font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink);
+  background: var(--cream); outline: none; transition: border-color 0.12s;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--ink); }
+textarea { resize: vertical; width: 100%; min-height: 56px; }
+.btn { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-strong); background: var(--ink); color: var(--cream); font-family: 'DM Mono', monospace; font-size: 10px; cursor: pointer; letter-spacing: 0.04em; transition: opacity 0.12s; white-space: nowrap; }
+.btn:hover { opacity: 0.75; }
+.btn-sm { padding: 4px 10px; font-size: 9px; }
+.btn-o { background: transparent; color: var(--ink); }
+.btn-o:hover { background: var(--surface); }
+
+/* Alert */
+.alert { padding: 8px 12px; border-radius: 5px; font-size: 10px; margin-bottom: 9px; line-height: 1.6; }
+.al-a { background: var(--amber-light); color: #6a4b08; border-left: 3px solid var(--amber); }
+.al-c { background: var(--accent-light); color: #7a2510; border-left: 3px solid var(--accent); }
+.al-g { background: var(--green-light); color: #1c4029; border-left: 3px solid var(--green); }
+.al-n { background: var(--surface); color: var(--ink-mid); border-left: 3px solid var(--ink-faint); }
+
+/* Log */
+.le { display: flex; justify-content: space-between; font-size: 10px; padding: 4.5px 0; border-bottom: 1px solid var(--border); color: var(--ink-mid); }
+.le:last-child { border-bottom: none; }
+.le-rev { font-weight: 500; }
+.le-rev.g { color: var(--green); }
+.le-rev.l { color: var(--accent); }
+
+/* P&L */
+.pr { display: flex; justify-content: space-between; padding: 5.5px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.pr:last-child { border-bottom: none; }
+.pk { color: var(--ink-mid); }
+.pv { font-weight: 500; }
+.pn { color: var(--red); }
+.pp { color: var(--green); }
+.ptot { display: flex; justify-content: space-between; padding: 8px 0 0; font-size: 12.5px; font-weight: 500; border-top: 1px solid var(--border-strong); margin-top: 3px; }
+
+/* Calendar */
+.ch { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 2px; }
+.chdr { font-size: 8px; text-align: center; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-light); padding: 4px 0; }
+.cg { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 1.25rem; }
+.cd { border: 1px solid var(--border); border-radius: 4px; padding: 5px 3px 4px; text-align: center; min-height: 50px; cursor: pointer; background: var(--white); transition: background 0.1s; }
+.cd:hover { background: var(--surface); }
+.cd.today { border-color: var(--ink); }
+.cd.closed { background: var(--cream); opacity: 0.4; }
+.cd.hasevent { border-color: var(--accent); }
+.cd.empty { border-color: transparent; background: transparent; cursor: default; pointer-events: none; }
+.dn { font-size: 11px; font-weight: 500; color: var(--ink); }
+.ddot { width: 4px; height: 4px; border-radius: 50%; margin: 3px auto 0; }
+.ddot.ev { background: var(--accent); }
+.ddot.dj { background: var(--amber); }
+
+/* Menu */
+.mc { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 300; color: var(--ink); margin: 1.1rem 0 5px; letter-spacing: 0.03em; }
+.mr { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.mr:last-child { border-bottom: none; }
+.mn { font-size: 11px; font-weight: 500; color: var(--ink); }
+.md { font-size: 9px; color: var(--ink-light); margin-top: 1px; line-height: 1.5; max-width: 320px; }
+.mp { font-size: 11.5px; font-weight: 500; color: var(--ink); flex-shrink: 0; }
+
+/* Inv table */
+.inv-wrap { overflow-x: auto; }
+table.inv { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+table.inv th { font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border-mid); font-weight: 500; }
+table.inv td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+table.inv tr:hover td { background: var(--cream); }
+table.inv tr:last-child td { border-bottom: none; }
+
+/* DJ table */
+table.dj { width: 100%; border-collapse: collapse; font-size: 11px; }
+table.dj th { font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); text-align: left; padding: 4px 10px; border-bottom: 1px solid var(--border-mid); font-weight: 500; }
+table.dj td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+table.dj tr:hover td { background: var(--cream); }
+table.dj tr:last-child td { border-bottom: none; }
+
+/* COGS bar */
+.cogs-bar-wrap { margin: 8px 0; }
+.cogs-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 10px; }
+.cogs-lbl { min-width: 90px; color: var(--ink-mid); }
+.cogs-track { flex: 1; background: var(--surface); border-radius: 3px; height: 8px; overflow: hidden; }
+.cogs-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+.cogs-pct { min-width: 35px; text-align: right; font-weight: 500; }
+
+/* COGS input */
+.cogs-calc { background: var(--surface); border-radius: 6px; padding: 12px 14px; margin-top: 8px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-eye">Console</div>
+    <div class="sb-name">Hideout</div>
+    <div class="sb-status">
+      <div class="sdot" id="sdot"></div>
+      <span id="stext">—</span>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-sec-lbl">Daily</div>
+    <button class="nb active" onclick="nav('today',this)"><span class="ni">◉</span>Today</button>
+    <button class="nb" onclick="nav('cogs',this)"><span class="ni">%</span>COGS Check</button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-sec-lbl">Weekly</div>
+    <button class="nb" onclick="nav('review',this)"><span class="ni">✦</span>Weekly Review</button>
+    <button class="nb" onclick="nav('week',this)"><span class="ni">▦</span>This Week</button>
+    <button class="nb" onclick="nav('djs',this)"><span class="ni">♪</span>DJ Roster</button>
+    <button class="nb" onclick="nav('anchors',this)"><span class="ni">◎</span>Anchor Network</button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-sec-lbl">Financial</div>
+    <button class="nb" onclick="nav('pnl',this)"><span class="ni">$</span>P&L</button>
+    <button class="nb" onclick="nav('costs',this)"><span class="ni">◎</span>Cost Cards</button>
+    <button class="nb" onclick="nav('inventory',this)"><span class="ni">≡</span>Inventory</button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-sec-lbl">System</div>
+    <button class="nb" onclick="nav('decisions',this)"><span class="ni">⚑</span>Decisions</button>
+    <button class="nb" onclick="nav('scripts',this)"><span class="ni">❝</span>Scripts</button>
+    <button class="nb" onclick="nav('roadmap',this)"><span class="ni">→</span>Roadmap</button>
+    <button class="nb" onclick="nav('menu',this)"><span class="ni">◈</span>Menu</button>
+    <button class="nb" onclick="nav('ops',this)"><span class="ni">✓</span>Open/Close</button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-sec-lbl">Data</div>
+    <button class="nb" onclick="nav('data',this)"><span class="ni">⇅</span>Export / Import</button>
+  </div>
+
+  <div class="sb-foot">
+    Edgewater, Miami · 740sqft + patio<br>
+    W–F 8am–5pm · Sa–Su 10am–5pm<br><br>
+    Console v9.1
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══ TODAY ═══ -->
+<div class="page active" id="page-today">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title" id="today-pace-line" style="font-family:'DM Mono',monospace;font-size:14px;letter-spacing:0.01em;padding-top:4px;">—</div>
+      <div class="ph-sub" id="today-tag">—</div>
+    </div>
+  </div>
+
+  <!-- Sunday slot — primary block -->
+  <div id="sunday-block" style="margin-bottom:1.1rem;"></div>
+
+  <!-- One weekly lever -->
+  <div id="weekly-lever" style="margin-bottom:1.1rem;"></div>
+
+  <!-- Revenue row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.25rem;">
+    <div class="metric" id="sc-today-metric">
+      <div class="m-lbl">Today · target $1,438</div>
+      <div class="m-val" id="sc-today">$—</div>
+      <div class="m-sub" id="sc-today-gap">not logged</div>
+    </div>
+    <div class="metric" id="sc-wtd-metric">
+      <div class="m-lbl">Week-to-date</div>
+      <div class="m-val" id="sc-wtd">$0</div>
+      <div class="m-sub" id="sc-wtd-gap">$8,914 gross target</div>
+      <div class="prog" style="margin-top:6px;"><div class="prog-f d" id="wtd-bar" style="width:0%"></div></div>
+    </div>
+    <div class="metric" id="sc-cogs-card">
+      <div class="m-lbl">COGS est.</div>
+      <div class="m-val" id="sc-cogs">—%</div>
+      <div class="m-sub">target ≤30%</div>
+    </div>
+  </div>
+
+  <div class="sl">Business reality — Jan to Apr 2026 (Square)</div>
+  <div class="card" style="margin-bottom:1.1rem;">
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px;">
+      <div>
+        <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:5px;">4-month gross trend</div>
+        <div style="font-size:9.5px;color:var(--ink-mid);line-height:1.8;">
+          Jan <strong>$12,778</strong> → Feb <strong>$11,377</strong> (-11%) → Mar <strong>$13,531</strong> (+19%) → Apr <strong>$9,473</strong> (-30%).<br>
+          Baseline is unstable. Treat <strong>$10.5k/wk gross</strong> as minimum survival floor while you build toward <strong>$8,914 structural target</strong> with repeatable margin.
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:5px;">Top revenue drivers (Jan-Apr)</div>
+        <div style="font-size:9.5px;color:var(--ink-mid);line-height:1.8;">
+          1) Erik's Addiction <strong>$7,486</strong><br>
+          2) Egg + Avocado Toast <strong>$6,394</strong><br>
+          3) Açaí Bowl <strong>$3,178</strong><br>
+          4) Wild Salmon Toast <strong>$2,801</strong><br>
+          5) Latte <strong>$2,783</strong>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border-radius:5px;padding:9px 11px;margin-top:10px;font-size:9.5px;color:var(--ink-mid);line-height:1.8;">
+      <strong style="color:var(--ink);">Weekly decision rules:</strong> If WTD pace projects below $10.5k, do not add complexity. Push bundle scripts, protect top 5 item availability, and tighten portions same day. If COGS is above 30% for 2 straight weeks, freeze new tests and run only margin repairs.
+    </div>
+  </div>
+  <div id="weekly-risk" style="margin-bottom:1.1rem;"></div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">Log today — required</div>
+      <div class="card" id="log-card">
+        <div class="ig" style="margin-bottom:4px;">
+          <div class="ig-lbl">Rev $</div>
+          <input type="number" id="l-rev" placeholder="0" style="width:90px;font-size:13px;padding:6px 9px;">
+          <div class="ig-lbl" style="min-width:50px;">Orders</div>
+          <input type="number" id="l-orders" placeholder="0" style="width:65px;">
+          <button class="btn" onclick="logDay()" style="background:var(--ink);padding:6px 14px;">Log</button>
+        </div>
+        <div class="ig" style="margin-bottom:2px;">
+          <div class="ig-lbl">Date</div>
+          <input type="text" id="l-date" style="width:105px;" placeholder="auto-fills today">
+          <div class="ig-lbl" style="min-width:60px;">Top item</div>
+          <input type="text" id="l-topitem" placeholder="Erik's Addiction" style="flex:1;min-width:90px;">
+        </div>
+        <div class="ig" style="margin-bottom:2px;">
+          <div class="ig-lbl">SMS captures</div>
+          <input type="number" id="l-contacts" placeholder="0" style="width:65px;">
+          <span style="font-size:9px;color:var(--ink-light);margin-left:4px;">new numbers collected today</span>
+        </div>
+        <div style="font-size:8.5px;color:var(--ink-light);margin-top:5px;margin-bottom:6px;font-style:italic;">If you don't log, you don't know if the business works.</div>
+        <div id="log-hist"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sl">This week's checklist</div>
+      <div class="card" id="week-checks-today"></div>
+    </div>
+  </div>
+
+  <!-- Hidden Sunday slot inputs (still functional, driven from the block above) -->
+  <div style="display:none;">
+    <select id="sun-status" onchange="saveSunday()">
+      <option value="none">— not set —</option>
+      <option value="confirmed">Confirmed ✓</option>
+      <option value="outreach">Outreach sent</option>
+      <option value="open">Open · needs booking</option>
+    </select>
+    <input type="text" id="sun-dj" placeholder="@handle" oninput="saveSunday()">
+  </div>
+
+  <div class="sl" style="margin-top:1.25rem;">If you have downtime right now</div>
+  <div class="card" style="background:var(--surface);border-color:var(--border);">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;">
+      <div style="padding:10px 14px;border-right:1px solid var(--border);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">5–10 min</div>
+        <div style="font-size:10px;color:var(--ink);line-height:1.9;">Log revenue<br>Check pace</div>
+      </div>
+      <div style="padding:10px 14px;border-right:1px solid var(--border);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">10–20 min</div>
+        <div style="font-size:10px;color:var(--ink);line-height:1.9;">Text 1 DJ<br>Touch 1 anchor node</div>
+      </div>
+      <div style="padding:10px 14px;border-right:1px solid var(--border);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">20–30 min</div>
+        <div style="font-size:10px;color:var(--ink);line-height:1.9;">Walk inventory<br>Think through COGS</div>
+      </div>
+      <div style="padding:10px 14px;">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">All done</div>
+        <div style="font-size:10px;color:var(--ink-mid);line-height:1.9;font-style:italic;">Stop.<br>Let the room work.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COGS CHECK ═══ -->
+<div class="page" id="page-cogs">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">COGS Check</div>
+      <div class="ph-sub">Weekly · 15 minutes · Every Monday · Non-negotiable</div>
+    </div>
+  </div>
+
+  <div class="alert al-c">
+    <strong>Current COGS: ~57%.</strong> Target is ≤30%. This is the single biggest margin lever. Fix pricing, portioning, and supplier costs before chasing more traffic. Every Monday, calculate this. If it's above 30%, find and fix the source that week before anything else.
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">COGS calculator</div>
+      <div class="card">
+        <div class="ig">
+          <div class="ig-lbl">Coffee cost</div>
+          <input type="number" id="cg-coffee" placeholder="0" style="width:90px;" oninput="calcCOGS()">
+          <span style="font-size:9.5px;color:var(--ink-light);">this week ($)</span>
+        </div>
+        <div class="ig">
+          <div class="ig-lbl">Food cost</div>
+          <input type="number" id="cg-food" placeholder="0" style="width:90px;" oninput="calcCOGS()">
+          <span style="font-size:9.5px;color:var(--ink-light);">this week ($)</span>
+        </div>
+        <div class="ig">
+          <div class="ig-lbl">Milk / dairy</div>
+          <input type="number" id="cg-milk" placeholder="0" style="width:90px;" oninput="calcCOGS()">
+          <span style="font-size:9.5px;color:var(--ink-light);">this week ($)</span>
+        </div>
+        <div class="ig">
+          <div class="ig-lbl">Other</div>
+          <input type="number" id="cg-other" placeholder="0" style="width:90px;" oninput="calcCOGS()">
+        </div>
+        <div class="ig">
+          <div class="ig-lbl">Total revenue</div>
+          <input type="number" id="cg-rev" placeholder="0" style="width:90px;" oninput="calcCOGS()">
+        </div>
+        <div id="cogs-result" style="margin-top:8px;padding:10px 12px;background:var(--surface);border-radius:5px;font-size:11px;color:var(--ink-mid);">Enter your costs and revenue above</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+          <div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Coffee yield mini-calculator (Perl'a)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;">
+            <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+              <div class="ig-lbl">Bag cost ($)</div>
+              <input type="number" id="cy-bag-cost" value="68" style="width:100%;" oninput="calcCoffeeYield()">
+            </div>
+            <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+              <div class="ig-lbl">Bag weight (lb)</div>
+              <input type="number" id="cy-bag-lb" value="5" style="width:100%;" oninput="calcCoffeeYield()">
+            </div>
+            <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+              <div class="ig-lbl">Espresso dose (g)</div>
+              <input type="number" id="cy-dose-g" value="18" style="width:100%;" oninput="calcCoffeeYield()">
+            </div>
+            <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+              <div class="ig-lbl">Cold brew oz/gal</div>
+              <input type="number" id="cy-cb-oz-gal" value="4.5" style="width:100%;" oninput="calcCoffeeYield()">
+            </div>
+            <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+              <div class="ig-lbl">Cup size (oz)</div>
+              <input type="number" id="cy-cup-oz" value="16" style="width:100%;" oninput="calcCoffeeYield()">
+            </div>
+          </div>
+          <div id="coffee-yield-out" style="margin-top:7px;background:var(--surface);border-radius:5px;padding:8px 10px;font-size:10px;color:var(--ink-mid);">Edit inputs to see landed bean cost per shot and per cold brew cup.</div>
+        </div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Goal breakdown</div>
+      <div class="card">
+        <div class="cogs-bar-wrap">
+          <div class="cogs-row">
+            <span class="cogs-lbl">COGS</span>
+            <div class="cogs-track"><div class="cogs-fill" style="width:57%;background:var(--red);"></div></div>
+            <span class="cogs-pct" style="color:var(--red);">57%</span>
+          </div>
+          <div class="cogs-row">
+            <span class="cogs-lbl">Target</span>
+            <div class="cogs-track"><div class="cogs-fill" style="width:30%;background:var(--green);"></div></div>
+            <span class="cogs-pct" style="color:var(--green);">≤30%</span>
+          </div>
+          <div class="cogs-row">
+            <span class="cogs-lbl">Staffing</span>
+            <div class="cogs-track"><div class="cogs-fill" style="width:12%;background:var(--green);"></div></div>
+            <span class="cogs-pct" style="color:var(--green);">12%</span>
+          </div>
+          <div class="cogs-row">
+            <span class="cogs-lbl">Marketing</span>
+            <div class="cogs-track"><div class="cogs-fill" style="width:8%;background:var(--green);"></div></div>
+            <span class="cogs-pct" style="color:var(--green);">8%</span>
+          </div>
+        </div>
+        <div class="alert al-n" style="margin-top:10px;margin-bottom:0;">COGS is high because revenue is still low — costs are fixed while revenue varies. As traffic grows, COGS % compresses automatically. The immediate fix is also in the numerator: milk waste, over-portioning, supplier pricing.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sl">Reduction actions</div>
+      <div class="card" id="cogs-checks"></div>
+
+      <div class="sl" style="margin-top:0.9rem;">Pricing floor check</div>
+      <div class="card">
+        <div style="font-size:10px;color:var(--ink-mid);margin-bottom:10px;">The environment earns a premium. You are underpricing. These are specific, non-negotiable increases:</div>
+        <div class="pr"><span class="pk">Erik's Addiction</span><span class="pv">$14 → <strong>$15</strong></span></div>
+        <div class="pr"><span class="pk">Açai Bowl</span><span class="pv">$16 → <strong>$17</strong></span></div>
+        <div class="pr"><span class="pk">Brice's PB Bowl</span><span class="pv">$15 → <strong>$16</strong></span></div>
+        <div class="pr"><span class="pk">Salmon Toast</span><span class="pv">$14 → <strong>$15</strong></span></div>
+        <div class="pr"><span class="pk">Latte / Cappuccino</span><span class="pv">$6 → <strong>$7</strong></span></div>
+        <div class="pr"><span class="pk">Cold Brew</span><span class="pv">$5 → <strong>$6</strong></span></div>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:8px;font-style:italic;">+$1 across top 5 items × 60 orders/day = +$60/day, +$300/wk, +$1,200/mo. Do this once, cleanly. No announcement needed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ THIS WEEK ═══ -->
+<div class="page" id="page-week">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">This Week</div>
+      <div class="ph-sub">Fixed rhythm · Sunday slot · Weekly answer: why should someone come this week?</div>
+    </div>
+    <button class="btn btn-sm btn-o" onclick="resetWeekChecks()">Reset</button>
+  </div>
+
+  <div class="alert al-g">
+    <strong>The weekly rule:</strong> Every week must have a clear answer to "why should someone come this week?" Right now the answer can only be the Sunday slot. That's the anchor. Everything else supports it.
+  </div>
+
+  <div class="sl">May 2026</div>
+  <div class="ch" id="cal-headers"></div>
+  <div class="cg" id="cal-grid"></div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">Weekly fixed rhythm</div>
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="row-name">Monday — COGS check</div>
+            <div class="row-meta">15 min. Pull Square data. Calculate COGS %. If > 30%, identify source and fix that week.</div>
+          </div>
+          <span class="badge bn">Fixed</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Tuesday — Inventory audit</div>
+            <div class="row-meta">Walk every location. Fill HAVE column. Place Costco/Amazon orders. Never run out of frozen coconut or avocado.</div>
+          </div>
+          <span class="badge bn">Fixed</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Wednesday/Thursday — Quiet Mornings</div>
+            <div class="row-meta">Target: remote workers, builders, focused people. No marketing needed. Just consistency + presence.</div>
+          </div>
+          <span class="badge ba">Build</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Friday — Confirm Sunday DJ + post IG story</div>
+            <div class="row-meta">Text or confirm DJ. Post one story: patio or food, tag DJ, time. Nothing else required.</div>
+          </div>
+          <span class="badge bn">Fixed</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Saturday — SMS to list</div>
+            <div class="row-meta">"Sunday 10–3. Music + patio. Same as always." Send once. No emojis, no hype. Activates existing customers — highest ROI action in the week.</div>
+          </div>
+          <span class="badge bn">Fixed</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Sunday — DJ slot (10am–3pm)</div>
+            <div class="row-meta">Same time. Every week. No exceptions. The slot is the product, not the DJ. DJ rotates. Slot doesn't.</div>
+          </div>
+          <span class="badge bg">Core anchor</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Sunday — Weekly review (10 min)</div>
+            <div class="row-meta">Log week total. Note what worked, what didn't. Confirm next Sunday DJ. Done.</div>
+          </div>
+          <span class="badge bn">Fixed</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sl">This week's progress</div>
+      <div class="card" id="week-checks-main"></div>
+
+      <div class="sl" style="margin-top:0.9rem;">What NOT to do</div>
+      <div class="card">
+        <div class="row"><div><div class="row-name">No new DJ nights</div><div class="row-meta">Sunday only. More nights = more coordination = less consistency.</div></div><span class="badge br">Never</span></div>
+        <div class="row"><div><div class="row-name">No Instagram ads</div><div class="row-meta">Low ROI for local discovery. One honest IG story/week is enough.</div></div><span class="badge br">Never</span></div>
+        <div class="row"><div><div class="row-name">No new menu items</div><div class="row-meta">Menu is solved. Adding items reintroduces complexity and kills margins.</div></div><span class="badge br">Never</span></div>
+        <div class="row"><div><div class="row-name">No discounting</div><div class="row-meta">The environment earns full price. Discounting trains customers to wait for deals.</div></div><span class="badge br">Never</span></div>
+        <div class="row"><div><div class="row-name">No one-off events</div><div class="row-meta">High coordination, unpredictable revenue, no repeatability.</div></div><span class="badge br">Never</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DJ ROSTER ═══ -->
+<div class="page" id="page-djs">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">DJ Roster</div>
+      <div class="ph-sub">Sunday 10am–3pm · Fixed slot · 6–8 rotating acts</div>
+    </div>
+  </div>
+
+  <div class="alert al-n">
+    The DJ is infrastructure, not a feature. You're not selling "come see this DJ." You're selling "Sunday mornings here sound like this." Build a roster of 6–8 acts who fit the vibe — Amapiano, Afro house, deep house, ambient — and rotate. No promotion required from them. The slot is the product.
+  </div>
+
+  <div class="sl">Roster</div>
+  <div class="card" style="padding:0.75rem 0;">
+    <div class="inv-wrap">
+      <table class="dj">
+        <thead><tr><th>Name / Handle</th><th>Genre</th><th>Contact</th><th>Status</th><th>Last played</th><th></th></tr></thead>
+        <tbody id="dj-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:0.9rem;">Add DJ</div>
+  <div class="card">
+    <div class="ig">
+      <div class="ig-lbl">Name</div>
+      <input type="text" id="dj-name" placeholder="@djname or full name" style="flex:1;min-width:130px;">
+      <div class="ig-lbl" style="min-width:45px;">Genre</div>
+      <input type="text" id="dj-genre" placeholder="Amapiano" style="width:110px;">
+    </div>
+    <div class="ig">
+      <div class="ig-lbl">Contact</div>
+      <input type="text" id="dj-contact" placeholder="IG, phone, email" style="flex:1;min-width:130px;">
+      <div class="ig-lbl" style="min-width:45px;">Status</div>
+      <select id="dj-status" style="width:110px;">
+        <option>Prospect</option>
+        <option>Contacted</option>
+        <option>Confirmed</option>
+        <option>Done</option>
+      </select>
+    </div>
+    <div class="ig">
+      <div class="ig-lbl">Last played</div>
+      <input type="text" id="dj-lastplayed" placeholder="—" style="width:110px;">
+    </div>
+    <button class="btn btn-sm" onclick="addDJ()">Add to roster</button>
+  </div>
+
+  <div class="sl" style="margin-top:0.9rem;">Booking rule</div>
+  <div class="card">
+    <div class="row"><div><div class="row-name">Book 2+ weeks out</div><div class="row-meta">Rotate 1 text per slot. No DJ fee needed — exposure is the offer. They bring their circle.</div></div></div>
+    <div class="row"><div><div class="row-name">No promotional DJs</div><div class="row-meta">Avoid DJs who ask "how many people should I bring?" You want DJs who fit the brand, not ones who sell tables.</div></div></div>
+    <div class="row"><div><div class="row-name">Post one IG story 2 days out</div><div class="row-meta">DJ tag + time + patio visual. Have them repost. That's the entirety of the marketing spend.</div></div></div>
+    <div class="row"><div><div class="row-name">Tell every first-time visitor</div><div class="row-meta">"We do live music every Sunday starting at 10, it's a completely different vibe." One sentence. Every time.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ ANCHOR NETWORK ═══ -->
+<div class="page" id="page-anchors">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Anchor Network</div>
+      <div class="ph-sub">6–8 local nodes · Monthly touchpoint · Structural referrals</div>
+    </div>
+  </div>
+
+  <div class="alert al-n">
+    Replace passive discovery with a small, maintained set of referral relationships. Each node within a 10-minute walk. Target: 3–5 incremental visits/week per node. Six nodes = 18–30 structural weekly visits added to the floor, no ads required. Maintain each with one touchpoint per month — a visit, a text, a mention. That's it.
+  </div>
+
+  <div class="sl">Network nodes</div>
+  <div class="card" style="padding:0.75rem 0;">
+    <div class="inv-wrap">
+      <table class="dj">
+        <thead><tr><th>Business</th><th>Type</th><th>Contact</th><th>Arrangement</th><th>Last contact</th><th></th></tr></thead>
+        <tbody id="anchor-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:0.9rem;">Add node</div>
+  <div class="card">
+    <div class="ig">
+      <div class="ig-lbl">Business</div>
+      <input type="text" id="an-biz" placeholder="Yoga studio, barber, co-work..." style="flex:1;min-width:130px;">
+      <div class="ig-lbl" style="min-width:40px;">Type</div>
+      <input type="text" id="an-type" placeholder="Fitness" style="width:100px;">
+    </div>
+    <div class="ig">
+      <div class="ig-lbl">Contact</div>
+      <input type="text" id="an-contact" placeholder="Name, IG, phone" style="flex:1;min-width:130px;">
+      <div class="ig-lbl" style="min-width:70px;">Last contact</div>
+      <input type="text" id="an-last" placeholder="May 3" style="width:90px;">
+    </div>
+    <div class="ig">
+      <div class="ig-lbl">Arrangement</div>
+      <input type="text" id="an-deal" placeholder="Verbal mention to members, card at desk..." style="flex:1;min-width:200px;">
+    </div>
+    <button class="btn btn-sm" onclick="addAnchor()">Add node</button>
+  </div>
+
+  <div class="sl" style="margin-top:0.9rem;">How it works</div>
+  <div class="card">
+    <div class="row"><div><div class="row-name">Target businesses within 10-min walk</div><div class="row-meta">Yoga studios, fitness boutiques, co-working spaces, barber shops, salons, residential towers.</div></div></div>
+    <div class="row"><div><div class="row-name">Simple arrangement, no tracking</div><div class="row-meta">A verbal mention to their clients, a card at reception, a recommendation. No apps, no coupons, no complexity.</div></div></div>
+    <div class="row"><div><div class="row-name">One touchpoint per month</div><div class="row-meta">A visit, a text, a dropped-off card refill. That's it. 8 nodes × 15 min = 2hrs/mo total.</div></div></div>
+    <div class="row"><div><div class="row-name">Maximum 8 nodes</div><div class="row-meta">More than 8 becomes overhead. Six strong nodes you actually maintain outperform twenty that go cold.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ P&L ═══ -->
+<div class="page" id="page-pnl">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">P&L</div>
+      <div class="ph-sub">Weekly model · Goal state vs current · Break-even</div>
+    </div>
+  </div>
+
+  <div class="alert al-c">
+    <strong>The real gross target is $8,914/week to NET $4,000/week.</strong> Math: ($4,000 net + $992 fixed) ÷ 56% contribution margin = $8,914 gross. At $24 avg ticket (bundle target) that's 60 orders/day. At $16 avg ticket it's 90 orders/day. Log sales daily — that data makes every other decision real.
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">Goal state — $8,914 gross → $4k net</div>
+      <div class="card">
+        <div class="pr"><span class="pk">Gross Revenue</span><span class="pv pp">$8,914</span></div>
+        <div class="pr"><span class="pk">COGS (30%)</span><span class="pv pn">−$2,674</span></div>
+        <div class="pr"><span class="pk">Staffing (14%)</span><span class="pv pn">−$1,248</span></div>
+        <div class="pr"><span class="pk">Fixed costs</span><span class="pv pn">−$992</span></div>
+        <div class="ptot"><span>Net</span><span class="pp">+$4,000/wk · +$16,000/mo</span></div>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:5px;">
+          56% contribution margin · 44.8% net margin<br>
+          Path A: 90 orders/day @ $16 avg ticket<br>
+          Path B: 72 orders/day @ $20 avg ticket<br>
+          Path C: 60 orders/day @ $24 avg ticket ← bundle target
+        </div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Current reality</div>
+      <div class="card">
+        <div class="pr"><span class="pk">Revenue logged</span><span class="pv">$0</span></div>
+        <div class="pr"><span class="pk">Loyalty + marketing</span><span class="pv pn">−$274</span></div>
+        <div class="pr"><span class="pk">Fixed base costs</span><span class="pv pn">−$718</span></div>
+        <div class="ptot"><span>Net income</span><span class="pn">−$992</span></div>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:5px;">From your sheet · wk May 7–11</div>
+      </div>
+    </div>
+
+    <div>
+  <div class="sl">Weekly target math</div>
+  <div class="card">
+    <div class="ig">
+      <div class="ig-lbl">Weekly rev</div>
+      <input type="number" id="be-rev" placeholder="5000" oninput="calcBE()" style="width:100px;">
+    </div>
+    <div id="be-out" style="font-size:10px;color:var(--ink-mid);line-height:2;margin-top:2px;">Enter weekly gross revenue</div>
+    <div class="prog" style="margin-top:8px;"><div class="prog-f d" id="be-bar" style="width:0%"></div></div>
+  </div>
+
+      <div class="sl" style="margin-top:0.9rem;">What +$1 on top 5 items does</div>
+      <div class="card">
+        <div style="font-size:10px;color:var(--ink-mid);line-height:2;">
+          <div>60 orders/day × $1 avg increase</div>
+          <div><strong style="color:var(--ink);">+$60/day</strong></div>
+          <div><strong style="color:var(--ink);">+$300/week</strong></div>
+          <div><strong style="color:var(--ink);">+$1,200/month</strong></div>
+          <div><strong style="color:var(--green);">+$14,400/year</strong></div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:6px;font-style:italic;">This is a pricing change, not a traffic change. Do it once. No announcement. Customers who choose this environment are not primarily price-sensitive.</div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Revenue log history</div>
+      <div class="card" id="pnl-log-hist"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ INVENTORY ═══ -->
+<div class="page" id="page-inventory">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Inventory</div>
+      <div class="ph-sub">Tuesday audit · Real costs · PAR levels · Weekly spend tracker</div>
+    </div>
+  </div>
+
+  <div class="alert al-a">
+    <strong>Every Tuesday:</strong> Walk each location. Fill the HAVE column. Items below PAR flag red — order that day, not tomorrow. Hover any item to see cost notes. ★ = menu killer if out.
+  </div>
+
+  <!-- Summary panel — auto-calculates from quantities -->
+  <div id="inv-summary" style="margin-bottom:1.1rem;"></div>
+
+  <!-- Weekly spend tracker — feeds COGS Monday -->
+  <div class="sl">Weekly ingredient spend — fill this Monday for COGS check</div>
+  <div class="card" style="margin-bottom:1.1rem;">
+    <div style="font-size:9.5px;color:var(--ink-mid);margin-bottom:10px;">What did you spend on ingredients this week? Pull your receipts and Square reports. This feeds directly into your COGS %.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+        <div class="ig-lbl">Costco run $</div>
+        <input type="number" id="spend-costco" placeholder="0" style="width:100%;" oninput="calcWeeklySpend()">
+      </div>
+      <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+        <div class="ig-lbl">Restaurant Depot $</div>
+        <input type="number" id="spend-depot" placeholder="0" style="width:100%;" oninput="calcWeeklySpend()">
+      </div>
+      <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+        <div class="ig-lbl">Sprouts / bakery / other $</div>
+        <input type="number" id="spend-other" placeholder="0" style="width:100%;" oninput="calcWeeklySpend()">
+      </div>
+      <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+        <div class="ig-lbl">Amazon / supplies $</div>
+        <input type="number" id="spend-amazon" placeholder="0" style="width:100%;" oninput="calcWeeklySpend()">
+      </div>
+      <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+        <div class="ig-lbl">Perl'a coffee $</div>
+        <input type="number" id="spend-perla" placeholder="0" style="width:100%;" oninput="calcWeeklySpend()">
+      </div>
+      <div class="ig" style="flex-direction:column;align-items:flex-start;gap:3px;">
+        <div class="ig-lbl">This week's gross rev $</div>
+        <input type="number" id="spend-rev" placeholder="0" style="width:100%;" oninput="calcWeeklySpend()">
+      </div>
+    </div>
+    <div id="spend-result" style="background:var(--surface);border-radius:5px;padding:10px 12px;font-size:10px;color:var(--ink-mid);">Fill in your spend above to calculate COGS %</div>
+    <div style="font-size:9px;color:var(--ink-light);margin-top:6px;">This gives you your real COGS % for the week. Copy the number into the COGS Check tab on Monday.</div>
+  </div>
+
+  <!-- Main inventory table -->
+  <div class="card" style="padding:0.75rem 0;">
+    <div class="inv-wrap">
+      <table class="inv">
+        <thead>
+          <tr>
+            <th style="min-width:160px;">Item</th>
+            <th>Source</th>
+            <th>Unit</th>
+            <th>Cost/unit</th>
+            <th>Have</th>
+            <th>PAR / value</th>
+            <th>Stock $</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="inv-tbody"></tbody>
+      </table>
+    </div>
+    <div style="font-size:8.5px;color:var(--ink-light);padding:8px 12px 0;">Hover any row to see cost notes · ★ = critical · ⚠ = cost not yet confirmed</div>
+  </div>
+
+  <!-- Never run out -->
+  <div class="sl" style="margin-top:1.1rem;">Never run out of these — menu killers</div>
+  <div class="three-col">
+    <div class="card" style="border-left:3px solid var(--accent);">
+      <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">Frozen coconut base</div>
+      <div style="font-size:9px;color:var(--ink-mid);line-height:1.6;">In Erik's Addiction, Breechay's Special, Brice's PB Bowl. Running out kills 3 top items at once. Make a fresh batch every 2 days. Cost: ~$0.99/batch if making your own.</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent);">
+      <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">Avocado + sourdough</div>
+      <div style="font-size:9px;color:var(--ink-mid);line-height:1.6;">4 of 6 food items use avocado. Out of avocado = half the food menu gone. Out of sourdough = all toasts dead. Check every morning. Reorder threshold: below 10 avocados.</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent);">
+      <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">Açaí base + oat milk</div>
+      <div style="font-size:9px;color:var(--ink-mid);line-height:1.6;">Açaí Bowl is your highest-ticket item at $16. Oat milk is in every smoothie and most coffees. These are your two highest-volume ingredients by usage. Never below PAR on either.</div>
+    </div>
+  </div>
+
+  <!-- Cost intelligence panel -->
+  <div class="sl" style="margin-top:1.1rem;">What your ingredients actually cost per serving</div>
+  <div class="card">
+    <div style="font-size:9.5px;color:var(--ink-light);margin-bottom:10px;">Reference when making portioning decisions. These are your per-serving food costs from real receipts.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);padding:6px 0 4px;border-bottom:1px solid var(--border);margin-bottom:4px;">Ingredient · cost per serving used</div>
+        <div style="font-size:9.5px;color:var(--ink-mid);line-height:2.2;">
+          Avocado (1 whole) ············ <strong>$0.86</strong><br>
+          Avocado (½) ················· <strong>$0.43</strong><br>
+          Smoked salmon (2oz) ········· <strong style="color:var(--accent);">$3.30</strong> ← watch this<br>
+          Smoked salmon (1.5oz) ······· <strong>$2.47</strong><br>
+          Hard-boiled eggs (x2) ······· <strong>$0.96</strong><br>
+          Banana (x1) ················· <strong>$0.24</strong><br>
+          Almond butter (1oz) ········· <strong>$0.35</strong><br>
+          Peanut butter (1oz) ·········  <strong>$0.20</strong><br>
+        </div>
+      </div>
+      <div style="padding-left:16px;border-left:1px solid var(--border);">
+        <div style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);padding:6px 0 4px;border-bottom:1px solid var(--border);margin-bottom:4px;">Ingredient · cost per serving used</div>
+        <div style="font-size:9.5px;color:var(--ink-mid);line-height:2.2;">
+          Oat milk (8oz) ··············· <strong>$0.48</strong><br>
+          Coconut milk (7oz) ··········· <strong>$0.44</strong><br>
+          Matcha ceremonial (2g) ······· <strong style="color:var(--green);">$0.34</strong> ← great<br>
+          Frozen coconut base (4oz) ···· <strong style="color:var(--green);">$0.08</strong> if homemade<br>
+          Arugula (1oz) ················ <strong>$0.55</strong><br>
+          Strawberries (2oz) ··········· <strong>$0.24</strong><br>
+          Watermelon juice (1 serving) · <strong>$1.10</strong><br>
+          Healer shot (all ingredients) · <strong>$1.27</strong><br>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--amber-light);border-radius:5px;padding:8px 12px;margin-top:10px;font-size:9.5px;color:#6a4b08;">
+      <strong>Portioning rule:</strong> Every 0.5oz extra of smoked salmon costs $0.82. Every extra avocado half costs $0.43. These two ingredients are where over-portioning hurts most. Use a scale for salmon. Halve avocados consistently.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ROADMAP ═══ -->
+<div class="page" id="page-roadmap">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Roadmap</div>
+      <div class="ph-sub">Phase 1 → Phase 2 → Phase 3 · Structure → Repeat → Compound</div>
+    </div>
+  </div>
+
+  <div class="alert al-g">
+    <strong>Core strategy:</strong> Convert the space from a café that occasionally has music into a neighborhood place that reliably sounds a certain way on Sundays. Habit installation, not acquisition. Structure → Repeat → Let it compound.
+  </div>
+
+  <div class="three-col">
+    <div class="card">
+      <div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Phase 1 · Now–30 days</div>
+      <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:8px;">Stabilize + Capture</div>
+      <div style="font-size:9.5px;color:var(--ink-mid);line-height:1.8;">
+        ✓ Menu locked<br>
+        → Fix pricing (+$1 on top items, remove $ signs, add anchor item)<br>
+        → Build 2–3 named bundles (no new products)<br>
+        → Calculate COGS weekly · target ≤35%<br>
+        → Lock Sunday slot every week<br>
+        → Ask every customer for SMS at POS<br>
+        → Say "same time next Sunday" to every departing Sunday guest<br>
+        → Test Saturday 9am open for 4 weeks<br>
+        → Identify first 3 anchor nodes<br>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-style:italic;color:var(--ink-light);">Goal: SMS list growing 15–20/week · COGS moving toward 35% · Saturday 9am data</div>
+    </div>
+    <div class="card">
+      <div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Phase 2 · 30–90 days</div>
+      <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:8px;">Build the Regular Base</div>
+      <div style="font-size:9.5px;color:var(--ink-mid);line-height:1.8;">
+        → Sunday slot running every week without friction<br>
+        → SMS list at 150+ contacts · weekly send established<br>
+        → Anchor network at 6 nodes<br>
+        → Saturday 9am decision made from data<br>
+        → COGS at or below 35%<br>
+        → Bundle adoption tracked<br>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-style:italic;color:var(--ink-light);">Goal: $4,500–$5,500 gross/wk · 80–100 weekly regulars identified</div>
+    </div>
+    <div class="card">
+      <div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Phase 3 · 90+ days</div>
+      <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:8px;">Compound What Works</div>
+      <div style="font-size:9.5px;color:var(--ink-mid);line-height:1.8;">
+        → Only expand what repeats easily<br>
+        → SMS list 300+ · 2 sends/week AM + SUN segments<br>
+        → COGS target ≤30%<br>
+        → Avg ticket toward $20–24<br>
+        → Events (F1, MMW) are upside, not baseline<br>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-style:italic;color:var(--ink-light);">Goal: $8,914 gross/wk structural → $4,000 net/wk · boring money</div>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:0.9rem;">The three non-negotiables</div>
+  <div class="card">
+    <div class="row">
+      <div>
+        <div class="row-name">1. Sunday slot — fixed, every week, no exceptions</div>
+        <div class="row-meta">This is the only mechanism that compounds. Each week it runs, it reinforces habit in existing customers and creates word-of-mouth without requiring you to say anything new. Missing one week breaks the pattern.</div>
+      </div>
+      <span class="badge bg">Core</span>
+    </div>
+    <div class="row">
+      <div>
+        <div class="row-name">2. COGS check — every Monday, 15 minutes</div>
+        <div class="row-meta">57% → 30% is the difference between surviving and compounding. This doesn't fix itself. Someone has to look at it every week and make a call.</div>
+      </div>
+      <span class="badge bg">Core</span>
+    </div>
+    <div class="row">
+      <div>
+        <div class="row-name">3. Pricing integrity — never discount, never apologize</div>
+        <div class="row-meta">The space earns a premium. Every time you resist discounting, you protect the margin structure that makes everything else sustainable. The environment is real value. Charge for it.</div>
+      </div>
+      <span class="badge bg">Core</span>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:0.9rem;">What the system maintenance looks like</div>
+  <div class="card">
+    <div class="row"><div><div class="row-name">Daily — 5 min</div><div class="row-meta">Log revenue, orders, avg ticket, top item. Done.</div></div></div>
+    <div class="row"><div><div class="row-name">Weekly — 30 min total</div><div class="row-meta">COGS check (Mon 15min) + Inventory (Tue 10min) + Sunday confirm (Fri 5min)</div></div></div>
+    <div class="row"><div><div class="row-name">Monthly — 2.5 hrs total</div><div class="row-meta">Anchor network touchpoints (1hr) + COGS/pricing review (45min) + DJ schedule next month (30min) + Weekly review (15min)</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ MENU ═══ -->
+<div class="page" id="page-menu">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Menu</div>
+      <div class="ph-sub">January 2026 · Best sellers · Locked. Do not expand.</div>
+    </div>
+  </div>
+
+  <div class="alert al-g">Simplified to best sellers. Every item performs. Menu is solved. The rule: if one goes out, something can come in. Otherwise, nothing changes.</div>
+
+  <div class="two-col">
+    <div>
+      <div class="mc">Signature Fuel</div>
+      <div class="card">
+        <div class="mr"><div><div class="mn">Erik's Addiction</div><div class="md">Almond butter, banana, cacao nibs, frozen coconut, oat milk · +espresso $2 · +protein $2</div></div><div class="mp">$14</div></div>
+        <div class="mr"><div><div class="mn">Açai Bowl</div><div class="md">Açai blend, chia seeds, PB, banana, GF granola, cacao nibs, coconut, strawberries</div></div><div class="mp">$16</div></div>
+        <div class="mr"><div><div class="mn">Brice's PB Bowl</div><div class="md">Banana, frozen coconut, peanut butter, oat milk · topped banana + GF granola</div></div><div class="mp">$15</div></div>
+        <div class="mr"><div><div class="mn">Wild Caught Salmon Toast</div><div class="md">Smoked salmon, arugula, avocado mash, teriyaki glaze on sourdough</div></div><div class="mp">$14</div></div>
+        <div class="mr"><div><div class="mn">Roasted Chicken Toast</div><div class="md">Seasoned chicken breast, spinach, avocado mash, balsamic drizzle on sourdough</div></div><div class="mp">$12</div></div>
+        <div class="mr"><div><div class="mn">Egg + Avocado Toast</div><div class="md">Mashed avocado, hard-boiled eggs, olive oil, cayenne on toasted sourdough</div></div><div class="mp">$9</div></div>
+      </div>
+      <div class="mc">Sides & Smalls</div>
+      <div class="card">
+        <div class="mr"><div><div class="mn">Vegan Banana Bread</div></div><div class="mp">$5</div></div>
+        <div class="mr"><div><div class="mn">Healer Shot</div><div class="md">Ginger, turmeric, black pepper, cayenne, honey & lemon</div></div><div class="mp">$5</div></div>
+        <div class="mr"><div><div class="mn">Watermelon Juice</div><div class="md">Fresh pressed. Clean and hydrating.</div></div><div class="mp">$6</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="mc">Coffee</div>
+      <div class="card">
+        <div class="mr"><div><div class="mn">Shroom Coffee</div><div class="md">Functional mushroom blend, double shot espresso, coconut oil, oat milk</div></div><div class="mp">$11</div></div>
+        <div class="mr"><div><div class="mn">Iced Breechay's Special</div><div class="md">Espresso or matcha over frozen coconut, coconut milk, maple syrup</div></div><div class="mp">$7/$9</div></div>
+        <div class="mr"><div><div class="mn">Matcha Latte</div><div class="md">Ceremonial grade. Smooth and balanced.</div></div><div class="mp">$7</div></div>
+        <div class="mr"><div><div class="mn">Cold Brew</div><div class="md">Slow-steeped. Naturally smooth.</div></div><div class="mp">$5</div></div>
+      </div>
+      <div class="mc">Classics</div>
+      <div class="card">
+        <div class="mr"><div><div class="mn">Espresso</div></div><div class="mp">$4</div></div>
+        <div class="mr"><div><div class="mn">Americano</div></div><div class="mp">$4</div></div>
+        <div class="mr"><div><div class="mn">Latte</div></div><div class="mp">$6</div></div>
+        <div class="mr"><div><div class="mn">Cappuccino</div></div><div class="mp">$6</div></div>
+      </div>
+      <div class="mc">Margin read</div>
+      <div class="card">
+        <div class="mr"><div class="mn">Açai Bowl — $16</div><span class="badge bg">Highest ticket</span></div>
+        <div class="mr"><div class="mn">Erik's Addiction — $14</div><span class="badge bg">Best seller</span></div>
+        <div class="mr"><div class="mn">Salmon Toast — $14</div><span class="badge bg">Premium food</span></div>
+        <div class="mr"><div class="mn">Shroom Coffee — $11</div><span class="badge ba">Watch COGS</span></div>
+        <div class="mr"><div class="mn">Egg Toast — $9</div><span class="badge bn">Entry</span></div>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:8px;font-style:italic;">Cost out each item individually. Mushroom blend + frozen coconut are your highest-variable COGS inputs.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OPEN/CLOSE ═══ -->
+<div class="page" id="page-ops">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Open / Close</div>
+      <div class="ph-sub">Daily checklist · Notes · Keep it boring</div>
+    </div>
+    <button class="btn btn-sm btn-o" onclick="resetOps()">Reset</button>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">Open</div>
+      <div class="card" id="open-wrap"></div>
+    </div>
+    <div>
+      <div class="sl">Close</div>
+      <div class="card" id="close-wrap"></div>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:0.5rem;">Notes</div>
+  <div class="card">
+    <textarea id="ops-notes" placeholder="Staffing notes, low stock, customer feedback, anything off today..."></textarea>
+    <button class="btn btn-sm" style="margin-top:7px;" onclick="saveNote()">Save</button>
+    <div id="ops-notes-saved" style="margin-top:9px;"></div>
+  </div>
+</div>
+
+<!-- ═══ WEEKLY REVIEW ═══ -->
+<div class="page" id="page-review">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Weekly Review</div>
+      <div class="ph-sub">Sunday · 10 minutes · same questions every week</div>
+    </div>
+    <button class="btn btn-sm btn-o" onclick="saveReview()">Save this week</button>
+  </div>
+
+  <div class="alert al-n">
+    Do this every Sunday after the slot ends. Same 6 questions. Never skip. This is how you know what's working — not by feeling, by writing it down weekly and comparing.
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">This week's numbers</div>
+      <div class="card">
+        <div class="ig"><div class="ig-lbl">Week of</div><input type="text" id="rv-week" placeholder="May 5–11" style="flex:1;"></div>
+        <div class="ig"><div class="ig-lbl">Gross rev</div><input type="number" id="rv-gross" placeholder="0" style="width:100px;"><span style="font-size:9px;color:var(--ink-light);margin-left:6px;">target $8,914</span></div>
+        <div class="ig"><div class="ig-lbl">Orders</div><input type="number" id="rv-orders" placeholder="0" style="width:100px;"><span style="font-size:9px;color:var(--ink-light);margin-left:6px;">target 72–90/day</span></div>
+        <div class="ig"><div class="ig-lbl">Avg ticket</div><input type="number" id="rv-ticket" placeholder="0.00" style="width:100px;"><span style="font-size:9px;color:var(--ink-light);margin-left:6px;">target $20–24</span></div>
+        <div class="ig"><div class="ig-lbl">COGS %</div><input type="number" id="rv-cogs" placeholder="0" style="width:100px;"><span style="font-size:9px;color:var(--ink-light);margin-left:6px;">target ≤30%</span></div>
+        <div class="ig"><div class="ig-lbl">SMS list size</div><input type="number" id="rv-sms" placeholder="0" style="width:100px;"><span style="font-size:9px;color:var(--ink-light);margin-left:6px;">+15–20/wk target</span></div>
+        <div class="ig"><div class="ig-lbl">Sunday covers</div><input type="number" id="rv-sunday" placeholder="0" style="width:100px;"><span style="font-size:9px;color:var(--ink-light);margin-left:6px;">track weekly trend</span></div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">The 6 questions</div>
+      <div class="card">
+        <div style="margin-bottom:11px;">
+          <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">1. Did the Sunday slot run?</div>
+          <select id="rv-q1" style="width:100%;"><option value="">—</option><option>Yes — ran clean</option><option>Yes — had issues</option><option>No — explain below</option></select>
+        </div>
+        <div style="margin-bottom:11px;">
+          <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">2. Did I say "same time next Sunday" to every departing guest?</div>
+          <select id="rv-q2" style="width:100%;"><option value="">—</option><option>Yes — every person</option><option>Most of the time</option><option>Forgot / didn't do it</option></select>
+        </div>
+        <div style="margin-bottom:11px;">
+          <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">3. Did I ask every customer for their SMS number?</div>
+          <select id="rv-q3" style="width:100%;"><option value="">—</option><option>Yes — every order</option><option>Most of the time</option><option>Forgot / didn't do it</option></select>
+        </div>
+        <div style="margin-bottom:11px;">
+          <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">4. What was the one thing that worked this week?</div>
+          <textarea id="rv-q4" placeholder="Be specific. One thing." style="min-height:44px;"></textarea>
+        </div>
+        <div style="margin-bottom:11px;">
+          <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">5. What was the one thing that didn't work or felt off?</div>
+          <textarea id="rv-q5" placeholder="Be specific. One thing." style="min-height:44px;"></textarea>
+        </div>
+        <div style="margin-bottom:4px;">
+          <div style="font-size:10px;font-weight:500;color:var(--ink);margin-bottom:4px;">6. What is the ONE priority for next week? (not a list — one thing)</div>
+          <textarea id="rv-q6" placeholder="One thing only." style="min-height:44px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sl">Past reviews</div>
+      <div id="review-hist" class="card" style="min-height:60px;"></div>
+
+      <div class="sl" style="margin-top:0.9rem;">How to use this with an AI advisor</div>
+      <div class="card">
+        <div style="font-size:10px;color:var(--ink-mid);line-height:1.8;margin-bottom:10px;">Each week, go to <strong>Export / Import</strong>, copy the snapshot, and paste it to your AI advisor with this framing:</div>
+        <div style="background:var(--surface);border-radius:5px;padding:10px 12px;font-size:10px;color:var(--ink);line-height:1.8;font-style:italic;">
+          "Here is my Hideout console data for the week of [date]. Review my numbers vs. targets, my weekly review answers, and my active experiments. Tell me: (1) what the data says is working, (2) what I should adjust, and (3) confirm or change my one priority for next week. Be direct. No hedging."
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:8px;">Use this same prompt every week. Consistent framing = consistent, comparable advice.</div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Weekly pace tracker</div>
+      <div class="card" id="pace-tracker">
+        <div style="font-size:9.5px;color:var(--ink-light);">Save at least 4 weeks to see trend.</div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Turnaround protocol (use every Sunday)</div>
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="row-name">Revenue gate</div>
+            <div class="row-meta">If weekly gross is below $10.5k, next week priority must be traffic and conversion on proven items only.</div>
+          </div>
+          <span class="badge br">Hard gate</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Margin gate</div>
+            <div class="row-meta">If COGS is above 30%, next week priority must be one margin fix (price, portions, or supplier) before growth tasks.</div>
+          </div>
+          <span class="badge br">Hard gate</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Focus gate</div>
+            <div class="row-meta">Only one active priority each week. If your priority list has more than one line, rewrite it.</div>
+          </div>
+          <span class="badge ba">Discipline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DECISIONS ═══ -->
+<div class="page" id="page-decisions">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Decisions</div>
+      <div class="ph-sub">Active experiments · Pass/fail criteria · Nothing gets lost</div>
+    </div>
+    <button class="btn btn-sm btn-o" onclick="addDecision()">+ Add experiment</button>
+  </div>
+
+  <div class="alert al-n">
+    Every time you try something new, log it here with a start date, a hypothesis, and a specific pass/fail criteria. Review every Monday. After 4 weeks, make the call: keep, kill, or adjust. If it's not logged here, it doesn't exist.
+  </div>
+
+  <div id="decisions-list"></div>
+
+  <div class="sl" style="margin-top:0.9rem;">Add new experiment</div>
+  <div class="card">
+    <div class="ig">
+      <div class="ig-lbl">Name</div>
+      <input type="text" id="dec-name" placeholder="Saturday 9am open" style="flex:1;">
+    </div>
+    <div class="ig">
+      <div class="ig-lbl">Start date</div>
+      <input type="text" id="dec-start" placeholder="May 10" style="width:100px;">
+      <div class="ig-lbl" style="min-width:60px;">Review by</div>
+      <input type="text" id="dec-review" placeholder="Jun 7" style="width:100px;">
+    </div>
+    <div class="ig">
+      <div class="ig-lbl">Phase</div>
+      <select id="dec-phase" style="width:140px;">
+        <option>Phase 1 · Now–30 days</option>
+        <option>Phase 2 · 30–90 days</option>
+        <option>Phase 3 · 90+ days</option>
+        <option>Ongoing</option>
+      </select>
+    </div>
+    <div style="margin-bottom:7px;">
+      <div class="ig-lbl" style="margin-bottom:3px;">Hypothesis (if I do X, then Y will happen)</div>
+      <textarea id="dec-hyp" placeholder="If I open Saturday at 9am, I will capture post-workout traffic and generate ≥$120 in the 9–10am window." style="min-height:44px;"></textarea>
+    </div>
+    <div style="margin-bottom:7px;">
+      <div class="ig-lbl" style="margin-bottom:3px;">Pass criteria (specific number or behavior — not a feeling)</div>
+      <textarea id="dec-pass" placeholder="≥8 orders OR ≥$120 gross in the 9–10am window for 3 of 4 test Saturdays." style="min-height:44px;"></textarea>
+    </div>
+    <div style="margin-bottom:7px;">
+      <div class="ig-lbl" style="margin-bottom:3px;">Fail criteria (when to cut it)</div>
+      <textarea id="dec-fail" placeholder="&lt;5 orders in 9–10am for 3 of 4 test Saturdays. Cut the early open." style="min-height:44px;"></textarea>
+    </div>
+    <button class="btn btn-sm" onclick="saveDecision()">Add experiment</button>
+  </div>
+
+  <div class="sl" style="margin-top:1.2rem;">Pre-loaded experiments (from your research)</div>
+  <div class="card">
+    <div style="font-size:10px;color:var(--ink-mid);line-height:1.8;">These are the high-confidence tests identified from your multi-agent research. Add them above when you're ready to start each one.</div>
+    <div style="margin-top:10px;">
+      <div class="row"><div><div class="row-name">Saturday 9am open</div><div class="row-meta">All agents agreed. Post-workout crowd peak. Test 4 Saturdays. Pass: ≥$120 or 8 orders in 9–10am window for 3 of 4 Saturdays.</div></div><span class="badge bg">Phase 1</span></div>
+      <div class="row"><div><div class="row-name">Named bundles (3 combos)</div><div class="row-meta">No new products. Bowl Set + Coffee Set + Patio Set. Staff recommends default. Pass: avg ticket lifts ≥$2 within 3 weeks of launch. Track before/after.</div></div><span class="badge bg">Phase 1</span></div>
+      <div class="row"><div><div class="row-name">Remove dollar signs from menu</div><div class="row-meta">Cornell research: removes pain-of-paying cue. Low effort. Pass: avg ticket neutral or positive after 2 weeks. It should not hurt.</div></div><span class="badge bg">Phase 1</span></div>
+      <div class="row"><div><div class="row-name">Anchor decoy item</div><div class="row-meta">Add one premium build ($21–24) to shift perception. Pass: target items sell at same or higher rate. The decoy itself doesn't need to sell.</div></div><span class="badge bg">Phase 1</span></div>
+      <div class="row"><div><div class="row-name">SMS capture at POS — verbal ask</div><div class="row-meta">Ask every customer at order. Track new numbers/day. Pass: 15+ new numbers/week by week 3. This compounds forever.</div></div><span class="badge bg">Phase 1 · starts now</span></div>
+      <div class="row"><div><div class="row-name">"Same time next Sunday" verbal cue</div><div class="row-meta">Say it to every departing Sunday guest. No exceptions. Pass: Sunday covers trend up week-over-week for 4 straight weeks.</div></div><span class="badge bg">Phase 1 · starts now</span></div>
+      <div class="row"><div><div class="row-name">Wednesday 7am open test</div><div class="row-meta">Only after Saturday data confirms morning thesis. Test 3 weeks. Pass: ≥$100 in 7–8am window on at least 2 of 3 test Wednesdays.</div></div><span class="badge ba">Phase 2</span></div>
+      <div class="row"><div><div class="row-name">Segmented SMS sends (AM vs SUN list)</div><div class="row-meta">Tag customers by entry point. Send Tuesday AM text to morning crowd + Friday text to Sunday crowd. Pass: open-to-visit rate improves vs single list.</div></div><span class="badge ba">Phase 2</span></div>
+      <div class="row"><div><div class="row-name">Sunday 60-min upsell touch</div><div class="row-meta">At ~60 min of dwell, staff proactively offers second round. Pass: Sunday avg ticket lifts ≥$3 within 4 weeks.</div></div><span class="badge ba">Phase 2</span></div>
+      <div class="row"><div><div class="row-name">Referral card program</div><div class="row-meta">Give happy guests one card. "Bring someone new. You both get a free topping." Track card redemptions weekly. Pass: ≥5 redemptions/week by week 6.</div></div><span class="badge ba">Phase 2</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCRIPTS ═══ -->
+<div class="page" id="page-scripts">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Scripts</div>
+      <div class="ph-sub">Exact words · No improvising · Memorize these 6</div>
+    </div>
+  </div>
+
+  <div class="alert al-n">
+    These are not suggestions. These are the exact words to use in each situation. The research is clear: consistent, specific language outperforms improvisation in all six of these moments. Memorize them. Say them the same way every time.
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">The 6 core scripts</div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:5px;">Script 1 · SMS Capture · Every Order · Every Day</div>
+        <div style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:8px;font-family:'Cormorant Garamond',serif;">"We text our list first about Sunday's DJ and any specials — want to be on it? Just your number."</div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:1.7;border-top:1px solid var(--border);padding-top:7px;">
+          <strong>When:</strong> Every single order, right after you hand over the drink/food.<br>
+          <strong>If they say no:</strong> "No worries." Move on. Never ask twice.<br>
+          <strong>If they say yes:</strong> Hand them your phone or a notepad. Enter it that night.<br>
+          <strong>Why it works:</strong> Verbal ask + specific future value = 35–50% opt-in. A sign gets 3%.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:5px;">Script 2 · Next-Visit Cue · Every Departing Sunday Guest</div>
+        <div style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:8px;font-family:'Cormorant Garamond',serif;">"We're here every Sunday, same time — DJ changes but the vibe stays. See you next week?"</div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:1.7;border-top:1px solid var(--border);padding-top:7px;">
+          <strong>When:</strong> Every person leaving on Sunday. Say it while they're still at the door.<br>
+          <strong>If they say "definitely":</strong> They've made a commitment. Return rate 2–3x higher.<br>
+          <strong>Never say:</strong> "Have a great day" as the last thing. That's forgettable.<br>
+          <strong>Why it works:</strong> Commitment + consistency principle (Cialdini). A casual "yes" creates a future obligation.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--amber);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;">Script 3 · Bundle Recommendation · Every Order</div>
+        <div style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:8px;font-family:'Cormorant Garamond',serif;">"Most people do the Bowl Set — it's the bowl plus coffee together. That's what I'd go with."</div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:1.7;border-top:1px solid var(--border);padding-top:7px;">
+          <strong>When:</strong> Any time someone pauses on the menu or says "what's good?"<br>
+          <strong>Adapt to time:</strong> Morning → "Work Set." Sunday → "Sunday Set." Weekend → "Bowl Set."<br>
+          <strong>Never say:</strong> "Would you like to add..." — opt-in framing kills conversion.<br>
+          <strong>Why it works:</strong> Social proof + declarative framing. "Most people do X" = permission to choose X.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--amber);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;">Script 4 · First-Timer Sunday Welcome</div>
+        <div style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:8px;font-family:'Cormorant Garamond',serif;">"It's your first Hideout Sunday? Most people end up staying for at least two rounds — grab a spot near the DJ."</div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:1.7;border-top:1px solid var(--border);padding-top:7px;">
+          <strong>When:</strong> When you identify a first-timer on Sunday — ask "first time here?"<br>
+          <strong>Effect 1:</strong> Sets social norm of 90+ min dwell time. Longer dwell = higher ticket + higher return.<br>
+          <strong>Effect 2:</strong> Directs them toward the DJ seating = they're part of the crowd, not watching it.<br>
+          <strong>Why it works:</strong> Descriptive norms ("most people") shape behavior more than prescriptive ones ("you should").
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--ink-faint);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:5px;">Script 5 · Anchor Partner Outreach · Weekly · Same Message</div>
+        <div style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:8px;font-family:'Cormorant Garamond',serif;">"Sunday patio is 10–3 again. Calm music, bowls, coffee. Send anyone who wants an easy morning."</div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:1.7;border-top:1px solid var(--border);padding-top:7px;">
+          <strong>When:</strong> Friday, text or visit each of your 6–8 anchor partners. Same message every week.<br>
+          <strong>Don't change it:</strong> Consistency is the point. They know what to expect and what to say.<br>
+          <strong>Give them something physical:</strong> 10 referral cards per partner per month. "Show this for free topping."<br>
+          <strong>Why it works:</strong> Reciprocity + specificity. A time anchor ("10–3 Sunday") converts at 3–5x vs. generic mention.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--ink-faint);">
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:5px;">Script 6 · Saturday SMS · Weekly · Never Change the Format</div>
+        <div style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:8px;font-family:'Cormorant Garamond',serif;">"Tomorrow at Hideout: [DJ name] · 10–3 · [one featured item]. Same spot."</div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:1.7;border-top:1px solid var(--border);padding-top:7px;">
+          <strong>When:</strong> Saturday morning, sent to your full SMS list. Never later than 11am.<br>
+          <strong>Format is fixed:</strong> DJ name + time + one item + "same spot." That's it. Never add more.<br>
+          <strong>No emojis, no hype, no offers:</strong> Specificity and calm = trust. Hype = noise.<br>
+          <strong>Why it works:</strong> One sentence with a time anchor activates existing customers. Highest ROI action per minute spent.
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sl">The Sunday floor sequence</div>
+      <div class="card">
+        <div style="font-size:9px;color:var(--ink-light);margin-bottom:10px;font-style:italic;">This is the order of operations for every Sunday. Not optional.</div>
+        <div class="row"><div><div class="row-name">10am — Open, patio set, DJ visible from entrance</div><div class="row-meta">Before you open: DJ is set up, patio chairs out, one table near window occupied (you or staff). Passerby sees people + hears music before they commit.</div></div><span class="badge bn">Open</span></div>
+        <div class="row"><div><div class="row-name">10–11am — Warm-up: identify first-timers</div><div class="row-meta">Slower volume. Use Script 4 on every first-timer. Seat them near the DJ. Get their number (Script 1).</div></div><span class="badge bn">10–11</span></div>
+        <div class="row"><div><div class="row-name">11am–1pm — Peak: protect the energy</div><div class="row-meta">Volume up slightly. At 60-min mark for any table still seated: "Can I get you another round? We have [specific drink] that pairs well with this set." Track second-round orders.</div></div><span class="badge ba">11–1</span></div>
+        <div class="row"><div><div class="row-name">1–3pm — Wind-down: closing ritual starts</div><div class="row-meta">Volume tapers. Every departing guest gets Script 2: "Same time next Sunday — new DJ, same vibe."</div></div><span class="badge bn">1–3</span></div>
+        <div class="row"><div><div class="row-name">2:45pm — Closing announcement</div><div class="row-meta">DJ or you: "We're here every Sunday 10–3. Same time next week, new DJ. Follow @[handle] for the lineup." One sentence. Every week.</div></div><span class="badge bn">2:45</span></div>
+        <div class="row"><div><div class="row-name">After close — log it</div><div class="row-meta">Before you leave: log Sunday revenue + orders + new SMS captures + Sunday covers in Today tab. Takes 2 minutes. Non-negotiable.</div></div><span class="badge bg">Close</span></div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">The 3 named bundles</div>
+      <div class="card">
+        <div style="font-size:9.5px;color:var(--ink-light);margin-bottom:10px;">These don't add products. They add default ordering paths so customers don't have to think — and staff has a default to recommend.</div>
+        <div class="row">
+          <div>
+            <div class="row-name">Work Set · $18–19</div>
+            <div class="row-meta">Any specialty coffee + avocado toast (or egg toast). Staff line: "The Work Set is what most remote workers get in the morning."</div>
+          </div>
+          <span class="badge bg">High margin</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Bowl Set · $20–21</div>
+            <div class="row-meta">Smoothie bowl or açaí bowl + any coffee. Staff line: "Most people do the Bowl Set — it's the bowl plus coffee."</div>
+          </div>
+          <span class="badge bg">Best seller</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Sunday Set · $21–22</div>
+            <div class="row-meta">Açaí bowl + specialty coffee + sparkling water. Sunday-only framing. Staff line: "The Sunday Set is what most people order today."</div>
+          </div>
+          <span class="badge ba">Sunday only</span>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:8px;font-style:italic;">Post these on the menu board above the regular items. Remove dollar signs from all prices. Add one anchor item at $24–26 (e.g. "Founder's Bowl" — your best bowl, maximum toppings) that exists purely to make the $21 Sunday Set feel reasonable.</div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">What NOT to say</div>
+      <div class="card">
+        <div class="row"><div><div class="row-name">❌ "Would you like to add anything?"</div><div class="row-meta">Opt-in framing. Forces a decision. Most people say no. Replace with declarative bundle recommendation.</div></div></div>
+        <div class="row"><div><div class="row-name">❌ "Have a great day!" as the last thing</div><div class="row-meta">Forgettable. Leaves no future anchor. Replace with Script 2 on Sundays and "See you Wednesday morning" on weekdays.</div></div></div>
+        <div class="row"><div><div class="row-name">❌ "We have a DJ this Sunday"</div><div class="row-meta">Sounds like an event. Say: "We do this every Sunday — same time." Routine, not event.</div></div></div>
+        <div class="row"><div><div class="row-name">❌ Any IG caption over 2 lines</div><div class="row-meta">Nobody reads it. Post one image. One line of text. Tag the DJ. Done.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EXPORT / IMPORT ═══ -->
+<div class="page" id="page-data">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Export / Import</div>
+      <div class="ph-sub">Save your data · Share with advisors · Never lose a week</div>
+    </div>
+  </div>
+
+  <div class="alert al-n">
+    Your data lives in your browser (localStorage). To save it permanently, export it weekly. To share with an AI advisor, use the snapshot below. To restore after clearing your browser or switching devices, import your saved file.
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="sl">Weekly advisor snapshot</div>
+      <div class="card">
+        <div style="font-size:10px;color:var(--ink-mid);margin-bottom:10px;">Copy this and paste it to any AI advisor each week. It contains all your numbers, review answers, and active experiments in a format they can read.</div>
+        <button class="btn" onclick="generateSnapshot()" style="margin-bottom:10px;">Generate this week's snapshot</button>
+        <textarea id="snapshot-out" style="min-height:180px;font-size:9.5px;width:100%;background:var(--surface);" placeholder="Click Generate to create your snapshot..."></textarea>
+        <button class="btn btn-o btn-sm" onclick="copySnapshot()" style="margin-top:6px;">Copy to clipboard</button>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Advisor prompt (use this every week)</div>
+      <div class="card">
+        <div style="background:var(--surface);border-radius:5px;padding:12px 14px;font-size:10px;color:var(--ink);line-height:1.9;">
+          Here is my Hideout console data for the week of [DATE].<br><br>
+          [PASTE SNAPSHOT HERE]<br><br>
+          Review my numbers vs. targets. Review my weekly review answers. Review my active experiments and their pass/fail status.<br><br>
+          Tell me:<br>
+          1. What does the data say is working?<br>
+          2. What should I adjust or stop?<br>
+          3. Confirm or change my one priority for next week.<br><br>
+          Be direct. No hedging. If something has strong evidence, say so. If it's inference, say that too.
+        </div>
+        <button class="btn btn-o btn-sm" onclick="copyAdvisorPrompt()" style="margin-top:8px;">Copy advisor prompt</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="sl">Export all data</div>
+      <div class="card">
+        <div style="font-size:10px;color:var(--ink-mid);margin-bottom:10px;">Downloads a .json file with all your logs, checks, DJs, anchors, notes, reviews, and decisions. Save this somewhere safe weekly — Google Drive, email it to yourself, anything.</div>
+        <button class="btn" onclick="exportData()">Download data backup (.json)</button>
+        <div style="font-size:9px;color:var(--ink-light);margin-top:8px;">Filename includes today's date. Do this every Sunday after your review.</div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Import data</div>
+      <div class="card">
+        <div style="font-size:10px;color:var(--ink-mid);margin-bottom:10px;">Load a previously exported .json file to restore all your data. Use this when switching browsers or devices.</div>
+        <div class="ig">
+          <input type="file" id="import-file" accept=".json" style="font-size:10px;flex:1;">
+        </div>
+        <button class="btn btn-o btn-sm" onclick="importData()" style="margin-top:6px;">Load file</button>
+        <div id="import-status" style="font-size:9.5px;margin-top:6px;color:var(--ink-light);"></div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Data inventory</div>
+      <div class="card" id="data-inventory">
+        <div style="font-size:9.5px;color:var(--ink-light);">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COST CARDS ═══ -->
+<div class="page" id="page-costs">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title">Cost Cards</div>
+      <div class="ph-sub">Real ingredient costs · Per-item COGS · What to push · What to fix</div>
+    </div>
+    <div class="ph-tag">Updated May 2026</div>
+  </div>
+
+  <div class="alert al-c">
+    <strong>Your pricing is the #1 COGS problem — not your ingredients.</strong> Erik's Addiction costs $1.91 to make and you're selling it for $11. That 17% food cost becomes 57% COGS when your revenue is too low. Fix pricing first. Everything else is secondary.
+  </div>
+
+  <!-- URGENT ACTIONS -->
+  <div class="sl">Urgent actions — do these first</div>
+  <div class="card" style="margin-bottom:9px;">
+    <div class="row">
+      <div>
+        <div class="row-name">🚨 Raise Erik's Addiction: $11 → $15</div>
+        <div class="row-meta">Food cost: $1.91. At $15 it's 13% COGS. Currently leaving $4/order on your most popular item. At 30 orders/day = $120/day = $3,360/month you are giving away.</div>
+      </div>
+      <span class="badge br">Do today</span>
+    </div>
+    <div class="row">
+      <div>
+        <div class="row-name">🚨 Raise Salmon Toast: $14 → $17</div>
+        <div class="row-meta">Smoked salmon costs $1.65/oz. At 2oz per toast, protein alone is $3.30. At $14 this is 38% COGS. Price to $17 = 31% COGS. Or tighten portion to 1.5oz and keep $14.</div>
+      </div>
+      <span class="badge br">Do today</span>
+    </div>
+    <div class="row">
+      <div>
+        <div class="row-name">🚨 Switch frozen coconut base — 87% cost reduction available</div>
+        <div class="row-meta">Current: Sprouts coconut milk ice cream $0.62/oz. Make your own: Costco coconut milk + agave + freeze = ~$0.08/oz. Used in Erik's, Breechay's, Brice's Bowl — affects 3 top items simultaneously. Condensed coconut milk also works (send receipt to calculate).</div>
+      </div>
+      <span class="badge br">This week</span>
+    </div>
+    <div class="row">
+      <div>
+        <div class="row-name">🔴 Switch smoothie espresso to Perl'a beans</div>
+        <div class="row-meta">Perl'a invoice #14611 is now in: 5lb bags at $63.75 (+ shipping). Landed cost is about $0.85/oz (~$0.54 at 18g shot). This undercuts Amazon powder ($1.21/shot). Run a 1-week taste + workflow test for smoothie use, then lock standard.</div>
+      </div>
+      <span class="badge ba">This week</span>
+    </div>
+    <div class="row">
+      <div>
+        <div class="row-name">🟡 Send: mushroom blend serving detail</div>
+        <div class="row-meta">Live Ultimate Shrooms pouch cost is now tracked at $33. We still need servings per pouch to lock cost/serving. If blend runs &gt;$2.50/serving, COGS on a $10 drink jumps fast. Açaí is locked in from Nativo (invoice #32685).</div>
+      </div>
+      <span class="badge ba">Get receipt</span>
+    </div>
+  </div>
+
+  <!-- COST CARDS GRID -->
+  <div class="two-col">
+    <div>
+      <div class="sl">Signature Fuel</div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Erik's Addiction</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:10px;color:var(--red);text-decoration:line-through;">$11</span>
+            <span style="font-size:14px;font-family:'Cormorant Garamond',serif;color:var(--green);">→ $15</span>
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Almond butter 1oz (Costco) ········· $0.35<br>
+          Banana x1 (Costco) ················· $0.24<br>
+          Frozen coconut base 4oz ············ $0.25 <span style="color:var(--accent);">⚠ see note</span><br>
+          Oat milk 8oz (Costco) ·············· $0.48<br>
+          Cacao nibs ~0.3oz (est) ············ $0.22<br>
+          Cup + lid + straw ·················· $0.35<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $1.91</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--ink-light);">At $15: <strong style="color:var(--green);">13% COGS · $13.09 margin</strong></span>
+          <span class="badge bg">Best seller</span>
+        </div>
+        <div style="font-size:9px;color:var(--accent);margin-top:5px;">⚠ Frozen coconut: if using Sprouts ice cream ($0.62/oz) cost rises to $3.39 and COGS hits 23% at $15. Make your own base at $0.08/oz to keep it at 13%.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Brice's PB Bowl</div>
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;color:var(--green);">$15</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Banana x1.5 (Costco) ··············· $0.36<br>
+          Frozen coconut base 4oz ············ $0.25 <span style="color:var(--accent);">⚠ see note</span><br>
+          Peanut butter 1oz (Costco) ········· $0.20<br>
+          Oat milk 6oz (Costco) ·············· $0.36<br>
+          GF granola 1oz (BOLA bulk) ········· $0.38<br>
+          Bowl + lid ························· $0.40<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $1.95</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">13.0% COGS · $13.05 margin</span>
+          <span class="badge bg">Best margin</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Açaí Bowl</div>
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;">$16</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Açaí pulp ~4oz wt (Nativo Puro, $73/case) · $1.03<br>
+          <span style="font-size:8px;color:var(--ink-mid);">80×100g/case → ~$0.91/100g pack · adjust if you use 2 packs</span><br>
+          Chia seeds 1tbsp ··················· $0.05<br>
+          PB 0.5oz (Costco) ················· $0.10<br>
+          Banana x0.5 ······················· $0.12<br>
+          GF granola 1oz (BOLA bulk) ········ $0.38<br>
+          Cacao nibs 0.25oz ················· $0.19<br>
+          Coconut milk 2oz + strawberries ··· $0.37<br>
+          Bowl + lid ························· $0.40<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $2.64</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">16.5% COGS · $13.36 margin — Nativo #32685 + BOLA #11008</span>
+          <span class="badge bg">Locked in</span>
+        </div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Toasts</div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--amber);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Wild Caught Salmon Toast</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:10px;color:var(--red);text-decoration:line-through;">$14</span>
+            <span style="font-size:14px;font-family:'Cormorant Garamond',serif;color:var(--amber);">→ $17</span>
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Smoked salmon 2oz (Costco $1.65/oz) $3.30 <span style="color:var(--accent);">← expensive</span><br>
+          Avocado x0.5 (Rest. Depot) ········· $0.43<br>
+          Arugula 1oz (Costco) ··············· $0.55<br>
+          Sourdough 2 slices (Joe Baker, $8/loaf) · $1.00<br>
+          Teriyaki glaze + supplies ·········· $0.49<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $5.77</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--ink-light);">At $17: <strong style="color:var(--amber);">34% COGS</strong> · At $14: <strong style="color:var(--red);">41% COGS</strong></span>
+          <span class="badge ba">Reprice now</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Roasted Chicken Toast</div>
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;color:var(--green);">$12</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Chicken breast 3oz ················· $0.66<br>
+          Avocado x0.5 ······················· $0.43<br>
+          Spinach 1oz ························ $0.34<br>
+          Sourdough 2 slices (Joe Baker, $8/loaf) · $1.00<br>
+          Balsamic + supplies ················ $0.42<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $2.86</strong>
+        </div>
+        <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">24% COGS · $9.14 margin — still solid</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--amber);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Egg + Avocado Toast</div>
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;">$9</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Avocado x1 (Rest. Depot) ··········· $0.86<br>
+          Hard-boiled eggs x2 (Costco) ······· $0.96<br>
+          Sourdough 2 slices (Joe Baker, $8/loaf) · $1.00<br>
+          Olive oil + supplies ··············· $0.42<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $3.25</strong>
+        </div>
+        <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--amber);">36% COGS at $9 — floor item, don't push. Consider $11.</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sl">Coffee</div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Breechay's Special (matcha) — $9</div>
+          <span class="badge bg">Push this</span>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Matcha 2g (ceremonial, after discount) $0.34<br>
+          Coconut milk 7oz (Costco) ·········· $0.44<br>
+          Agave 0.5oz ························ $0.07<br>
+          Cup + lid + straw ·················· $0.30<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $1.15</strong>
+        </div>
+        <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">12.7% COGS · $7.85 margin — your 2nd best margin item</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Matcha Latte — $7</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Matcha 2g (after discount) ·········· $0.34<br>
+          Oat milk 8oz (Costco) ·············· $0.48<br>
+          Cup + lid ·························· $0.25<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $1.07</strong>
+        </div>
+        <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">15.3% COGS · $5.93 margin</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Cold Brew — $6</div>
+          <span class="badge bg">Best add-on</span>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Coffee beans ~1.5oz (Perl'a landed) · $1.27<br>
+          Cup + lid + straw ·················· $0.25<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $0.75–1.00</strong>
+        </div>
+        <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">~21% COGS at $6 (landed bean cost). Still a strong add-on.</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--amber);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Shroom Coffee — $10</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Mushroom blend 1 serving ··········· <span style="color:var(--amber);">ESTIMATED $1.50</span><br>
+          Espresso (Perl'a landed @18g) ····· $0.54<br>
+          Coconut oil 1tsp ··················· $0.03<br>
+          Oat milk 6oz ······················· $0.36<br>
+          Cup + lid ·························· $0.25<br>
+          <strong style="color:var(--ink);">TOTAL (estimated) ················· $2.59</strong>
+        </div>
+        <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--amber);">27% est COGS with current assumptions — still depends on shroom serving size.</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--amber);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;">Latte / Cappuccino — $6</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Espresso (Perl'a landed @18g) ····· $0.54<br>
+          Oat milk 6oz ······················· $0.36<br>
+          Cup + lid ·························· $0.25<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $1.06</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--amber);">~19% COGS at $6 with landed Perl'a cost. Consider $7.</span>
+          <span class="badge ba">Update pending</span>
+        </div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Sides — all worth pushing</div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <div style="font-size:12px;font-weight:500;">Healer Shot — $5</div>
+          <span class="badge bg">Push as add-on</span>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Ginger 0.5oz (Rest. Depot) ·········· $0.04<br>
+          Turmeric 0.2oz (est) ················ $0.80<br>
+          Lemon 0.25 + honey 0.5oz ··········· $0.27<br>
+          Shot cup + lid ····················· $0.15<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $1.27</strong>
+        </div>
+        <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">25% COGS · $3.73 margin · tiny labor · staff script: "Want a healer shot with that? It's $5."</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:9px;border-left:3px solid var(--green);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <div style="font-size:12px;font-weight:500;">Watermelon Juice — $6</div>
+        </div>
+        <div style="font-size:9px;color:var(--ink-light);line-height:2.0;">
+          Mini watermelon 1/8 (Costco) ······· $1.10<br>
+          Cup + lid + straw ·················· $0.30<br>
+          <strong style="color:var(--ink);">TOTAL FOOD COST ···················· $1.40</strong>
+        </div>
+        <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">
+          <span style="font-size:9px;color:var(--green);">23% COGS · $4.60 margin · good on Sundays + hot days</span>
+        </div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Bundle math — launch these</div>
+      <div class="card">
+        <div style="font-size:9px;color:var(--ink-light);margin-bottom:10px;">Named bundles increase avg ticket without new products. Staff recommends the default. Customers don't have to think.</div>
+        <div class="row">
+          <div>
+            <div class="row-name">Work Set — $19 <span style="font-size:9px;font-weight:400;color:var(--ink-light);">(any coffee + avocado toast)</span></div>
+            <div class="row-meta">Food cost ~$4.31 (egg toast + latte, sourdough locked) · <strong style="color:var(--green);">23% COGS · $14.69 margin</strong><br>Staff line: "The Work Set is what most remote workers get."</div>
+          </div>
+          <span class="badge bg">Launch now</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Bowl Set — $20 <span style="font-size:9px;font-weight:400;color:var(--ink-light);">(Brice's PB Bowl + Cold Brew)</span></div>
+            <div class="row-meta">Food cost ~$2.99 · <strong style="color:var(--green);">15% COGS · $17.01 margin</strong><br>Staff line: "Most people do the Bowl Set — bowl plus cold brew."</div>
+          </div>
+          <span class="badge bg">Best margin</span>
+        </div>
+        <div class="row">
+          <div>
+            <div class="row-name">Sunday Set — $22 <span style="font-size:9px;font-weight:400;color:var(--ink-light);">(Açaí Bowl + Breechay's Special + water)</span></div>
+            <div class="row-meta">Food cost ~$3.90 (açaí bowl + Breechay's + water cup) · <strong style="color:var(--green);">~18% COGS · ~$18.10 margin</strong><br>Staff line: "The Sunday Set is what most people order today."</div>
+          </div>
+          <span class="badge bg">Strong margin</span>
+        </div>
+        <div style="background:var(--surface);border-radius:5px;padding:10px 12px;margin-top:10px;font-size:9.5px;color:var(--ink-mid);">
+          <strong>Anchor / decoy item:</strong> Add "Founder's Bowl" at $26 — your best bowl, maximum build. It doesn't need to sell. It makes the $22 Sunday Set feel like the smart, reasonable choice. Remove all dollar signs from the menu board.
+        </div>
+      </div>
+
+      <div class="sl" style="margin-top:0.9rem;">Ingredients still needed</div>
+      <div class="card">
+        <div class="row"><div><div class="row-name">Açaí base (Nativo Puro)</div><div class="row-meta">Invoice #32685 · $73/case (8kg, 80×100g). Cost cards + inventory updated.</div></div><span class="badge bg">Done</span></div>
+        <div class="row"><div><div class="row-name">Live Ultimate Shrooms</div><div class="row-meta">$33/pouch captured. Need serving count per pouch to finalize Shroom Coffee COGS.</div></div><span class="badge ba">Detail pending</span></div>
+        <div class="row"><div><div class="row-name">Perl'a coffee bags</div><div class="row-meta">Invoice #14611 captured: 5lb bags at $63.75 (+ shipping). Landed cost ~ $68/bag (~$0.85/oz). Final step: lock your exact espresso dose and cold brew recipe yield.</div></div><span class="badge bg">Mostly done</span></div>
+        <div class="row"><div><div class="row-name">Condensed coconut milk cost</div><div class="row-meta">You confirmed this works as frozen coconut base. Send receipt to calculate savings vs current Sprouts source.</div></div><span class="badge ba">Pending</span></div>
+        <div class="row"><div><div class="row-name">GF granola (BOLA Barely Sweet 20lb)</div><div class="row-meta">Invoice #11008 captured: $120 per 20lb bulk bag ($6/lb, $0.375/oz). Cost cards and inventory updated.</div></div><span class="badge bg">Done</span></div>
+        <div class="row"><div><div class="row-name">Sourdough (Zak The Baker)</div><div class="row-meta">Multigrain large $8/loaf. Toast cards use $1.00/2 slices at 16 slices/loaf.</div></div><span class="badge bg">Done</span></div>
+        <div class="row"><div><div class="row-name">Banana bread (large, wholesale)</div><div class="row-meta">Same invoice · $15.40/large — inventory row for Vegan Banana Bread COGS.</div></div><span class="badge bg">Done</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ── State ──
+// REVENUE MODEL (corrected v7):
+// Contribution margin = 100% - 30% COGS - 14% staffing = 56%
+// To NET $4,000/week: gross * 0.56 - $992 fixed = $4,000
+// gross = ($4,000 + $992) / 0.56 = ~$8,914/week
+//
+// Order paths to $8,914 gross:
+//   $16 avg ticket → 90 orders/day (6.2 days)
+//   $18 avg ticket → 80 orders/day
+//   $20 avg ticket → 72 orders/day
+//   $22 avg ticket → 65 orders/day
+//   $24 avg ticket → 60 orders/day  ← bundle target
+//
+// Phase 1 proof point: $5,500 gross → ~$2,100 net (break-even + margin)
+// Phase 2 target: $7,100 gross → ~$2,984 net
+// Phase 3 target: $8,914 gross → ~$4,000 net
+const GROSS_TARGET = 8914;
+const PHASE2_TARGET = 7100;
+const PHASE1_TARGET = 5500;
+const DAILY_TARGET = 1438; // $8,914 / 6.2 operating days
+const NET_TARGET = 4000;
+const FIXED_COSTS = 992;
+const COGS_PCT = 0.30;
+const STAFFING_PCT = 0.14;
+const S = {
+  logs: JSON.parse(localStorage.getItem('h-logs') || '[]'),
+  checks: JSON.parse(localStorage.getItem('h-checks') || '{}'),
+  djs: JSON.parse(localStorage.getItem('h-djs') || '[]'),
+  anchors: JSON.parse(localStorage.getItem('h-anchors') || '[]'),
+  notes: JSON.parse(localStorage.getItem('h-notes') || '[]'),
+  sunday: JSON.parse(localStorage.getItem('h-sunday') || '{}'),
+  reviews: JSON.parse(localStorage.getItem('h-reviews') || '[]'),
+  decisions: JSON.parse(localStorage.getItem('h-decisions') || '[]'),
+};
+const save = k => localStorage.setItem('h-' + k, JSON.stringify(S[k]));
+
+// ── Nav ──
+function nav(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  const r = { today: initToday, week: initWeek, cogs: initCOGS, djs: renderDJs, anchors: renderAnchors, pnl: initPnl, inventory: renderInv, ops: initOps, review: initReview, decisions: initDecisions, scripts: ()=>{}, data: initDataPage, costs: ()=>{} };
+  if (r[id]) r[id]();
+}
+
+// ── Status + date ──
+function initStatus() {
+  const now = new Date();
+  const d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+  const open = (d >= 3 && d <= 5 && h >= 8 && h < 17) || ((d === 6 || d === 0) && h >= 10 && h < 17);
+  document.getElementById('sdot').className = 'sdot' + (open ? '' : ' off');
+  document.getElementById('stext').textContent = open ? 'Open now' : 'Closed';
+  const tagEl = document.getElementById('today-tag');
+  if (tagEl) tagEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) + ' · log · check · confirm Sunday';
+}
+
+// ── TODAY ──
+const weekChecks = [
+  { id: 'wc1', text: 'COGS check', note: 'Monday · pull Square data · 15 min · non-negotiable', tag: 'Mon' },
+  { id: 'wc2', text: 'Inventory audit + orders', note: 'Tuesday · walk the space · check pars · place orders', tag: 'Tue' },
+  { id: 'wc3', text: 'Confirm Sunday DJ', note: 'Friday · one text · done', tag: 'Fri' },
+  { id: 'wc4', text: 'Post one IG story', note: 'Friday · patio or food · tag DJ · 30 seconds', tag: 'Fri' },
+  { id: 'wc5', text: 'Send SMS to list', note: 'Saturday morning · "Sunday 10–3. [DJ name]. Music + patio. Same as always."', tag: 'Sat' },
+  { id: 'wc6', text: 'Sunday slot runs', note: '10am–3pm · every week · no exceptions', tag: 'Sun' },
+  { id: 'wc7', text: 'Say "same time next Sunday" to every departing guest', note: 'Sunday · verbally · every single person · not a sign', tag: 'Sun' },
+  { id: 'wc8', text: 'Log week total + confirm next DJ', note: 'Sunday · 10 min · what worked?', tag: 'Sun' },
+];
+
+function initToday() {
+  const di = document.getElementById('l-date');
+  if (di && !di.value) {
+    di.value = new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  }
+  renderWeekChecks('week-checks-today');
+  renderLogHist('log-hist');
+  updateWTD();
+  initSundaySlot();
+  renderSundayBlock();
+  renderWeeklyLever();
+  renderWeeklyRisk();
+  updatePaceLine();
+}
+
+function renderWeekChecks(target) {
+  const el = document.getElementById(target);
+  if (!el) return;
+  el.innerHTML = weekChecks.map(c => {
+    const done = S.checks[c.id];
+    return `<div class="ci" onclick="toggleCheck('${c.id}', '${target}')">
+      <div class="cb${done ? ' on' : ''}"></div>
+      <div class="cb-body">
+        <div class="cb-main${done ? ' done' : ''}">${c.text}</div>
+        ${c.note ? `<div class="cb-note">${c.note}</div>` : ''}
+      </div>
+      <span class="badge bn" style="margin-left:auto;margin-top:1px;">${c.tag}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleCheck(id, target) {
+  S.checks[id] = !S.checks[id];
+  save('checks');
+  renderWeekChecks(target);
+  if (target === 'week-checks-today') renderWeekChecks('week-checks-main');
+  else renderWeekChecks('week-checks-today');
+}
+
+function logDay() {
+  const d = document.getElementById('l-date').value.trim();
+  const r = parseFloat(document.getElementById('l-rev').value);
+  const o = document.getElementById('l-orders').value.trim();
+  const t = document.getElementById('l-topitem').value.trim();
+  const c = document.getElementById('l-contacts').value.trim();
+  if (!d || isNaN(r)) return;
+  S.logs.unshift({ date: d, rev: r, orders: o, top: t, contacts: c });
+  if (S.logs.length > 40) S.logs.pop();
+  save('logs');
+  ['l-rev', 'l-orders', 'l-topitem', 'l-contacts'].forEach(id => document.getElementById(id).value = '');
+  renderLogHist('log-hist');
+  renderLogHist('pnl-log-hist');
+  updateWTD();
+  renderSundayBlock();
+  renderWeeklyLever();
+  updatePaceLine();
+}
+
+function renderLogHist(target) {
+  const el = document.getElementById(target);
+  if (!el) return;
+  if (!S.logs.length) { el.innerHTML = '<div style="font-size:9.5px;color:var(--ink-light);padding:3px 0;">No entries yet</div>'; return; }
+  el.innerHTML = S.logs.slice(0, 8).map(l => {
+    const cls = l.rev >= DAILY_TARGET ? 'g' : l.rev < 600 ? 'l' : '';
+    const contactStr = l.contacts ? ` · ${l.contacts} new` : '';
+    return `<div class="le">
+      <span>${l.date}${l.top ? ' · ' + l.top : ''}${contactStr}</span>
+      <span>${l.orders ? l.orders + ' orders · ' : ''}<span class="le-rev ${cls}">$${l.rev.toLocaleString()}</span></span>
+    </div>`;
+  }).join('');
+}
+
+function updateWTD() {
+  const total = S.logs.slice(0, 7).reduce((s, l) => s + l.rev, 0);
+  const pct = Math.min(100, Math.round(total / GROSS_TARGET * 100));
+  const wtdEl = document.getElementById('sc-wtd');
+  if (wtdEl) wtdEl.textContent = '$' + total.toLocaleString();
+  const gapEl = document.getElementById('sc-wtd-gap');
+  const remaining = GROSS_TARGET - total;
+  if (gapEl) {
+    if (remaining <= 0) { gapEl.textContent = '✓ $4k net target reached'; gapEl.style.color = 'var(--green)'; }
+    else if (total >= PHASE1_TARGET) { gapEl.textContent = 'Phase 2+ hit · $' + remaining.toLocaleString() + ' to $8,914'; gapEl.style.color = 'var(--amber)'; }
+    else { gapEl.textContent = '$' + remaining.toLocaleString() + ' to gross $8,914 target'; gapEl.style.color = 'var(--ink-light)'; }
+  }
+  const bar = document.getElementById('wtd-bar');
+  if (bar) { bar.style.width = pct + '%'; bar.className = 'prog-f ' + (pct >= 80 ? 'g' : pct >= 50 ? 'w' : 'd'); }
+  const wtdMetric = document.getElementById('sc-wtd-metric');
+  if (wtdMetric) wtdMetric.style.borderLeft = '3px solid ' + (total >= GROSS_TARGET ? 'var(--green)' : total >= PHASE1_TARGET ? 'var(--amber)' : 'var(--ink-faint)');
+  // Today
+  if (S.logs.length) {
+    const r = S.logs[0].rev;
+    const todayEl = document.getElementById('sc-today');
+    if (todayEl) todayEl.textContent = '$' + r.toLocaleString();
+    const gapToday = document.getElementById('sc-today-gap');
+    if (gapToday) {
+      const diff = r - DAILY_TARGET;
+      if (diff >= 0) { gapToday.textContent = '+$' + diff + ' ahead'; gapToday.style.color = 'var(--green)'; }
+      else { gapToday.textContent = '$' + Math.abs(diff) + ' below $1,438 target'; gapToday.style.color = 'var(--accent)'; }
+    }
+    const todayMetric = document.getElementById('sc-today-metric');
+    if (todayMetric) todayMetric.style.borderLeft = '3px solid ' + (r >= DAILY_TARGET ? 'var(--green)' : r >= 700 ? 'var(--amber)' : 'var(--red)');
+  }
+  renderWeeklyRisk();
+}
+
+function updatePaceLine() {
+  const el = document.getElementById('today-pace-line');
+  if (!el) return;
+  if (!S.logs.length) {
+    el.textContent = 'No revenue logged today.';
+    el.style.color = 'var(--ink-mid)';
+    return;
+  }
+  const todayRev = S.logs[0].rev;
+  const diff = todayRev - DAILY_TARGET;
+  if (diff >= 0) {
+    el.textContent = 'You are $' + diff + ' ahead today.';
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = 'You are $' + Math.abs(diff) + ' behind today ($1,438 target → $8,914 gross/wk → $4k net).';
+    el.style.color = 'var(--accent)';
+  }
+}
+
+function renderSundayBlock() {
+  const el = document.getElementById('sunday-block');
+  if (!el) return;
+  const s = S.sunday;
+  const confirmed = s.status === 'confirmed';
+  const outreach = s.status === 'outreach';
+  const djName = s.dj || '';
+  if (confirmed) {
+    el.innerHTML = `<div style="background:var(--green-light);border:1px solid var(--green);border-radius:6px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:2px;">Sunday Slot — Infrastructure</div>
+        <div style="font-size:13px;color:var(--ink);font-weight:500;">${djName ? djName + ' · confirmed' : 'DJ confirmed'} · 10am–3pm</div>
+      </div>
+      <span class="badge bg">Locked</span>
+    </div>`;
+  } else if (outreach) {
+    el.innerHTML = `<div style="background:var(--amber-light);border:2px solid var(--amber);border-radius:6px;padding:12px 16px;">
+      <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:4px;">Sunday Slot — Outreach Sent</div>
+      <div style="font-size:12px;color:var(--ink);margin-bottom:8px;">${djName || 'DJ'} — waiting on confirmation. Follow up today.</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="sun-dj-inline" placeholder="@djhandle" value="${djName}" style="width:140px;" oninput="document.getElementById('sun-dj').value=this.value;saveSunday()">
+        <button class="btn btn-sm" onclick="document.getElementById('sun-status').value='confirmed';saveSunday();renderSundayBlock();">Mark Confirmed</button>
+      </div>
+    </div>`;
+  } else {
+    el.innerHTML = `<div style="background:var(--red-light);border:2px solid var(--red);border-radius:6px;padding:14px 16px;">
+      <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--red);margin-bottom:4px;">⚠ Sunday Not Booked — This Breaks the System</div>
+      <div style="font-size:11px;color:var(--ink-mid);margin-bottom:10px;">The slot is fixed infrastructure. Every week it doesn't run breaks compounding.</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="sun-dj-inline" placeholder="@djhandle" value="${djName}" style="width:140px;" oninput="document.getElementById('sun-dj').value=this.value;saveSunday()">
+        <button class="btn btn-sm" onclick="document.getElementById('sun-status').value='outreach';document.getElementById('sun-dj').value=document.getElementById('sun-dj-inline').value;saveSunday();renderSundayBlock();">Outreach Sent</button>
+        <button class="btn btn-sm" onclick="document.getElementById('sun-status').value='confirmed';document.getElementById('sun-dj').value=document.getElementById('sun-dj-inline').value;saveSunday();renderSundayBlock();">Confirmed ✓</button>
+      </div>
+    </div>`;
+  }
+}
+
+function renderWeeklyLever() {
+  const el = document.getElementById('weekly-lever');
+  if (!el) return;
+  // Determine the one lever to show
+  // Priority: if COGS data entered and > 30%, show COGS. Else show pricing.
+  const cogsEl = document.getElementById('sc-cogs');
+  const cogsVal = cogsEl ? parseInt(cogsEl.textContent) : NaN;
+  if (!isNaN(cogsVal) && cogsVal > 30) {
+    el.innerHTML = `<div class="alert al-c" style="margin-bottom:0;">
+      <strong>This week's lever: COGS is ${cogsVal}% — fix before anything else.</strong>
+      Check milk waste, espresso yield, and portioning. COGS → COGS Check tab.
+    </div>`;
+  } else {
+    el.innerHTML = `<div class="alert al-a" style="margin-bottom:0;">
+      <strong>This week's lever: Pricing.</strong>
+      +$1 on top 5 items = +$300/wk, +$1,200/mo. Do it once. No announcement needed. → COGS Check tab.
+    </div>`;
+  }
+}
+
+function renderWeeklyRisk() {
+  const el = document.getElementById('weekly-risk');
+  if (!el) return;
+  const wtd = S.logs.slice(0, 7).reduce((s, l) => s + l.rev, 0);
+  const cogsEl = document.getElementById('sc-cogs');
+  const cogs = cogsEl ? parseInt((cogsEl.textContent || '').replace('%', ''), 10) : NaN;
+  const sundayOk = S.sunday && S.sunday.status === 'confirmed';
+
+  const revRisk = wtd > 0 && wtd < 10500;
+  const cogsRisk = !isNaN(cogs) && cogs > 30;
+  let tone = 'al-g';
+  let label = 'On Track';
+  let msg = 'Revenue and margin conditions are within control range. Keep execution boring and repeatable.';
+
+  if (revRisk && cogsRisk) {
+    tone = 'al-c';
+    label = 'Both At Risk';
+    msg = 'Revenue is below floor and COGS is above target. Freeze new experiments. This week priority = margin repair + top-item conversion only.';
+  } else if (revRisk) {
+    tone = 'al-a';
+    label = 'Revenue Risk';
+    msg = 'Week pace is below $10.5k floor. Push proven bundles, keep top 5 in stock, and run Sunday execution clean.';
+  } else if (cogsRisk) {
+    tone = 'al-c';
+    label = 'Margin Risk';
+    msg = 'COGS is above 30%. Fix one source this week (portioning, pricing, or supplier) before adding growth tasks.';
+  }
+
+  const sundayLine = sundayOk
+    ? '<span style="color:var(--green);">Sunday slot confirmed</span>'
+    : '<span style="color:var(--red);">Sunday slot not confirmed</span>';
+  const cogsLine = !isNaN(cogs) ? `${cogs}%` : 'not entered';
+
+  el.innerHTML = `<div class="alert ${tone}" style="margin-bottom:0;">
+    <strong>Weekly Risk State: ${label}</strong><br>
+    <span style="font-size:10px;">WTD gross: $${wtd.toLocaleString()} · COGS: ${cogsLine} · ${sundayLine}</span><br>
+    ${msg}
+  </div>`;
+}
+
+function updateStatusCards() {
+  updateWTD();
+  renderSundayBlock();
+  renderWeeklyLever();
+  renderWeeklyRisk();
+  updatePaceLine();
+}
+
+function initSundaySlot() {
+  const s = S.sunday;
+  if (s.status) document.getElementById('sun-status').value = s.status;
+  if (s.dj) document.getElementById('sun-dj').value = s.dj;
+  updateSundayCard();
+}
+
+function saveSunday() {
+  S.sunday = {
+    status: document.getElementById('sun-status').value,
+    dj: document.getElementById('sun-dj').value,
+  };
+  save('sunday');
+  renderSundayBlock();
+  renderWeeklyRisk();
+  updateSundayCard();
+}
+
+function updateSundayCard() {
+  // Legacy — Sunday state now rendered via renderSundayBlock()
+  renderSundayBlock();
+}
+
+// calcRev removed — quick calc card removed from Today page
+
+// ── WEEK ──
+function initWeek() {
+  renderWeekChecks('week-checks-main');
+  renderCalendar();
+}
+
+function resetWeekChecks() {
+  weekChecks.forEach(c => delete S.checks[c.id]);
+  save('checks');
+  renderWeekChecks('week-checks-main');
+  renderWeekChecks('week-checks-today');
+}
+
+const calEvs = { 10: 'dj', 14: 'ev', 24: 'dj', 31: 'dj' };
+function renderCalendar() {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  document.getElementById('cal-headers').innerHTML = days.map(d => `<div class="chdr">${d}</div>`).join('');
+  let h = '';
+  for (let i = 0; i < 5; i++) h += '<div class="cd empty"></div>'; // May 1 = Fri (index 5)
+  for (let d = 1; d <= 31; d++) {
+    const dow = (5 + d - 1) % 7;
+    const open = dow >= 3;
+    const ev = calEvs[d];
+    const cls = ['cd', d === 3 ? 'today' : '', !open ? 'closed' : '', ev ? 'hasevent' : ''].filter(Boolean).join(' ');
+    h += `<div class="${cls}"><div class="dn">${d}</div>${ev ? `<div class="ddot ${ev}"></div>` : ''}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = h;
+}
+
+// ── COGS ──
+const cogsChecks = [
+  { id: 'cg1', text: 'Audit milk usage this week', note: 'Track milk poured/wasted. If > 5% waste, switch to flat weekly order.' },
+  { id: 'cg2', text: 'Check espresso yield', note: 'Lock grams in/out. Over-pulling wastes ~5–8% of coffee cost.' },
+  { id: 'cg3', text: 'Verify top 5 item costs', note: 'Erik\'s Addiction, Açai, PB Bowl, Salmon Toast, Shroom Coffee.' },
+  { id: 'cg4', text: 'Confirm supplier pricing unchanged', note: 'Every 60 days: compare Costco vs alternatives for high-volume items.' },
+  { id: 'cg5', text: 'Check portioning consistency', note: 'Syrups, matcha, chai — pre-portion to stop over-portioning.' },
+  { id: 'cg6', text: 'Calculate this week\'s COGS %', note: '(coffee + food + milk + other) ÷ revenue. Log the number.' },
+];
+
+function initCOGS() {
+  const el = document.getElementById('cogs-checks');
+  if (!el) return;
+  el.innerHTML = cogsChecks.map(c => {
+    const done = S.checks[c.id];
+    return `<div class="ci" onclick="toggleCOGSCheck('${c.id}')">
+      <div class="cb${done ? ' on' : ''}"></div>
+      <div class="cb-body">
+        <div class="cb-main${done ? ' done' : ''}">${c.text}</div>
+        <div class="cb-note">${c.note}</div>
+      </div>
+    </div>`;
+  }).join('');
+  calcCoffeeYield();
+}
+
+function toggleCOGSCheck(id) {
+  S.checks[id] = !S.checks[id];
+  save('checks');
+  initCOGS();
+}
+
+function calcCOGS() {
+  const coffee = parseFloat(document.getElementById('cg-coffee').value) || 0;
+  const food = parseFloat(document.getElementById('cg-food').value) || 0;
+  const milk = parseFloat(document.getElementById('cg-milk').value) || 0;
+  const other = parseFloat(document.getElementById('cg-other').value) || 0;
+  const rev = parseFloat(document.getElementById('cg-rev').value) || 0;
+  const total = coffee + food + milk + other;
+  if (!rev || !total) return;
+  const pct = Math.round(total / rev * 100);
+  const color = pct <= 28 ? 'var(--green)' : pct <= 35 ? 'var(--amber)' : 'var(--red)';
+  const status = pct <= 28 ? '✓ On target' : pct <= 35 ? '⚠ Above target — identify and fix' : '✗ Critical — fix before next week';
+  document.getElementById('cogs-result').innerHTML =
+    `Total COGS: $${total.toFixed(2)} / Revenue: $${rev.toFixed(2)}<br>
+     COGS %: <strong style="color:${color};font-size:15px;">${pct}%</strong><br>
+     <span style="color:${color};">${status}</span>`;
+  // Update COGS status card
+  const sc = document.getElementById('sc-cogs');
+  const card = document.getElementById('sc-cogs-card');
+  if (sc) sc.textContent = pct + '%';
+  if (card) card.className = 's-card ' + (pct <= 28 ? 'green' : pct <= 35 ? 'amber' : 'red');
+  renderWeeklyLever();
+  renderWeeklyRisk();
+}
+
+function calcCoffeeYield() {
+  const bagCost = parseFloat(document.getElementById('cy-bag-cost')?.value) || 0;
+  const bagLb = parseFloat(document.getElementById('cy-bag-lb')?.value) || 0;
+  const doseG = parseFloat(document.getElementById('cy-dose-g')?.value) || 0;
+  const cbOzPerGal = parseFloat(document.getElementById('cy-cb-oz-gal')?.value) || 0;
+  const cupOz = parseFloat(document.getElementById('cy-cup-oz')?.value) || 0;
+  const out = document.getElementById('coffee-yield-out');
+  if (!out) return;
+  if (!bagCost || !bagLb || !doseG || !cbOzPerGal || !cupOz) {
+    out.textContent = 'Enter all values to calculate coffee yield costs.';
+    return;
+  }
+  const bagOz = bagLb * 16;
+  const costPerOz = bagCost / bagOz;
+  const shotOz = doseG / 28.3495;
+  const shotCost = shotOz * costPerOz;
+  const coldBrewGalCost = cbOzPerGal * costPerOz;
+  const coldBrewCupCost = coldBrewGalCost * (cupOz / 128);
+  out.innerHTML = `Bean landed cost: <strong>$${costPerOz.toFixed(3)}/oz</strong> · Espresso shot (@${doseG}g): <strong>$${shotCost.toFixed(2)}</strong><br>
+  Cold brew bean cost: <strong>$${coldBrewGalCost.toFixed(2)}/gal</strong> · <strong>$${coldBrewCupCost.toFixed(2)}</strong> per ${cupOz}oz cup`;
+}
+
+// ── DJs ──
+const stCls = { Prospect: 'bn', Contacted: 'ba', Confirmed: 'bg', Done: 'bc' };
+function addDJ() {
+  const name = document.getElementById('dj-name').value.trim();
+  if (!name) return;
+  S.djs.push({ name, genre: document.getElementById('dj-genre').value.trim(), contact: document.getElementById('dj-contact').value.trim(), status: document.getElementById('dj-status').value, last: document.getElementById('dj-lastplayed').value.trim() });
+  save('djs');
+  ['dj-name', 'dj-genre', 'dj-contact', 'dj-lastplayed'].forEach(id => document.getElementById(id).value = '');
+  renderDJs();
+}
+function renderDJs() {
+  const tb = document.getElementById('dj-tbody');
+  if (!tb) return;
+  if (!S.djs.length) { tb.innerHTML = '<tr><td colspan="6" style="color:var(--ink-light);font-style:italic;padding:10px;">No DJs added yet. Build your roster — aim for 6–8 rotating acts.</td></tr>'; return; }
+  tb.innerHTML = S.djs.map((d, i) =>
+    `<tr>
+      <td style="font-weight:500;">${d.name}</td>
+      <td style="color:var(--ink-mid);">${d.genre || '—'}</td>
+      <td style="color:var(--ink-light);">${d.contact || '—'}</td>
+      <td><span class="badge ${stCls[d.status] || 'bn'}">${d.status}</span></td>
+      <td style="color:var(--ink-light);">${d.last || '—'}</td>
+      <td><span onclick="removeDJ(${i})" style="cursor:pointer;color:var(--ink-light);font-size:14px;">×</span></td>
+    </tr>`).join('');
+}
+function removeDJ(i) { S.djs.splice(i, 1); save('djs'); renderDJs(); }
+
+// ── Anchors ──
+function addAnchor() {
+  const biz = document.getElementById('an-biz').value.trim();
+  if (!biz) return;
+  S.anchors.push({ biz, type: document.getElementById('an-type').value.trim(), contact: document.getElementById('an-contact').value.trim(), last: document.getElementById('an-last').value.trim(), deal: document.getElementById('an-deal').value.trim() });
+  save('anchors');
+  ['an-biz', 'an-type', 'an-contact', 'an-last', 'an-deal'].forEach(id => document.getElementById(id).value = '');
+  renderAnchors();
+}
+function renderAnchors() {
+  const tb = document.getElementById('anchor-tbody');
+  if (!tb) return;
+  if (!S.anchors.length) { tb.innerHTML = '<tr><td colspan="6" style="color:var(--ink-light);font-style:italic;padding:10px;">No nodes added yet. Identify 6–8 businesses within a 10-min walk.</td></tr>'; return; }
+  tb.innerHTML = S.anchors.map((a, i) =>
+    `<tr>
+      <td style="font-weight:500;">${a.biz}</td>
+      <td style="color:var(--ink-mid);">${a.type || '—'}</td>
+      <td style="color:var(--ink-light);">${a.contact || '—'}</td>
+      <td style="color:var(--ink-light);font-size:9.5px;max-width:180px;">${a.deal || '—'}</td>
+      <td style="color:var(--ink-light);">${a.last || '—'}</td>
+      <td><span onclick="removeAnchor(${i})" style="cursor:pointer;color:var(--ink-light);font-size:14px;">×</span></td>
+    </tr>`).join('');
+}
+function removeAnchor(i) { S.anchors.splice(i, 1); save('anchors'); renderAnchors(); }
+
+// ── P&L ──
+function initPnl() {
+  renderLogHist('pnl-log-hist');
+}
+
+function calcBE() {
+  const rev = parseFloat(document.getElementById('be-rev').value);
+  if (isNaN(rev)) return;
+  const cogs = rev * 0.30;
+  const staffing = rev * 0.14;
+  const net = rev - cogs - staffing - FIXED_COSTS;
+  const pct = Math.min(100, Math.round(rev / GROSS_TARGET * 100));
+  const color = net > 0 ? 'var(--green)' : 'var(--accent)';
+  const status = net > NET_TARGET ? '✓ $4k net reached' : net > 0 ? '✓ profitable' : '✗ below break-even';
+  document.getElementById('be-out').innerHTML =
+    `$${rev.toLocaleString()}/wk gross · −$${Math.round(cogs).toLocaleString()} COGS · −$${Math.round(staffing).toLocaleString()} staffing · −$${FIXED_COSTS} fixed<br>
+     Est. net: <strong style="color:${color};">$${Math.round(net).toLocaleString()}/wk</strong> · ${status}<br>
+     ${rev >= GROSS_TARGET ? '✓ $4k net target reached' : '$' + (GROSS_TARGET - rev).toLocaleString() + ' to $8,914 gross target'}`;
+  const bar = document.getElementById('be-bar');
+  if (bar) { bar.style.width = pct + '%'; bar.className = 'prog-f ' + (pct >= 80 ? 'g' : pct >= 50 ? 'w' : 'd'); }
+}
+
+// ── Inventory ──
+// ── INVENTORY ──
+// unitCost = cost per unit (the "unit" column)
+// costNote = where the cost comes from
+const invData = [
+  // ── CRITICAL — menu killers if out ──
+  { loc:'FREEZER', item:'Frozen Coconut Base', src:'Make own (Costco milk)', unit:'batch', have:'', par:'3', critical:true, unitCost:0.99, costNote:'1 can coconut milk + agave = ~$0.99/batch (12oz). Switch from Sprouts ice cream = 87% savings.' },
+  { loc:'FRIDGE', item:'Avocado (Hass)', src:'Restaurant Depot', unit:'each', have:'', par:'20', critical:true, unitCost:0.86, costNote:'$42.99 / 50 avocados. Used in 4 menu items. Never below 12.' },
+  { loc:'TOAST', item:'Sourdough Loaf', src:'Zak The Baker', unit:'loaf', have:'', par:'3', critical:true, unitCost:8.00, costNote:'Zak The Baker multigrain large $8/loaf. ~16 slices -> $1.00/2 slices on toasts.' },
+  { loc:'TOAST', item:'Banana Bread (large)', src:'Zak The Baker', unit:'loaf', have:'', par:'2', critical:false, unitCost:15.40, costNote:'Zak The Baker wholesale $15.40/large. Vegan Banana Bread menu COGS - confirm slices per loaf for per-serving math.' },
+  { loc:'FRIDGE', item:'Smoked Salmon (8oz x2)', src:'Costco', unit:'pkg', have:'', par:'3', critical:true, unitCost:26.39, costNote:'$26.39/pkg (16oz). $1.65/oz. Most expensive ingredient. Watch portions — 2oz per toast.' },
+  { loc:'BAR', item:'Oat Milk (32oz x6)', src:'Costco', unit:'case', have:'', par:'2', critical:true, unitCost:11.54, costNote:'$11.54/case (192oz). $0.06/oz. Core of all smoothies and lattes.' },
+  { loc:'FRIDGE', item:'Coconut Milk (32oz x6)', src:'Costco', unit:'case', have:'', par:'1', critical:true, unitCost:12.09, costNote:'$12.09/case (192oz). $0.063/oz. Breechay\'s Special base + coconut topping.' },
+
+  // ── PROTEINS / DAIRY ──
+  { loc:'FRIDGE', item:'Milk – Whole (1 gal)', src:'Costco', unit:'gal', have:'', par:'2', critical:false, unitCost:3.56, costNote:'$3.56/gal (128oz). $0.028/oz. Cheapest dairy on menu.' },
+  { loc:'FRIDGE', item:'Hard-Boiled Eggs (16ct x2)', src:'Costco', unit:'pack', have:'', par:'2', critical:false, unitCost:15.39, costNote:'$15.39 / 32 eggs = $0.48/egg. Egg toast uses 2 eggs = $0.96 food cost.' },
+  { loc:'MAIN FREEZER', item:'Frozen Chicken', src:'Costco', unit:'pkg', have:'', par:'2', critical:false, unitCost:12.00, costNote:'Est $12/pkg (Costco rotisserie or breast). Confirm price.' },
+
+  // ── NUT BUTTERS ──
+  { loc:'KITCHEN', item:'Almond Butter (27oz)', src:'Costco', unit:'jar', have:'', par:'2', critical:false, unitCost:9.56, costNote:'$9.56/27oz = $0.354/oz. Used in Erik\'s Addiction. 1oz per serving = $0.35.' },
+  { loc:'KITCHEN', item:'Peanut Butter (28oz x2)', src:'Costco', unit:'pack', have:'', par:'2', critical:false, unitCost:10.99, costNote:'$10.99 / 56oz = $0.196/oz. Used in Brice\'s PB Bowl and Açaí Bowl.' },
+
+  // ── PRODUCE ──
+  { loc:'PRODUCE', item:'Banana (3lb bunch)', src:'Costco', unit:'bunch', have:'', par:'4', critical:false, unitCost:2.19, costNote:'$2.19 / ~9 bananas = $0.24/banana. Used in 3 items. High turnover — check daily.' },
+  { loc:'PRODUCE', item:'Strawberries (2lb)', src:'Costco', unit:'pack', have:'', par:'2', critical:false, unitCost:3.84, costNote:'$3.84 / 32oz = $0.12/oz. Açaí Bowl topping, ~2oz per bowl.' },
+  { loc:'PRODUCE', item:'Avocado – Backup', src:'Costco / local', unit:'each', have:'', par:'6', critical:false, unitCost:1.20, costNote:'Emergency backup source. Higher cost, use only if Restaurant Depot stock runs out.' },
+  { loc:'PRODUCE', item:'Arugula (10oz)', src:'Costco', unit:'bag', have:'', par:'2', critical:false, unitCost:5.49, costNote:'$5.49/10oz = $0.549/oz. Salmon toast uses 1oz per serving.' },
+  { loc:'PRODUCE', item:'Baby Spinach (1lb)', src:'Costco', unit:'bag', have:'', par:'2', critical:false, unitCost:5.49, costNote:'$5.49/16oz = $0.343/oz. Chicken toast uses 1oz per serving.' },
+  { loc:'PRODUCE', item:'Watermelon (mini, 2ct)', src:'Costco', unit:'pack', have:'', par:'2', critical:false, unitCost:8.79, costNote:'$8.79 / 2 melons. ~8 juice servings per melon = $1.10/serving. Good margin item.' },
+  { loc:'PRODUCE', item:'Ginger (30lb)', src:'Restaurant Depot', unit:'box', have:'', par:'1', critical:false, unitCost:39.99, costNote:'$39.99 / 480oz = $0.083/oz. Healer Shot uses 0.5oz = $0.04. Lasts weeks.' },
+  { loc:'PRODUCE', item:'Lemon', src:'Costco', unit:'each', have:'', par:'12', critical:false, unitCost:0.25, costNote:'Est $0.25/lemon. Healer shot uses 1/4 lemon = $0.06.' },
+
+  // ── PANTRY / DRY ──
+  { loc:'PANTRY', item:'Agave (36oz x2)', src:'Costco', unit:'pack', have:'', par:'1', critical:false, unitCost:9.89, costNote:'$9.89 / 72oz = $0.137/oz. Used in frozen coconut base + Breechay\'s.' },
+  { loc:'PANTRY', item:'Matcha Powder Ceremonial (1lb)', src:'Bulk supplier', unit:'bag', have:'', par:'1', critical:false, unitCost:76.50, costNote:'$101.99 after THANKYOU20 discount = ~$76.50. $0.169/g. 2g per serving = $0.34. Breechay\'s + Matcha Latte.' },
+  { loc:'PANTRY', item:'Coconut Shreds Fine (2lb)', src:'Bulk supplier', unit:'bag', have:'', par:'1', critical:false, unitCost:13.49, costNote:'$17.99 after discount = ~$13.49. $0.42/oz. Topping use only — not for blending base.' },
+  { loc:'PANTRY', item:'Honey (24oz x3)', src:'Costco', unit:'pack', have:'', par:'1', critical:false, unitCost:21.55, costNote:'$21.55 / 72oz = $0.299/oz. Healer Shot uses 0.5oz = $0.15.' },
+  { loc:'PANTRY', item:'Maple Syrup', src:'Costco', unit:'bottle', have:'', par:'2', critical:false, unitCost:8.00, costNote:'Est $8/bottle. Confirm price.' },
+  { loc:'PANTRY', item:'Olive Oil', src:'Costco', unit:'bottle', have:'', par:'2', critical:false, unitCost:12.00, costNote:'Est $12/bottle. Egg toast uses ~0.5oz per serving.' },
+  { loc:'PANTRY', item:'Balsamic Vinegar', src:'Costco', unit:'bottle', have:'', par:'2', critical:false, unitCost:8.00, costNote:'Est $8/bottle. Chicken toast uses ~0.5oz per serving.' },
+  { loc:'PANTRY', item:'Coconut Oil', src:'Costco', unit:'jug', have:'', par:'1', critical:false, unitCost:14.00, costNote:'Est $14/jug. Shroom Coffee uses 1tsp = ~$0.03.' },
+  { loc:'PANTRY', item:'GF Granola (Barely Sweet)', src:'BOLA Granola', unit:'20lb bag', have:'', par:'1', critical:false, unitCost:120.00, costNote:'Invoice #11008 (04/06/2026): 20lb bulk bag at $120. Cost = $6/lb = $0.375/oz. Used in Açaí Bowl + PB Bowl (~1oz/serving).' },
+  { loc:'PANTRY', item:'Chia Seeds', src:'Costco/Amazon', unit:'bag', have:'', par:'1', critical:false, unitCost:9.00, costNote:'Est $9/bag. Açaí Bowl uses 1 tbsp = ~$0.05.' },
+  { loc:'PANTRY', item:'Cacao Nibs', src:'Amazon/bulk', unit:'bag', have:'', par:'1', critical:false, unitCost:12.00, costNote:'Est $12/lb. Erik\'s uses ~0.3oz = $0.22. Açaí Bowl uses ~0.25oz = $0.19.' },
+
+  // ── COFFEE ──
+  { loc:'BAR', item:'Coffee Beans (Perl\'a)', src:'Perl\'a', unit:'5lb bag', have:'', par:'2', critical:true, unitCost:68.00, costNote:'Invoice #14611 (04/01/2026): 6 bags at $63.75 + $25.50 shipping = $408 total. Landed cost ~ $68/bag (5lb, 80oz) = $0.85/oz. Finalize espresso and cold brew yield specs in ops.' },
+  { loc:'BAR', item:'Espresso Powder (Amazon)', src:'Amazon', unit:'container', have:'', par:'1', critical:false, unitCost:19.39, costNote:'$19.39 / 8oz = $2.42/oz = $1.21/double shot. FOR SMOOTHIE ADD-ONS ONLY. Consider switching to Perl\'a beans.' },
+  { loc:'BAR', item:'Mushroom Blend (Live Ultimate Shrooms)', src:'Live Ultimate Shrooms', unit:'pouch', have:'', par:'2', critical:false, unitCost:33.00, costNote:'Working cost from owner: $33 per pouch (typically order 10). Need servings per pouch to convert to per-drink cost exactly.' },
+  { loc:'FREEZER', item:'Açaí Base (Nativo Puro)', src:'Nativo / Amazonie Ventures', unit:'case (8kg)', have:'', par:'2', critical:true, unitCost:73.00, costNote:'Invoice #32685 (01/09/2026). $73/case = 80×100g packs (~$0.91/pack). Pure pulp — Cost Cards use ~$1.03 per ~4oz wt serving; adjust if recipe uses 2 packs.' },
+  { loc:'BAR', item:'Protein Powder (Pumpkin Seed)', src:'Amazon', unit:'bag', have:'', par:'1', critical:false, unitCost:25.99, costNote:'$25.99/16oz = $1.62/oz. Add-on +$2. At 1oz per serving: $1.62 cost, $0.38 margin. Borderline — consider raising add-on to $3.' },
+  { loc:'BAR', item:'Vanilla Syrup (Torani 1L)', src:'Amazon', unit:'bottle', have:'', par:'2', critical:false, unitCost:12.99, costNote:'$12.99/33.8oz = $0.38/oz. 1 pump = ~$0.10.' },
+
+  // ── SUPPLIES (non-food, tracked for overhead) ──
+  { loc:'BAR', item:'Bamboo Straws (100pk)', src:'Amazon', unit:'pack', have:'', par:'2', critical:false, unitCost:20.99, costNote:'$20.99/100 = $0.21/straw. Include in per-item supply cost.' },
+  { loc:'BAR', item:'Take-Out Containers (450ct)', src:'WebstaurantStore', unit:'case', have:'', par:'1', critical:false, unitCost:55.99, costNote:'$55.99/450 = $0.12 each. Black folded containers.' },
+  { loc:'BAR', item:'Cocktail Napkins Black (1000ct)', src:'WebstaurantStore', unit:'case', have:'', par:'1', critical:false, unitCost:16.99, costNote:'$16.99/1000 = $0.017 each.' },
+  { loc:'BAR', item:'Bamboo Forks (100pk)', src:'WebstaurantStore', unit:'pack', have:'', par:'3', critical:false, unitCost:9.99, costNote:'$9.99/100 = $0.10 each.' },
+  { loc:'SUPPLIES', item:'Paper Towels (12-roll)', src:'Costco', unit:'pack', have:'', par:'1', critical:false, unitCost:22.87, costNote:'$22.87/12 rolls. Operational supply — not in COGS.' },
+  { loc:'SUPPLIES', item:'Trash Bags Kitchen 13gal', src:'Amazon', unit:'box', have:'', par:'1', critical:false, unitCost:19.93, costNote:'$19.93/110 bags. Operational.' },
+  { loc:'R.ROOM', item:'Toilet Paper', src:'Costco', unit:'roll', have:'', par:'12', critical:false, unitCost:0.80, costNote:'Est $0.80/roll from Costco pack.' },
+  { loc:'R.ROOM', item:'Hand Soap', src:'Amazon', unit:'bottle', have:'', par:'2', critical:false, unitCost:4.00, costNote:'Est $4/bottle.' },
+];
+
+// Items that count toward COGS (food/bev only, not supplies)
+const cogsItems = invData.filter(i => !['SUPPLIES','R.ROOM'].includes(i.loc));
+
+function renderInv() {
+  const tb = document.getElementById('inv-tbody');
+  if (!tb) return;
+
+  // Group by location
+  const groups = {};
+  invData.forEach((r, i) => {
+    if (!groups[r.loc]) groups[r.loc] = [];
+    groups[r.loc].push({ ...r, idx: i });
+  });
+
+  let html = '';
+  Object.keys(groups).forEach(loc => {
+    html += `<tr><td colspan="8" style="background:var(--surface);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);padding:5px 8px;font-weight:500;">${loc}</td></tr>`;
+    groups[loc].forEach(r => {
+      const i = r.idx;
+      const hv = parseFloat(r.have), pv = parseFloat(r.par);
+      const hasHave = r.have !== '' && !isNaN(hv);
+      const isLow = hasHave && hv < pv;
+      const isOk = hasHave && hv >= pv;
+      let bc = 'bn', bt = '—';
+      if (isLow) { bc = 'br'; bt = 'Order'; }
+      else if (isOk) { bc = 'bg'; bt = 'OK'; }
+
+      const costDisplay = r.unitCost > 0
+        ? `<span style="font-size:9px;color:var(--ink-mid);">$${r.unitCost.toFixed(2)}</span>`
+        : `<span style="font-size:9px;color:var(--amber);">TBD</span>`;
+
+      // Stock value
+      let stockVal = '';
+      if (r.unitCost > 0 && hasHave) {
+        const val = (hv * r.unitCost).toFixed(2);
+        stockVal = `<span style="font-size:9px;color:var(--ink-light);">$${val}</span>`;
+      }
+
+      // PAR value
+      const parVal = r.unitCost > 0
+        ? `<span style="font-size:8.5px;color:var(--ink-light);">$${(pv * r.unitCost).toFixed(2)}</span>`
+        : '';
+
+      html += `<tr${r.critical ? ' style="background:rgba(196,89,58,0.03);"' : ''}
+        title="${r.costNote || ''}"
+        style="cursor:default;">
+        <td style="font-weight:${r.critical?'500':'400'};">
+          ${r.item}${r.critical ? ' <span style="color:var(--accent);font-size:8px;">★</span>' : ''}
+          ${r.unitCost === 0 ? ' <span style="font-size:8px;color:var(--amber);">⚠ cost TBD</span>' : ''}
+        </td>
+        <td style="color:var(--ink-light);font-size:9.5px;">${r.src}</td>
+        <td style="color:var(--ink-light);">${r.unit}</td>
+        <td>${costDisplay}</td>
+        <td><input type="text" value="${r.have}" placeholder="—"
+          style="width:42px;padding:2px 5px;font-size:10px;"
+          oninput="invData[${i}].have=this.value;renderInv();updateInvSummary()"></td>
+        <td style="color:var(--ink-mid);">${r.par}<br>${parVal}</td>
+        <td>${stockVal}</td>
+        <td><span class="badge ${bc}">${bt}</span></td>
+      </tr>`;
+    });
+  });
+  tb.innerHTML = html;
+  updateInvSummary();
+}
+
+function updateInvSummary() {
+  // Total current stock value (food items with known costs + quantities)
+  let totalStockValue = 0;
+  let pendingCount = 0;
+  let lowCritical = [];
+  invData.forEach(r => {
+    const hv = parseFloat(r.have);
+    if (!isNaN(hv) && r.unitCost > 0) {
+      totalStockValue += hv * r.unitCost;
+    }
+    if (r.unitCost === 0) pendingCount++;
+    if (r.critical && r.have !== '' && !isNaN(hv) && hv < parseFloat(r.par)) {
+      lowCritical.push(r.item);
+    }
+  });
+
+  const el = document.getElementById('inv-summary');
+  if (!el) return;
+
+  const critAlert = lowCritical.length > 0
+    ? `<div class="alert al-c" style="margin-bottom:8px;"><strong>⚠ Critical items low:</strong> ${lowCritical.join(', ')} — order today.</div>`
+    : '';
+
+  el.innerHTML = `
+    ${critAlert}
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div class="metric">
+        <div class="m-lbl">Stock on hand value</div>
+        <div class="m-val">$${totalStockValue.toFixed(0)}</div>
+        <div class="m-sub">items with known costs + qty</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Costs pending</div>
+        <div class="m-val" style="color:var(--amber);">${pendingCount}</div>
+        <div class="m-sub">cost detail pending (mushroom servings, espresso dose/cold brew yield)</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Critical items low</div>
+        <div class="m-val" style="color:${lowCritical.length > 0 ? 'var(--red)' : 'var(--green)'};">${lowCritical.length}</div>
+        <div class="m-sub">${lowCritical.length > 0 ? lowCritical[0] + (lowCritical.length > 1 ? ' +' + (lowCritical.length-1) : '') : 'all critical items stocked'}</div>
+      </div>
+    </div>
+  `;
+}
+
+
+function calcWeeklySpend() {
+  const costco = parseFloat(document.getElementById('spend-costco').value) || 0;
+  const depot  = parseFloat(document.getElementById('spend-depot').value)  || 0;
+  const other  = parseFloat(document.getElementById('spend-other').value)  || 0;
+  const amazon = parseFloat(document.getElementById('spend-amazon').value) || 0;
+  const perla  = parseFloat(document.getElementById('spend-perla').value)  || 0;
+  const rev    = parseFloat(document.getElementById('spend-rev').value)    || 0;
+  const totalSpend = costco + depot + other + amazon + perla;
+  if (!totalSpend) return;
+  const suppliesEst = amazon * 0.3;
+  const foodSpend = totalSpend - suppliesEst;
+  const cogsPct = rev > 0 ? (foodSpend / rev * 100) : 0;
+  const color = cogsPct <= 30 ? 'var(--green)' : cogsPct <= 40 ? 'var(--amber)' : 'var(--red)';
+  const status = cogsPct <= 30 ? '✓ On target' : cogsPct <= 40 ? '⚠ Above target — find the source' : '✗ Critical — fix before next week';
+  document.getElementById('spend-result').innerHTML =
+    `Total spend: <strong>$${totalSpend.toFixed(2)}</strong> · Est. supplies (non-food): ~$${suppliesEst.toFixed(2)} · Food/bev COGS: <strong>$${foodSpend.toFixed(2)}</strong><br>` +
+    (rev > 0
+      ? `COGS %: <strong style="color:${color};font-size:14px;">${cogsPct.toFixed(1)}%</strong> · <span style="color:${color};">${status}</span><br><span style="font-size:9px;color:var(--ink-light);">Copy this into COGS Check tab on Monday. Target: ≤30%.</span>`
+      : `<span style="color:var(--ink-light);">Enter this week's gross revenue to calculate COGS %.</span>`);
+}
+
+// ── Open/Close ──
+const openList = [
+  { id:'o1', text:'Equipment on — espresso, blenders', note:'' },
+  { id:'o2', text:'Ice filled', note:'' },
+  { id:'o3', text:'Frozen coconut prepped', note:"Erik's, Breechay's Special, PB Bowl" },
+  { id:'o4', text:'Avocado checked / mashed', note:'3 toast items use avocado' },
+  { id:'o5', text:'Sourdough sliced', note:'' },
+  { id:'o6', text:'Granola portioned', note:'Açai Bowl + PB Bowl' },
+  { id:'o7', text:'Square POS + loyalty prompt on', note:'' },
+  { id:'o8', text:'Patio set if Sa/Su', note:'Clean, chairs out, sound on' },
+];
+const closeList = [
+  { id:'c1', text:"Log today's revenue", note:'In console → Today tab' },
+  { id:'c2', text:'Blenders cleaned', note:'' },
+  { id:'c3', text:'Espresso back-flush', note:'Daily' },
+  { id:'c4', text:'Fridge check', note:'Avocado, coconut, milk for tomorrow' },
+  { id:'c5', text:'Surfaces + floor', note:'' },
+  { id:'c6', text:'Trash out if full', note:'' },
+  { id:'c7', text:'Lock patio + doors', note:'' },
+];
+
+function initOps() {
+  const render = (list, target) => {
+    document.getElementById(target).innerHTML = list.map(c => {
+      const done = S.checks[c.id];
+      return `<div class="ci" onclick="toggleOps('${c.id}')">
+        <div class="cb${done ? ' on' : ''}"></div>
+        <div class="cb-body">
+          <div class="cb-main${done ? ' done' : ''}">${c.text}</div>
+          ${c.note ? `<div class="cb-note">${c.note}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  };
+  render(openList, 'open-wrap');
+  render(closeList, 'close-wrap');
+  renderSavedNotes();
+}
+
+function toggleOps(id) {
+  S.checks[id] = !S.checks[id];
+  save('checks');
+  initOps();
+}
+
+function resetOps() {
+  [...openList, ...closeList].forEach(c => delete S.checks[c.id]);
+  save('checks');
+  initOps();
+}
+
+function saveNote() {
+  const txt = document.getElementById('ops-notes').value.trim();
+  if (!txt) return;
+  const d = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  S.notes.unshift({ date: d, text: txt });
+  if (S.notes.length > 10) S.notes.pop();
+  save('notes');
+  document.getElementById('ops-notes').value = '';
+  renderSavedNotes();
+}
+
+function renderSavedNotes() {
+  const el = document.getElementById('ops-notes-saved');
+  if (!el || !S.notes.length) return;
+  el.innerHTML = S.notes.slice(0, 5).map(n =>
+    `<div style="padding:5px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:8.5px;color:var(--ink-light);">${n.date}</div>
+      <div style="font-size:10.5px;color:var(--ink);margin-top:1px;">${n.text}</div>
+    </div>`).join('');
+}
+
+// ── Init ──
+initStatus();
+initToday();
+renderDJs();
+renderAnchors();
+renderInv();
+renderSavedNotes();
+
+// ── WEEKLY REVIEW ──
+function initReview() {
+  renderReviewHist();
+  renderPaceTracker();
+}
+
+function saveReview() {
+  const r = {
+    week: document.getElementById('rv-week').value.trim(),
+    gross: document.getElementById('rv-gross').value,
+    orders: document.getElementById('rv-orders').value,
+    ticket: document.getElementById('rv-ticket').value,
+    cogs: document.getElementById('rv-cogs').value,
+    sms: document.getElementById('rv-sms').value,
+    sunday: document.getElementById('rv-sunday').value,
+    q1: document.getElementById('rv-q1').value,
+    q2: document.getElementById('rv-q2').value,
+    q3: document.getElementById('rv-q3').value,
+    q4: document.getElementById('rv-q4').value.trim(),
+    q5: document.getElementById('rv-q5').value.trim(),
+    q6: document.getElementById('rv-q6').value.trim(),
+    saved: new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+  };
+  if (!r.week) return alert('Add the week date first.');
+  // Replace if same week exists
+  const idx = S.reviews.findIndex(x => x.week === r.week);
+  if (idx >= 0) S.reviews[idx] = r; else S.reviews.unshift(r);
+  if (S.reviews.length > 52) S.reviews.pop();
+  save('reviews');
+  renderReviewHist();
+  renderPaceTracker();
+  // Clear form
+  ['rv-week','rv-gross','rv-orders','rv-ticket','rv-cogs','rv-sms','rv-sunday','rv-q4','rv-q5','rv-q6'].forEach(id => document.getElementById(id).value = '');
+  ['rv-q1','rv-q2','rv-q3'].forEach(id => document.getElementById(id).value = '');
+}
+
+function renderReviewHist() {
+  const el = document.getElementById('review-hist');
+  if (!el) return;
+  if (!S.reviews.length) { el.innerHTML = '<div style="font-size:9.5px;color:var(--ink-light);">No reviews yet. Fill in the form and save.</div>'; return; }
+  el.innerHTML = S.reviews.slice(0, 8).map(r => {
+    const grossN = parseFloat(r.gross) || 0;
+    const pct = Math.round(grossN / GROSS_TARGET * 100);
+    const col = grossN >= GROSS_TARGET ? 'var(--green)' : grossN >= PHASE1_TARGET ? 'var(--amber)' : 'var(--accent)';
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
+        <span style="font-size:11px;font-weight:500;color:var(--ink);">${r.week}</span>
+        <span style="font-size:13px;font-family:'Cormorant Garamond',serif;color:${col};">$${grossN.toLocaleString()}</span>
+      </div>
+      <div style="font-size:9px;color:var(--ink-light);">${pct}% of $8,914 target · COGS ${r.cogs||'—'}% · SMS list ${r.sms||'—'} · Sunday ${r.sunday||'—'} covers</div>
+      ${r.q6 ? `<div style="font-size:9.5px;color:var(--ink-mid);margin-top:3px;font-style:italic;">Priority: ${r.q6}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderPaceTracker() {
+  const el = document.getElementById('pace-tracker');
+  if (!el || S.reviews.length < 2) return;
+  const recent = S.reviews.slice(0, 6).reverse();
+  el.innerHTML = recent.map(r => {
+    const g = parseFloat(r.gross) || 0;
+    const w = Math.min(100, Math.round(g / GROSS_TARGET * 100));
+    const col = g >= GROSS_TARGET ? 'var(--green)' : g >= PHASE1_TARGET ? 'var(--amber)' : 'var(--accent)';
+    return `<div style="margin-bottom:7px;">
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-mid);margin-bottom:2px;">
+        <span>${r.week}</span><span style="color:${col};">$${g.toLocaleString()}</span>
+      </div>
+      <div class="prog"><div class="prog-f" style="width:${w}%;background:${col};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── DECISIONS ──
+function initDecisions() {
+  renderDecisionsList();
+}
+
+function saveDecision() {
+  const name = document.getElementById('dec-name').value.trim();
+  if (!name) return;
+  const d = {
+    id: Date.now(),
+    name,
+    start: document.getElementById('dec-start').value.trim(),
+    review: document.getElementById('dec-review').value.trim(),
+    phase: document.getElementById('dec-phase').value,
+    hyp: document.getElementById('dec-hyp').value.trim(),
+    pass: document.getElementById('dec-pass').value.trim(),
+    fail: document.getElementById('dec-fail').value.trim(),
+    status: 'active',
+    outcome: '',
+    added: new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' })
+  };
+  S.decisions.unshift(d);
+  save('decisions');
+  ['dec-name','dec-start','dec-review','dec-hyp','dec-pass','dec-fail'].forEach(id => document.getElementById(id).value = '');
+  renderDecisionsList();
+}
+
+function addDecision() {
+  document.getElementById('dec-name').focus();
+  document.getElementById('dec-name').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateDecisionStatus(id, status) {
+  const d = S.decisions.find(x => x.id === id);
+  if (!d) return;
+  d.status = status;
+  if (status !== 'active') {
+    const outcome = prompt(`Outcome for "${d.name}": what happened?`);
+    if (outcome) d.outcome = outcome;
+  }
+  save('decisions');
+  renderDecisionsList();
+}
+
+function renderDecisionsList() {
+  const el = document.getElementById('decisions-list');
+  if (!el) return;
+  if (!S.decisions.length) { el.innerHTML = ''; return; }
+  const active = S.decisions.filter(d => d.status === 'active');
+  const closed = S.decisions.filter(d => d.status !== 'active');
+  let html = '';
+  if (active.length) {
+    html += `<div class="sl">Active experiments (${active.length})</div>`;
+    html += active.map(d => decisionCard(d)).join('');
+  }
+  if (closed.length) {
+    html += `<div class="sl" style="margin-top:1rem;">Completed (${closed.length})</div>`;
+    html += closed.map(d => decisionCard(d)).join('');
+  }
+  el.innerHTML = html;
+}
+
+function decisionCard(d) {
+  const statusBadge = d.status === 'active' ? '<span class="badge ba">Active</span>'
+    : d.status === 'passed' ? '<span class="badge bg">Passed</span>'
+    : d.status === 'failed' ? '<span class="badge br">Failed</span>'
+    : '<span class="badge bn">Adjusted</span>';
+  return `<div class="card" style="margin-bottom:9px;border-left:3px solid ${d.status==='active'?'var(--amber)':d.status==='passed'?'var(--green)':'var(--ink-faint)'};">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:500;color:var(--ink);">${d.name}</div>
+      ${statusBadge}
+    </div>
+    <div style="font-size:9px;color:var(--ink-light);margin-bottom:6px;">${d.phase} · Started ${d.start || d.added}${d.review ? ' · Review by ' + d.review : ''}</div>
+    ${d.hyp ? `<div style="font-size:9.5px;color:var(--ink-mid);margin-bottom:4px;"><strong>Hypothesis:</strong> ${d.hyp}</div>` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:${d.status==='active'?'8':'4'}px;">
+      ${d.pass ? `<div style="background:var(--green-light);border-radius:4px;padding:5px 8px;font-size:9px;color:var(--green);"><strong>Pass:</strong> ${d.pass}</div>` : ''}
+      ${d.fail ? `<div style="background:var(--red-light);border-radius:4px;padding:5px 8px;font-size:9px;color:var(--red);"><strong>Fail:</strong> ${d.fail}</div>` : ''}
+    </div>
+    ${d.outcome ? `<div style="font-size:9.5px;color:var(--ink-mid);margin-bottom:6px;font-style:italic;">Outcome: ${d.outcome}</div>` : ''}
+    ${d.status === 'active' ? `<div style="display:flex;gap:6px;">
+      <button class="btn btn-sm btn-o" onclick="updateDecisionStatus(${d.id},'passed')">✓ Passed</button>
+      <button class="btn btn-sm btn-o" onclick="updateDecisionStatus(${d.id},'failed')">✗ Failed</button>
+      <button class="btn btn-sm btn-o" onclick="updateDecisionStatus(${d.id},'adjusted')">~ Adjusted</button>
+    </div>` : ''}
+  </div>`;
+}
+
+// ── EXPORT / IMPORT / SNAPSHOT ──
+function initDataPage() {
+  const el = document.getElementById('data-inventory');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="pr"><span class="pk">Revenue logs</span><span class="pv">${S.logs.length} entries</span></div>
+    <div class="pr"><span class="pk">Weekly reviews</span><span class="pv">${S.reviews.length} saved</span></div>
+    <div class="pr"><span class="pk">Active experiments</span><span class="pv">${S.decisions.filter(d=>d.status==='active').length} running</span></div>
+    <div class="pr"><span class="pk">DJs in roster</span><span class="pv">${S.djs.length}</span></div>
+    <div class="pr"><span class="pk">Anchor nodes</span><span class="pv">${S.anchors.length}</span></div>
+    <div class="pr"><span class="pk">Notes saved</span><span class="pv">${S.notes.length}</span></div>
+    <div style="font-size:9px;color:var(--ink-light);margin-top:8px;">Last export: check your downloads folder.</div>
+  `;
+}
+
+function exportData() {
+  const allData = {
+    exported: new Date().toISOString(),
+    version: 7,
+    logs: S.logs,
+    checks: S.checks,
+    djs: S.djs,
+    anchors: S.anchors,
+    notes: S.notes,
+    sunday: S.sunday,
+    reviews: S.reviews,
+    decisions: S.decisions,
+  };
+  const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `hideout-console-${dateStr}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importData() {
+  const file = document.getElementById('import-file').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (d.logs) { S.logs = d.logs; save('logs'); }
+      if (d.checks) { S.checks = d.checks; save('checks'); }
+      if (d.djs) { S.djs = d.djs; save('djs'); }
+      if (d.anchors) { S.anchors = d.anchors; save('anchors'); }
+      if (d.notes) { S.notes = d.notes; save('notes'); }
+      if (d.sunday) { S.sunday = d.sunday; save('sunday'); }
+      if (d.reviews) { S.reviews = d.reviews; save('reviews'); }
+      if (d.decisions) { S.decisions = d.decisions; save('decisions'); }
+      document.getElementById('import-status').textContent = '✓ Data imported successfully. Refresh the page to see all changes.';
+      document.getElementById('import-status').style.color = 'var(--green)';
+      initDataPage();
+    } catch(err) {
+      document.getElementById('import-status').textContent = '✗ Error reading file. Make sure it\'s a valid Hideout export.';
+      document.getElementById('import-status').style.color = 'var(--red)';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function generateSnapshot() {
+  const now = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  const totalWTD = S.logs.slice(0, 7).reduce((s,l) => s + l.rev, 0);
+  const totalContacts = S.logs.reduce((s,l) => s + (parseInt(l.contacts)||0), 0);
+  const lastReview = S.reviews[0] || null;
+  const activeExps = S.decisions.filter(d => d.status === 'active');
+
+  let snap = `HIDEOUT CONSOLE SNAPSHOT — ${now}\n`;
+  snap += `${'='.repeat(50)}\n\n`;
+
+  snap += `REVENUE (last 7 logged days)\n`;
+  snap += `Week-to-date gross: $${totalWTD.toLocaleString()} / $${GROSS_TARGET.toLocaleString()} target (${Math.round(totalWTD/GROSS_TARGET*100)}%)\n`;
+  snap += `Daily target: $${DAILY_TARGET.toLocaleString()}\n`;
+  if (S.logs.length) {
+    snap += `Recent logs:\n`;
+    S.logs.slice(0,7).forEach(l => {
+      snap += `  ${l.date}: $${l.rev} · ${l.orders||'?'} orders${l.top?' · '+l.top:''}${l.contacts?' · '+l.contacts+' new SMS':''}\n`;
+    });
+  } else { snap += `  No revenue logged yet.\n`; }
+  snap += `Total SMS contacts captured (all time): ${totalContacts}\n\n`;
+
+  snap += `SUNDAY SLOT\n`;
+  const sun = S.sunday;
+  snap += `Status: ${sun.status||'not set'} · DJ: ${sun.dj||'—'}\n\n`;
+
+  snap += `WEEKLY CHECKLIST COMPLETION\n`;
+  const weekCheckIds = ['wc1','wc2','wc3','wc4','wc5','wc6','wc7','wc8'];
+  const weekCheckNames = ['COGS check (Mon)','Inventory (Tue)','Confirm DJ (Fri)','IG story (Fri)','SMS blast (Sat)','Sunday slot ran','Say next Sunday to guests','Log week + confirm next DJ'];
+  weekCheckIds.forEach((id,i) => {
+    snap += `  ${S.checks[id] ? '✓' : '✗'} ${weekCheckNames[i]}\n`;
+  });
+  snap += '\n';
+
+  if (lastReview) {
+    snap += `LAST WEEKLY REVIEW (${lastReview.week})\n`;
+    snap += `Gross: $${lastReview.gross||'—'} · Orders: ${lastReview.orders||'—'} · Avg ticket: $${lastReview.ticket||'—'} · COGS: ${lastReview.cogs||'—'}%\n`;
+    snap += `SMS list size: ${lastReview.sms||'—'} · Sunday covers: ${lastReview.sunday||'—'}\n`;
+    snap += `Sunday ran: ${lastReview.q1||'—'}\n`;
+    snap += `Said next Sunday cue: ${lastReview.q2||'—'}\n`;
+    snap += `SMS capture: ${lastReview.q3||'—'}\n`;
+    snap += `What worked: ${lastReview.q4||'—'}\n`;
+    snap += `What didn't: ${lastReview.q5||'—'}\n`;
+    snap += `Next week priority: ${lastReview.q6||'—'}\n\n`;
+  } else { snap += `LAST WEEKLY REVIEW\n  None saved yet.\n\n`; }
+
+  snap += `ACTIVE EXPERIMENTS (${activeExps.length})\n`;
+  if (!activeExps.length) { snap += `  None running yet.\n`; }
+  activeExps.forEach(d => {
+    snap += `  [${d.phase}] ${d.name} — started ${d.start||d.added}\n`;
+    snap += `  Pass: ${d.pass||'—'}\n`;
+    snap += `  Fail: ${d.fail||'—'}\n`;
+  });
+  snap += '\n';
+
+  snap += `TARGETS (for reference)\n`;
+  snap += `Gross target: $8,914/wk → Net $4,000/wk (56% contribution margin − $992 fixed)\n`;
+  snap += `Daily target: $1,438 · Orders: ~72–90/day · Avg ticket: $16–24\n`;
+  snap += `COGS target: ≤30% · SMS list growth: 15–20 new/wk\n`;
+
+  document.getElementById('snapshot-out').value = snap;
+}
+
+function copySnapshot() {
+  const el = document.getElementById('snapshot-out');
+  el.select();
+  document.execCommand('copy');
+  // Brief feedback
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = orig, 1500);
+}
+
+function copyAdvisorPrompt() {
+  const prompt = `Here is my Hideout console data for the week of [DATE].
+
+[PASTE SNAPSHOT HERE]
+
+Review my numbers vs. targets. Review my weekly review answers. Review my active experiments and their pass/fail status.
+
+Tell me:
+1. What does the data say is working?
+2. What should I adjust or stop?
+3. Confirm or change my one priority for next week.
+
+Be direct. No hedging. If something has strong evidence, say so. If it's inference, say that too.`;
+  navigator.clipboard.writeText(prompt).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = prompt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = orig, 1500);
+}
+</script>
+</body>
+</html>
