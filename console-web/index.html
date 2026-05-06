@@ -312,6 +312,7 @@ table.dj tr:last-child td{border-bottom:none;}
   <div class="sb-nav">
     <div class="sb-sec">
       <div class="sb-sec-lbl">Daily</div>
+      <button class="nb" onclick="nav('brice',this)" style="font-weight:600;"><span class="ni">◈</span>Brice</button>
       <button class="nb active" onclick="nav('today',this)"><span class="ni">◉</span>Today</button>
       <button class="nb" onclick="nav('cogs',this)"><span class="ni">%</span>COGS Check</button>
     </div>
@@ -352,6 +353,112 @@ table.dj tr:last-child td{border-bottom:none;}
 <main class="main">
 
 <!-- ═══ TODAY ═══ -->
+<div class="page" id="page-brice">
+  <div class="ph">
+    <div class="ph-l">
+      <div class="ph-title" style="font-family:'Jost',sans-serif;font-size:22px;font-weight:500;letter-spacing:-0.02em;">Business at a glance</div>
+      <div class="ph-sub" id="brice-week-label">Loading week…</div>
+    </div>
+    <div class="ph-r">
+      <button class="btn btn-sm btn-o" onclick="loadBriceWeek()" id="brice-sync-btn">Sync Square</button>
+    </div>
+  </div>
+
+  <!-- ── The three numbers ── -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.25rem;">
+    <div class="metric" style="border-left:3px solid var(--green);">
+      <div class="m-lbl">Made this week</div>
+      <div class="m-val" id="brice-made" style="color:var(--green);">$—</div>
+      <div class="m-sub" id="brice-made-sub">Square revenue Mon–Sun</div>
+    </div>
+    <div class="metric" style="border-left:3px solid var(--accent);">
+      <div class="m-lbl">Spent this week</div>
+      <div class="m-val" id="brice-spent" style="color:var(--accent);">$—</div>
+      <div class="m-sub" id="brice-spent-sub">Supplier deliveries + orders</div>
+    </div>
+    <div class="metric" id="brice-kept-card">
+      <div class="m-lbl">Kept (gross margin)</div>
+      <div class="m-val" id="brice-kept">$—</div>
+      <div class="m-sub" id="brice-kept-sub">Before fixed costs</div>
+    </div>
+  </div>
+
+  <!-- ── Weekly bar chart ── -->
+  <div class="sl">Revenue vs spend — day by day</div>
+  <div class="card" style="margin-bottom:1.25rem;padding:16px 14px 10px;">
+    <div id="brice-chart" style="display:flex;align-items:flex-end;gap:6px;height:140px;margin-bottom:8px;">
+      <div style="color:var(--ink-light);font-size:13px;align-self:center;">Sync Square to load week</div>
+    </div>
+    <div style="display:flex;gap:14px;margin-top:4px;">
+      <span style="font-size:12px;color:var(--ink-light);display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block;"></span>Revenue</span>
+      <span style="font-size:12px;color:var(--ink-light);display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent);display:inline-block;opacity:0.7;"></span>Spend (est. by day)</span>
+    </div>
+  </div>
+
+  <!-- ── Top items this week ── -->
+  <div class="sl">What sold this week</div>
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div id="brice-top-items">
+      <div style="font-size:13px;color:var(--ink-light);">Sync Square to see item breakdown</div>
+    </div>
+  </div>
+
+  <!-- ── Spend log ── -->
+  <div class="sl">What I spent this week</div>
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Log each delivery or purchase. AI can read invoice photos — paste the total Cursor extracts, or just type it.</div>
+
+    <!-- Add spend entry -->
+    <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:end;margin-bottom:12px;" id="brice-spend-form">
+      <div>
+        <div style="font-size:12px;color:var(--ink-light);margin-bottom:3px;">Supplier</div>
+        <select id="bs-supplier" style="width:100%;font-size:13px;padding:5px 8px;">
+          <option value="">— pick one —</option>
+          <option>Instacart</option>
+          <option>Zak the Baker</option>
+          <option>Perl'a</option>
+          <option>BOLA Granola</option>
+          <option>Restaurant Depot</option>
+          <option>Amazon</option>
+          <option>WebstaurantStore</option>
+          <option>Sprouts</option>
+          <option>Live Ultimate Shrooms</option>
+          <option>Terrasoul</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--ink-light);margin-bottom:3px;">Amount $</div>
+        <input type="number" id="bs-amount" placeholder="0.00" style="width:100%;font-size:13px;padding:5px 8px;">
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--ink-light);margin-bottom:3px;">Date</div>
+        <input type="text" id="bs-date" placeholder="today" style="width:90px;font-size:13px;padding:5px 8px;">
+      </div>
+      <button class="btn btn-sm" onclick="briceAddSpend()" style="font-size:13px;align-self:end;margin-bottom:0px;">Add</button>
+    </div>
+
+    <!-- Spend list -->
+    <div id="brice-spend-list">
+      <div style="font-size:13px;color:var(--ink-light);">No spend logged this week yet.</div>
+    </div>
+
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:13px;color:var(--ink-light);">Weekly total</span>
+      <span style="font-size:16px;font-weight:500;color:var(--ink);" id="brice-spend-total">$0</span>
+    </div>
+  </div>
+
+  <!-- ── Orders rhythm ── -->
+  <div class="sl">Order rhythm this week</div>
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div id="brice-order-rhythm">
+      <div style="font-size:13px;color:var(--ink-light);">Sync Square to see order patterns</div>
+    </div>
+  </div>
+
+</div>
+
 <div class="page active" id="page-today">
   <div class="ph">
     <div class="ph-l">
@@ -360,7 +467,7 @@ table.dj tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
-  <!-- Required Today Queue — primary workflow surface -->
+  <!-- Close & Reset — end-of-day flow. Answers: is tomorrow executable? -->
   <div id="required-today-queue" style="margin-bottom:1.5rem;"></div>
 
   <!-- Sunday slot — primary block -->

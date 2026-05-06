@@ -40,7 +40,7 @@ function nav(id, btn) {
   document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
-  const r = { today: initToday, week: initWeek, cogs: initCOGS, djs: renderDJs, anchors: renderAnchors, pnl: initPnl, inventory: renderInv, ops: initOps, review: initReview, decisions: initDecisions, scripts: ()=>{}, data: initDataPage, costs: ()=>{} };
+  const r = { brice: initBrice, today: initToday, week: initWeek, cogs: initCOGS, djs: renderDJs, anchors: renderAnchors, pnl: initPnl, inventory: renderInv, ops: initOps, review: initReview, decisions: initDecisions, scripts: ()=>{}, data: initDataPage, costs: ()=>{} };
   if (r[id]) r[id]();
 }
 
@@ -52,7 +52,7 @@ function initStatus() {
   document.getElementById('sdot').className = 'sdot' + (open ? '' : ' off');
   document.getElementById('stext').textContent = open ? 'Open now' : 'Closed';
   const tagEl = document.getElementById('today-tag');
-  if (tagEl) tagEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) + ' · log · check · confirm Sunday';
+  if (tagEl) tagEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
 // ── TODAY ──
@@ -88,9 +88,9 @@ function initToday() {
   renderRequiredQueue();
 }
 
-// ── REQUIRED TODAY QUEUE ──
-// Queue state lives at S.ui.queue — a single object, no new tables.
-// Each item writes into existing S structures on save.
+// ── CLOSE & RESET ──
+// Runs at end of day. Answers: "Is tomorrow executable?"
+// Queue state lives at S.ui.queue — no new tables, no new persist paths.
 
 const ANCHOR_ITEMS = [
   { key: 'bananas',      label: 'Bananas' },
@@ -150,18 +150,13 @@ function isQueueItemDone(q, item) {
 }
 
 function queueItemVisible(item) {
-  if (item === 'anchorInv') {
-    // Open-time safety check only; not a close-time task.
-    const n = getMiamiNow();
-    return n.hour < 12;
-  }
   if (item === 'sundayDJ') {
-    // Show Thu–Sun (days 4, 5, 6, 0)
+    // Show Wed–Sun (days 3, 4, 5, 6, 0) — enough runway to confirm
     const d = getMiamiNow().day;
-    return d === 4 || d === 5 || d === 6 || d === 0;
+    return d === 3 || d === 4 || d === 5 || d === 6 || d === 0;
   }
   if (item === 'weeklyReview') {
-    // Show on Sun (day 0) or Mon (day 1) if not done
+    // Show Sun + Mon if not done
     const d = getMiamiNow().day;
     return (d === 0 || d === 1) && !isQueueItemDone(getQueue(), 'weeklyReview');
   }
@@ -174,53 +169,64 @@ function renderRequiredQueue() {
 
   const q = getQueue();
   const items = [
-    { id: 'squareSync',    label: 'Square sync',             always: true },
-    { id: 'anchorInv',     label: 'Anchor inventory check',  always: true },
-    { id: 'supplierSpend', label: 'Supplier spend entry',    always: true },
-    { id: 'observation',   label: 'Operator observation',    always: true },
-    { id: 'weeklyReview',  label: 'Weekly review due',       always: false },
-    { id: 'sundayDJ',      label: 'Sunday DJ status',        always: false },
+    { id: 'squareSync',    label: 'Sync Square',               always: true },
+    { id: 'anchorInv',     label: 'Stock check — 7 anchors',   always: true },
+    { id: 'supplierSpend', label: 'Log any supplier spend',     always: true },
+    { id: 'observation',   label: 'One thing from today',       always: true },
+    { id: 'weeklyReview',  label: 'Weekly review',              always: false },
+    { id: 'sundayDJ',      label: 'Sunday DJ confirmed',        always: false },
   ];
 
   const visible = items.filter(i => i.always || queueItemVisible(i.id));
   const pending = visible.filter(i => !isQueueItemDone(q, i.id));
   const allDone = pending.length === 0;
 
-  let headerColor = allDone ? 'var(--green)' : 'var(--ink)';
-  let headerText = allDone
-    ? 'Required today — done ✓'
-    : `Required today — ${pending.length} item${pending.length === 1 ? '' : 's'} remaining`;
+  const headerColor = allDone ? 'var(--green)' : 'var(--ink)';
+  const headerText = allDone
+    ? 'Tomorrow is ready ✓'
+    : `Close & reset — ${pending.length} left`;
+  const subText = allDone
+    ? 'Walk in tomorrow and execute.'
+    : 'Do this before you leave. Tomorrow should already be resolved.';
 
   let html = `<div style="border:1.5px solid var(--border);border-radius:8px;overflow:hidden;">
-    <div style="background:${allDone ? 'var(--green-light)' : 'var(--surface)'};padding:10px 14px 9px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
-      <span style="font-size:13px;letter-spacing:0.10em;text-transform:uppercase;font-weight:600;color:${headerColor};">${headerText}</span>
+    <div style="background:${allDone ? 'var(--green-light)' : 'var(--surface)'};padding:11px 14px 10px;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;letter-spacing:0.10em;text-transform:uppercase;font-weight:600;color:${headerColor};margin-bottom:2px;">${headerText}</div>
+      <div style="font-size:13px;color:var(--ink-light);">${subText}</div>
     </div>`;
 
   // ── 1. Square Sync ──
   const syncDone = isQueueItemDone(q, 'squareSync');
-  html += renderQueueRow('squareSync', 'Square sync', syncDone, `
+  html += renderQueueRow('squareSync', 'Sync Square', syncDone, `
+    <div style="font-size:13px;color:var(--ink-light);margin-bottom:8px;">Lock today's numbers before you leave.</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <button class="btn btn-sm" onclick="queueSyncSquare()" style="font-size:13px;">${syncDone ? 'Re-sync' : 'Sync now'}</button>
-      <span id="queue-square-status" style="font-size:13px;color:var(--ink-light);">${syncDone ? 'Synced ✓' : 'Not yet synced today'}</span>
+      <span id="queue-square-status" style="font-size:13px;color:var(--ink-light);">${syncDone ? 'Synced ✓' : 'Not synced yet today'}</span>
     </div>`);
 
-  // ── 2. Anchor Inventory ──
+  // ── 2. Anchor Stock Check ──
   const invDone = isQueueItemDone(q, 'anchorInv');
   const savedInv = q.anchorInv || {};
+  const criticalItems = ANCHOR_ITEMS.filter(a => savedInv[a.key] === 'critical').map(a => a.label);
+  const lowItems = ANCHOR_ITEMS.filter(a => savedInv[a.key] === 'low').map(a => a.label);
   const invInputs = ANCHOR_ITEMS.map(a => {
     const val = savedInv[a.key] || '';
     const btnClass = (s) => s === val ? 'btn btn-sm' + (s === 'healthy' ? ' btn-g' : s === 'low' ? ' btn-a' : ' btn-c') : 'btn btn-sm btn-o';
     return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-      <span style="width:100px;font-size:13px;color:var(--ink);">${a.label}</span>
-      <button class="${btnClass('healthy')}" onclick="queueSetInv('${a.key}','healthy')" style="font-size:11px;padding:3px 8px;">Healthy</button>
+      <span style="width:105px;font-size:13px;color:var(--ink);">${a.label}</span>
+      <button class="${btnClass('healthy')}" onclick="queueSetInv('${a.key}','healthy')" style="font-size:11px;padding:3px 8px;">Good</button>
       <button class="${btnClass('low')}" onclick="queueSetInv('${a.key}','low')" style="font-size:11px;padding:3px 8px;">Low</button>
-      <button class="${btnClass('critical')}" onclick="queueSetInv('${a.key}','critical')" style="font-size:11px;padding:3px 8px;">Critical</button>
+      <button class="${btnClass('critical')}" onclick="queueSetInv('${a.key}','critical')" style="font-size:11px;padding:3px 8px;">Order</button>
     </div>`;
   }).join('');
   const allInvSet = ANCHOR_ITEMS.every(a => savedInv[a.key]);
-  html += renderQueueRow('anchorInv', 'Anchor inventory (open check)', invDone, `
-    <div style="margin-bottom:6px;">${invInputs}</div>
-    <button class="btn btn-sm${allInvSet ? '' : ' btn-o'}" onclick="queueSaveInv()" style="font-size:13px;">${invDone ? 'Saved ✓ · update' : 'Save inventory check'}</button>`);
+  const invSubLabel = invDone
+    ? (criticalItems.length ? `Order needed: ${criticalItems.join(', ')}` : lowItems.length ? `Low: ${lowItems.join(', ')}` : 'All good for tomorrow')
+    : 'What ran low today? What needs ordering?';
+  html += renderQueueRow('anchorInv', 'Stock check — 7 anchors', invDone, `
+    <div style="font-size:13px;color:var(--ink-light);margin-bottom:8px;">${invSubLabel}</div>
+    <div style="margin-bottom:8px;">${invInputs}</div>
+    <button class="btn btn-sm${allInvSet ? '' : ' btn-o'}" onclick="queueSaveInv()" style="font-size:13px;">${invDone ? 'Updated ✓' : 'Save stock check'}</button>`);
 
   // ── 3. Supplier Spend ──
   const spendDone = isQueueItemDone(q, 'supplierSpend');
@@ -229,36 +235,37 @@ function renderRequiredQueue() {
     const key = s.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
     const val = savedSpend[key] || '';
     return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-      <span style="width:110px;font-size:13px;color:var(--ink);">${s}</span>
+      <span style="width:120px;font-size:13px;color:var(--ink);">${s}</span>
       <span style="font-size:13px;color:var(--ink-light);">$</span>
       <input type="number" id="qspend-${key}" placeholder="0" value="${val}" style="width:80px;font-size:13px;padding:4px 7px;" oninput="queueUpdateSpend('${key}',this.value)">
     </div>`;
   }).join('');
-  html += renderQueueRow('supplierSpend', 'Supplier spend', spendDone, `
-    <div style="margin-bottom:6px;">${spendInputs}</div>
+  html += renderQueueRow('supplierSpend', 'Log any supplier spend', spendDone, `
+    <div style="font-size:13px;color:var(--ink-light);margin-bottom:8px;">Any Costco run, delivery, or order today? Log it now. Skip if nothing spent.</div>
+    <div style="margin-bottom:8px;">${spendInputs}</div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-sm" onclick="queueSaveSpend()" style="font-size:13px;">${spendDone ? 'Saved ✓ · update' : 'Save spend'}</button>
-      <span style="font-size:12px;color:var(--ink-light);">Updates weekly spend + COGS context</span>
+      <button class="btn btn-sm btn-o" onclick="queueSkipSpend()" style="font-size:13px;">${spendDone ? '' : 'Nothing today'}</button>
     </div>`);
 
-  // ── 4. Operator Observation ──
+  // ── 4. One thing from today ──
   const obsDone = isQueueItemDone(q, 'observation');
   const savedObs = q.observation || '';
-  html += renderQueueRow('observation', 'Operator observation', obsDone, `
-    <input type="text" id="queue-obs-input" placeholder="e.g. Salmon moving faster than expected." value="${savedObs.replace(/"/g,'&quot;')}"
-      style="width:100%;font-size:14px;padding:6px 9px;margin-bottom:6px;"
+  html += renderQueueRow('observation', 'One thing from today', obsDone, `
+    <div style="font-size:13px;color:var(--ink-light);margin-bottom:8px;">What did you notice? One sentence. No structure needed.</div>
+    <input type="text" id="queue-obs-input" placeholder="e.g. Salmon moved fast. Walk-ins asking for matcha." value="${savedObs.replace(/"/g,'&quot;')}"
+      style="width:100%;font-size:14px;padding:6px 9px;margin-bottom:8px;"
       onkeydown="if(event.key==='Enter')queueSaveObs()">
     <div style="display:flex;align-items:center;gap:8px;">
-      <button class="btn btn-sm" onclick="queueSaveObs()" style="font-size:13px;">${obsDone ? 'Saved ✓ · update' : 'Save observation'}</button>
-      <span style="font-size:12px;color:var(--ink-light);">One sentence only. Stored historically.</span>
+      <button class="btn btn-sm" onclick="queueSaveObs()" style="font-size:13px;">${obsDone ? 'Saved ✓ · update' : 'Save'}</button>
     </div>`);
 
   // ── 5. Weekly Review (conditional) ──
   if (queueItemVisible('weeklyReview')) {
     const rvDone = isQueueItemDone(q, 'weeklyReview');
-    html += renderQueueRow('weeklyReview', 'Weekly review due', rvDone, `
-      <div style="font-size:13px;color:var(--ink-mid);margin-bottom:7px;">Complete this week's review before you close out.</div>
-      <button class="btn btn-sm" onclick="nav('review',null)" style="font-size:13px;">Go to Weekly Review →</button>`);
+    html += renderQueueRow('weeklyReview', 'Weekly review', rvDone, `
+      <div style="font-size:13px;color:var(--ink-light);margin-bottom:8px;">10 minutes. Numbers + one priority. Do it before you close out the week.</div>
+      <button class="btn btn-sm" onclick="nav('review',null)" style="font-size:13px;">Open Weekly Review →</button>`);
   }
 
   // ── 6. Sunday DJ (conditional) ──
@@ -266,13 +273,16 @@ function renderRequiredQueue() {
     const djDone = isQueueItemDone(q, 'sundayDJ');
     const djStatus = S.sunday && S.sunday.status;
     const djName = S.sunday && S.sunday.dj ? S.sunday.dj : '';
-    html += renderQueueRow('sundayDJ', 'Sunday DJ status', djDone, `
+    const djSubLabel = djDone
+      ? (djName ? `${djName} · ${djStatus}` : djStatus)
+      : 'Sunday needs to be locked before Friday.';
+    html += renderQueueRow('sundayDJ', 'Sunday DJ confirmed', djDone, `
+      <div style="font-size:13px;color:${djDone ? 'var(--green)' : 'var(--ink-light)'};margin-bottom:8px;">${djSubLabel}</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <input type="text" id="queue-dj-name" placeholder="@djhandle" value="${djName.replace(/"/g,'&quot;')}" style="width:130px;font-size:13px;padding:5px 8px;">
         <button class="btn btn-sm btn-o" onclick="queueSetDJ('outreach')" style="font-size:12px;">Outreach sent</button>
         <button class="btn btn-sm" onclick="queueSetDJ('confirmed')" style="font-size:12px;">Confirmed ✓</button>
-      </div>
-      ${djDone ? `<div style="font-size:12px;color:var(--green);margin-top:5px;">${djName ? djName + ' · ' : ''}${djStatus}</div>` : ''}`);
+      </div>`);
   }
 
   html += '</div>';
@@ -427,6 +437,14 @@ function queueSaveObs() {
     if (S.notes.length > 30) S.notes.pop();
     save('notes');
   }
+  saveQueue();
+  renderRequiredQueue();
+}
+
+function queueSkipSpend() {
+  const q = getQueue();
+  q.supplierSpend = { skipped: true };
+  q.supplierSpendSaved = Date.now();
   saveQueue();
   renderRequiredQueue();
 }
@@ -851,24 +869,24 @@ function updatePaceLine() {
   const el = document.getElementById('today-pace-line');
   if (!el) return;
   if (!S.logs.length) {
-    el.textContent = 'No revenue logged today.';
+    el.textContent = 'Sync Square to see today\'s numbers.';
     el.style.color = 'var(--ink-mid)';
     return;
   }
   const todayRev = S.logs[0].rev;
   const diffFloor = todayRev - DAILY_FLOOR_TARGET;
-  if (diffFloor >= 0) {
-    const northStarGap = DAILY_TARGET - todayRev;
-    if (northStarGap > 0) {
-      el.textContent = 'Above $500 floor by $' + diffFloor + '. North star gap: $' + northStarGap + ' to $1,438.';
-      el.style.color = 'var(--amber)';
-    } else {
-      el.textContent = 'Above floor and north star. +$' + diffFloor + ' vs $500.';
-      el.style.color = 'var(--green)';
-    }
+  if (todayRev >= DAILY_TARGET) {
+    el.textContent = 'Strong day. $' + todayRev.toLocaleString() + ' — above north star.';
+    el.style.color = 'var(--green)';
+  } else if (diffFloor >= 0) {
+    el.textContent = '$500 floor reached. $' + todayRev.toLocaleString() + ' today.';
+    el.style.color = 'var(--green)';
+  } else if (todayRev >= 350) {
+    el.textContent = '$' + todayRev.toLocaleString() + ' today — $' + Math.abs(diffFloor) + ' from floor.';
+    el.style.color = 'var(--amber)';
   } else {
-    el.textContent = '$' + Math.abs(diffFloor) + ' below $500 floor today.';
-    el.style.color = 'var(--accent)';
+    el.textContent = '$' + todayRev.toLocaleString() + ' today. Slow day — note what you observed.';
+    el.style.color = 'var(--ink-mid)';
   }
 }
 
@@ -2086,6 +2104,320 @@ function applyPersistedInventorySpend() {
   });
 }
 
+// ── BRICE TAB ──
+// Business at a glance. Made / Spent / Kept. Mon–Sun.
+// Spend lives in S.ui.briceSpend — array of weekly spend entries.
+// Propagates into S.ui.inventorySpend so COGS tab stays in sync.
+
+function getBriceWeekKey() {
+  // Returns YYYY-WW string for current Mon–Sun week
+  const now = getMiamiNow();
+  const d = new Date();
+  const day = now.day === 0 ? 7 : now.day; // Mon=1 Sun=7
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - (day - 1));
+  return monday.toLocaleDateString('en-CA'); // YYYY-MM-DD of Monday
+}
+
+function getBriceSpendThisWeek() {
+  if (!S.ui.briceSpend || !Array.isArray(S.ui.briceSpend)) S.ui.briceSpend = [];
+  const weekKey = getBriceWeekKey();
+  return S.ui.briceSpend.filter(e => e.weekKey === weekKey);
+}
+
+function briceWeekTotal() {
+  return getBriceSpendThisWeek().reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+}
+
+function briceAddSpend() {
+  const supplier = document.getElementById('bs-supplier')?.value?.trim();
+  const amount = parseFloat(document.getElementById('bs-amount')?.value);
+  const dateRaw = document.getElementById('bs-date')?.value?.trim();
+  if (!supplier) { alert('Pick a supplier.'); return; }
+  if (!amount || isNaN(amount) || amount <= 0) { alert('Enter an amount.'); return; }
+
+  const dateLabel = dateRaw || new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const weekKey = getBriceWeekKey();
+
+  if (!S.ui.briceSpend) S.ui.briceSpend = [];
+  S.ui.briceSpend.unshift({
+    id: Date.now(),
+    weekKey,
+    supplier,
+    amount,
+    date: dateLabel,
+    addedAt: Date.now(),
+  });
+  // Keep last 200 entries
+  if (S.ui.briceSpend.length > 200) S.ui.briceSpend.pop();
+
+  // ── Propagate into inventorySpend so COGS tab sees it ──
+  bricePropagateToCOGS();
+  save('app');
+
+  // Clear form
+  const supEl = document.getElementById('bs-supplier');
+  const amtEl = document.getElementById('bs-amount');
+  const dtEl = document.getElementById('bs-date');
+  if (supEl) supEl.value = '';
+  if (amtEl) amtEl.value = '';
+  if (dtEl) dtEl.value = '';
+
+  renderBriceSpendList();
+  renderBriceSummaryNumbers(S.ui.briceWeekData || null);
+}
+
+function briceRemoveSpend(id) {
+  if (!S.ui.briceSpend) return;
+  S.ui.briceSpend = S.ui.briceSpend.filter(e => e.id !== id);
+  bricePropagateToCOGS();
+  save('app');
+  renderBriceSpendList();
+  renderBriceSummaryNumbers(S.ui.briceWeekData || null);
+}
+
+function bricePropagateToCOGS() {
+  // Accumulate this week's spend by supplier into S.ui.inventorySpend
+  const entries = getBriceSpendThisWeek();
+  const acc = { costco: 0, depot: 0, perla: 0, other: 0, amazon: 0 };
+  const map = {
+    'instacart': 'other',
+    'zak the baker': 'other',
+    "perl'a": 'perla',
+    'bola granola': 'other',
+    'restaurant depot': 'depot',
+    'amazon': 'amazon',
+    'webstaurantstore': 'other',
+    'sprouts': 'other',
+    'live ultimate shrooms': 'other',
+    'terrasoul': 'other',
+    'costco': 'costco',
+    'other': 'other',
+  };
+  entries.forEach(e => {
+    const key = map[(e.supplier || '').toLowerCase()] || 'other';
+    acc[key] += parseFloat(e.amount) || 0;
+  });
+  if (!S.ui.inventorySpend) S.ui.inventorySpend = {};
+  if (acc.costco) S.ui.inventorySpend.costco = String(Math.round(acc.costco * 100) / 100);
+  if (acc.depot)  S.ui.inventorySpend.depot  = String(Math.round(acc.depot * 100) / 100);
+  if (acc.perla)  S.ui.inventorySpend.perla  = String(Math.round(acc.perla * 100) / 100);
+  if (acc.amazon) S.ui.inventorySpend.amazon = String(Math.round(acc.amazon * 100) / 100);
+  if (acc.other)  S.ui.inventorySpend.other  = String(Math.round(acc.other * 100) / 100);
+}
+
+function renderBriceSpendList() {
+  const el = document.getElementById('brice-spend-list');
+  const totalEl = document.getElementById('brice-spend-total');
+  if (!el) return;
+  const entries = getBriceSpendThisWeek();
+  if (!entries.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">No spend logged this week yet.</div>';
+    if (totalEl) totalEl.textContent = '$0';
+    return;
+  }
+  el.innerHTML = entries.map(e =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <span style="font-size:14px;font-weight:500;color:var(--ink);">${e.supplier}</span>
+        <span style="font-size:12px;color:var(--ink-light);margin-left:8px;">${e.date}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:15px;font-weight:500;color:var(--accent);">$${Number(e.amount).toFixed(2)}</span>
+        <span onclick="briceRemoveSpend(${e.id})" style="cursor:pointer;color:var(--ink-light);font-size:16px;line-height:1;">×</span>
+      </div>
+    </div>`
+  ).join('');
+  const total = briceWeekTotal();
+  if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+}
+
+function renderBriceSummaryNumbers(weekData) {
+  const madeEl = document.getElementById('brice-made');
+  const madeSubEl = document.getElementById('brice-made-sub');
+  const spentEl = document.getElementById('brice-spent');
+  const keptEl = document.getElementById('brice-kept');
+  const keptSubEl = document.getElementById('brice-kept-sub');
+  const keptCard = document.getElementById('brice-kept-card');
+
+  const spent = briceWeekTotal();
+  const made = weekData ? weekData.weekGross : S.logs.slice(0, 7).reduce((s, l) => s + (l.rev || 0), 0);
+  const kept = made - spent;
+  const keptPct = made > 0 ? Math.round((kept / made) * 100) : 0;
+
+  if (madeEl) madeEl.textContent = '$' + made.toLocaleString();
+  if (madeSubEl) madeSubEl.textContent = weekData ? `${weekData.weekOrders} orders Mon–Sun` : 'From logged days';
+  if (spentEl) spentEl.textContent = '$' + spent.toFixed(2);
+  if (keptEl) keptEl.textContent = '$' + kept.toLocaleString();
+  if (keptSubEl) keptSubEl.textContent = kept >= 0 ? `${keptPct}% gross margin · before fixed costs` : 'Spend exceeded revenue this week';
+  if (keptCard) keptCard.style.borderLeft = '3px solid ' + (kept >= made * 0.4 ? 'var(--green)' : kept >= 0 ? 'var(--amber)' : 'var(--red)');
+  if (keptEl) keptEl.style.color = kept >= 0 ? 'var(--ink)' : 'var(--red)';
+}
+
+function renderBriceChart(weekData) {
+  const el = document.getElementById('brice-chart');
+  if (!el) return;
+
+  const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const days = weekData ? weekData.days : [];
+
+  if (!days.length) {
+    el.innerHTML = '<div style="color:var(--ink-light);font-size:13px;align-self:center;">Sync Square to load week</div>';
+    return;
+  }
+
+  const maxRev = Math.max(...days.map(d => d.grossSales), 500);
+  const spentEntries = getBriceSpendThisWeek();
+
+  // Spread spend across days proportionally by revenue (simple heuristic)
+  const totalRev = days.reduce((s, d) => s + d.grossSales, 0);
+  const totalSpent = briceWeekTotal();
+
+  el.innerHTML = days.map((day, i) => {
+    const revH = Math.round((day.grossSales / maxRev) * 120);
+    // Allocate spend proportionally to revenue weight
+    const spendAlloc = totalRev > 0 ? (day.grossSales / totalRev) * totalSpent : 0;
+    const spendH = Math.round((spendAlloc / maxRev) * 120);
+    const isToday = day.date === todayIsoDate();
+    const atFloor = day.grossSales >= 500;
+
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="font-size:11px;color:${day.grossSales > 0 ? 'var(--ink)' : 'var(--ink-light)'};">
+        ${day.grossSales > 0 ? '$' + Math.round(day.grossSales) : '—'}
+      </div>
+      <div style="width:100%;display:flex;flex-direction:column;justify-content:flex-end;height:120px;gap:2px;position:relative;">
+        ${spendH > 0 ? `<div style="width:100%;height:${spendH}px;background:var(--accent);opacity:0.5;border-radius:3px 3px 0 0;"></div>` : ''}
+        <div style="width:100%;height:${Math.max(revH, 2)}px;background:${atFloor ? 'var(--green)' : 'var(--ink-faint)'};border-radius:3px 3px 0 0;opacity:${day.grossSales > 0 ? '1' : '0.3'};"></div>
+      </div>
+      <div style="font-size:11px;color:${isToday ? 'var(--amber)' : 'var(--ink-light)'};font-weight:${isToday ? '600' : '400'};">${DAY_LABELS[i]}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBriceTopItems(weekData) {
+  const el = document.getElementById('brice-top-items');
+  if (!el) return;
+  if (!weekData || !weekData.topItems || !weekData.topItems.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">Sync Square to see item breakdown</div>';
+    return;
+  }
+  const maxSales = weekData.topItems[0]?.grossSales || 1;
+  el.innerHTML = weekData.topItems.slice(0, 8).map((item, i) => {
+    const barW = Math.round((item.grossSales / maxSales) * 100);
+    return `<div style="margin-bottom:9px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
+        <span style="font-size:13px;font-weight:${i < 3 ? '500' : '400'};color:var(--ink);">${item.name}</span>
+        <span style="font-size:13px;color:var(--ink-mid);">$${item.grossSales.toFixed(0)} · ${Math.round(item.quantity)} sold</span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;">
+        <div style="height:4px;width:${barW}%;background:${i === 0 ? 'var(--green)' : 'var(--accent)'};border-radius:2px;opacity:${i === 0 ? 1 : 0.6};"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBriceOrderRhythm(weekData) {
+  const el = document.getElementById('brice-order-rhythm');
+  if (!el) return;
+  if (!weekData || !weekData.days) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">Sync Square to see order patterns</div>';
+    return;
+  }
+  const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const rows = weekData.days.filter(d => d.orderCount > 0).map((d, i) => {
+    const label = DAY_LABELS[weekData.days.indexOf(d)] || '';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:13px;color:var(--ink);width:40px;">${label}</span>
+      <span style="font-size:13px;color:var(--ink-mid);">${d.orderCount} orders</span>
+      <span style="font-size:13px;color:var(--ink-mid);">avg $${d.avgTicket}</span>
+      <span style="font-size:14px;font-weight:500;color:${d.grossSales >= 500 ? 'var(--green)' : 'var(--ink)'};">$${d.grossSales.toFixed(0)}</span>
+    </div>`;
+  });
+  if (!rows.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">No orders recorded this week yet.</div>';
+    return;
+  }
+  const totalOrders = weekData.weekOrders;
+  const avgTicket = totalOrders > 0 ? (weekData.weekGross / totalOrders).toFixed(2) : '—';
+  el.innerHTML = rows.join('') +
+    `<div style="display:flex;justify-content:space-between;padding-top:8px;margin-top:4px;">
+      <span style="font-size:13px;color:var(--ink-light);">${totalOrders} orders total</span>
+      <span style="font-size:13px;color:var(--ink-light);">avg ticket $${avgTicket}</span>
+    </div>`;
+}
+
+async function loadBriceWeek() {
+  const btn = document.getElementById('brice-sync-btn');
+  const labelEl = document.getElementById('brice-week-label');
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+
+  try {
+    const date = todayIsoDate();
+    const res = await fetch('/api/square/weekly-summary?date=' + encodeURIComponent(date), {
+      headers: { Accept: 'application/json' },
+    });
+    const body = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      if (labelEl) labelEl.textContent = 'Square unavailable — spend data still works below';
+      renderBriceSummaryNumbers(null);
+      renderBriceSpendList();
+      return;
+    }
+
+    // Cache week data
+    S.ui.briceWeekData = body;
+    save('app');
+
+    const { weekRange } = body;
+    if (labelEl && weekRange) {
+      labelEl.textContent = `Week of ${formatIsoDateToLabel(weekRange.start)} – ${formatIsoDateToLabel(weekRange.end)}`;
+    }
+
+    renderBriceSummaryNumbers(body);
+    renderBriceChart(body);
+    renderBriceTopItems(body);
+    renderBriceOrderRhythm(body);
+    renderBriceSpendList();
+
+  } catch (err) {
+    if (labelEl) labelEl.textContent = 'Sync failed — check connection';
+    renderBriceSummaryNumbers(null);
+    renderBriceSpendList();
+  } finally {
+    if (btn) { btn.textContent = 'Sync Square'; btn.disabled = false; }
+  }
+}
+
+function initBrice() {
+  // Pre-fill today's date in the spend form
+  const dtEl = document.getElementById('bs-date');
+  if (dtEl && !dtEl.value) {
+    dtEl.value = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+  // Show week label from cache if available
+  const labelEl = document.getElementById('brice-week-label');
+  const cached = S.ui.briceWeekData;
+  if (cached && cached.weekRange && labelEl) {
+    labelEl.textContent = `Week of ${formatIsoDateToLabel(cached.weekRange.start)} – ${formatIsoDateToLabel(cached.weekRange.end)}`;
+    renderBriceSummaryNumbers(cached);
+    renderBriceChart(cached);
+    renderBriceTopItems(cached);
+    renderBriceOrderRhythm(cached);
+  } else {
+    renderBriceSummaryNumbers(null);
+    if (labelEl) labelEl.textContent = 'Tap Sync Square to load this week';
+  }
+  renderBriceSpendList();
+}
+
 if (typeof window !== 'undefined') {
-  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, getMiamiNow, isAfterCloseMiami, findTodayLogIndex, upsertSquareFacts, rerenderTodayAfterSquareSave, syncSquareToday, maybeAutoSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend, renderRequiredQueue, queueToggleExpand, queueSyncSquare, queueSetInv, queueUpdateSpend, queueSaveInv, queueSaveSpend, queueSaveObs, queueSetDJ });
+  window.initBrice = initBrice;
+  window.loadBriceWeek = loadBriceWeek;
+  window.briceAddSpend = briceAddSpend;
+  window.briceRemoveSpend = briceRemoveSpend;
+}
+
+if (typeof window !== 'undefined') {
+  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, getMiamiNow, isAfterCloseMiami, findTodayLogIndex, upsertSquareFacts, rerenderTodayAfterSquareSave, syncSquareToday, maybeAutoSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend, renderRequiredQueue, queueToggleExpand, queueSyncSquare, queueSetInv, queueUpdateSpend, queueSaveInv, queueSaveSpend, queueSkipSpend, queueSaveObs, queueSetDJ, initBrice, loadBriceWeek, briceAddSpend, briceRemoveSpend });
 }
