@@ -406,7 +406,7 @@ table.dj tr:last-child td{border-bottom:none;}
   <!-- ── Spend log ── -->
   <div class="sl">What I spent this week</div>
   <div class="card" style="margin-bottom:1.25rem;">
-    <div style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Log each delivery or purchase. AI can read invoice photos — paste the total Cursor extracts, or just type it.</div>
+    <div style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Log each delivery or purchase. Use Scan invoice to auto-fill supplier + amount, then confirm and add.</div>
 
     <!-- Add spend entry -->
     <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:end;margin-bottom:12px;" id="brice-spend-form">
@@ -435,8 +435,13 @@ table.dj tr:last-child td{border-bottom:none;}
         <div style="font-size:12px;color:var(--ink-light);margin-bottom:3px;">Date</div>
         <input type="text" id="bs-date" placeholder="today" style="width:90px;font-size:13px;padding:5px 8px;">
       </div>
-      <button class="btn btn-sm" onclick="briceAddSpend()" style="font-size:13px;align-self:end;margin-bottom:0px;">Add</button>
+      <div style="display:flex;gap:6px;align-items:end;">
+        <button class="btn btn-sm btn-o" onclick="briceScanInvoice()" style="font-size:13px;align-self:end;margin-bottom:0px;">Scan invoice</button>
+        <button class="btn btn-sm" onclick="briceAddSpend()" style="font-size:13px;align-self:end;margin-bottom:0px;">Add</button>
+      </div>
     </div>
+    <input type="file" id="bs-invoice-file" accept="image/*" capture="environment" style="display:none" onchange="briceHandleInvoiceFile(this.files)">
+    <div id="bs-scan-status" style="display:none;font-size:12px;color:var(--ink-light);margin-bottom:10px;"></div>
 
     <!-- Spend list -->
     <div id="brice-spend-list">
@@ -446,6 +451,13 @@ table.dj tr:last-child td{border-bottom:none;}
     <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:13px;color:var(--ink-light);">Weekly total</span>
       <span style="font-size:16px;font-weight:500;color:var(--ink);" id="brice-spend-total">$0</span>
+    </div>
+  </div>
+
+  <div class="sl">What's probably running low</div>
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div id="brice-depletion-hints">
+      <div style="font-size:13px;color:var(--ink-light);">Sync Square to see top-item depletion hints.</div>
     </div>
   </div>
 

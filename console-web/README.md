@@ -65,6 +65,7 @@ Add these Vercel project env vars (Production):
 - `SQUARE_ACCESS_TOKEN`
 - `SQUARE_LOCATION_ID`
 - `SQUARE_ENVIRONMENT=production`
+- `ANTHROPIC_API_KEY` (for Brice invoice scan autofill)
 
 Server route:
 
@@ -94,6 +95,8 @@ Next phase (not in this release):
 - Pull read-only Square customer/loyalty metrics (if API/scopes support it) to prefill
   `SMS Captures` and `Loyalty Signups`.
 - Until then, those fields remain manual by design.
+- Once customer/loyalty scopes are confirmed in Square, remove manual loyalty entry from
+  the Today log flow and source those values from Square.
 
 ## Export / Import
 

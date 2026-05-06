@@ -564,7 +564,23 @@ function logDay() {
     return;
   }
   if (!d || isNaN(r)) return;
-  S.logs.unshift({ date: d, rev: r, orders: o, top: t, contacts: c, loyalty: l, loggedAt: Date.now() });
+  const dateIso = todayIsoDate();
+  const synced = S.ui.squareTodaySummary || {};
+  const hasSquareContext = synced.date === dateIso;
+  S.logs.unshift({
+    date: d,
+    dateIso,
+    rev: r,
+    orders: o,
+    top: t,
+    contacts: c,
+    loyalty: l,
+    source: hasSquareContext ? 'manual+square' : 'manual',
+    squareSyncedAt: hasSquareContext ? (synced.syncedAt || Date.now()) : '',
+    squareTopItems: hasSquareContext ? (synced.topItems || []) : [],
+    squareSalesByHour: hasSquareContext ? (synced.salesByHour || []) : [],
+    loggedAt: Date.now(),
+  });
   if (S.logs.length > 40) S.logs.pop();
   save('logs');
   ['l-rev', 'l-orders', 'l-topitem', 'l-contacts', 'l-loyalty'].forEach(id => document.getElementById(id).value = '');
@@ -653,6 +669,8 @@ function upsertSquareFacts(summary, mode) {
   const orders = String(summary.orderCount || 0);
   const top = summary.topItems && summary.topItems[0] ? summary.topItems[0].name : '';
   const nowTs = Date.now();
+  const squareTopItems = Array.isArray(summary.topItems) ? summary.topItems : [];
+  const squareSalesByHour = Array.isArray(summary.salesByHour) ? summary.salesByHour : [];
 
   if (idx >= 0) {
     const existing = S.logs[idx] || {};
@@ -666,6 +684,8 @@ function upsertSquareFacts(summary, mode) {
       source: 'square',
       squareSyncedAt: nowTs,
       squareAutoSavedAt: mode === 'auto' ? nowTs : (existing.squareAutoSavedAt || ''),
+      squareTopItems,
+      squareSalesByHour,
     };
     save('logs');
     return { mode: 'updated', preservedManual: !!((existing.contacts && existing.contacts.trim()) || (existing.loyalty && existing.loyalty.trim())) };
@@ -686,6 +706,8 @@ function upsertSquareFacts(summary, mode) {
     source: 'square',
     squareSyncedAt: nowTs,
     squareAutoSavedAt: mode === 'auto' ? nowTs : '',
+    squareTopItems,
+    squareSalesByHour,
     loggedAt: nowTs,
   });
   if (S.logs.length > 40) S.logs.pop();
@@ -726,6 +748,14 @@ async function syncSquareToday(opts = {}) {
     }
 
     const summary = body.summary || {};
+    if (!S.ui.squareTodaySummary || typeof S.ui.squareTodaySummary !== 'object') S.ui.squareTodaySummary = {};
+    S.ui.squareTodaySummary = {
+      date: summary.date || date,
+      syncedAt: Date.now(),
+      topItems: Array.isArray(summary.topItems) ? summary.topItems : [],
+      salesByHour: Array.isArray(summary.salesByHour) ? summary.salesByHour : [],
+    };
+    save('app');
     document.getElementById('l-date').value = formatIsoDateToLabel(summary.date || date);
     document.getElementById('l-rev').value = String(Math.round(summary.grossSales || 0));
     document.getElementById('l-orders').value = String(summary.orderCount || 0);
@@ -2316,6 +2346,85 @@ function renderBriceTopItems(weekData) {
   }).join('');
 }
 
+const BRICE_RECIPE_HINTS = [
+  {
+    match: ['erik', 'salmon'],
+    ingredients: [
+      { label: 'Salmon', perUnit: 2, unit: 'oz' },
+      { label: 'Bread', perUnit: 2, unit: 'slices' },
+    ],
+  },
+  {
+    match: ['brice', 'pb bowl'],
+    ingredients: [
+      { label: 'Bananas', perUnit: 1, unit: 'ea' },
+      { label: 'Peanut butter', perUnit: 1.5, unit: 'oz' },
+      { label: 'Oat milk', perUnit: 4, unit: 'oz' },
+      { label: 'Granola', perUnit: 1, unit: 'oz' },
+    ],
+  },
+  {
+    match: ['acai', 'açaí'],
+    ingredients: [
+      { label: 'Acai base', perUnit: 6, unit: 'oz' },
+      { label: 'Granola', perUnit: 1, unit: 'oz' },
+      { label: 'Bananas', perUnit: 0.5, unit: 'ea' },
+    ],
+  },
+  {
+    match: ['toast'],
+    ingredients: [
+      { label: 'Bread', perUnit: 2, unit: 'slices' },
+    ],
+  },
+  {
+    match: ['latte', 'matcha', 'coffee', 'cold brew'],
+    ingredients: [
+      { label: 'Oat milk', perUnit: 3, unit: 'oz' },
+    ],
+  },
+];
+
+function findRecipeHint(itemName) {
+  const n = (itemName || '').toLowerCase();
+  return BRICE_RECIPE_HINTS.find(r => r.match.some(token => n.includes(token)));
+}
+
+function renderBriceDepletionHints(weekData) {
+  const el = document.getElementById('brice-depletion-hints');
+  if (!el) return;
+  if (!weekData || !Array.isArray(weekData.topItems) || !weekData.topItems.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">Sync Square to see top-item depletion hints.</div>';
+    return;
+  }
+
+  const hints = [];
+  weekData.topItems.slice(0, 5).forEach(item => {
+    const recipe = findRecipeHint(item.name);
+    if (!recipe) return;
+    const sold = Number(item.quantity || 0);
+    recipe.ingredients.forEach(ing => {
+      hints.push({
+        ingredient: ing.label,
+        text: `${item.name} sold ${Math.round(sold)}x. Estimated ${ing.label} use: ${(sold * ing.perUnit).toFixed(1)} ${ing.unit}.`,
+      });
+    });
+  });
+
+  if (!hints.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">No mapped recipe hints for top items yet.</div>';
+    return;
+  }
+
+  el.innerHTML = hints.slice(0, 8).map(h => `
+    <div style="padding:7px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;color:var(--ink);font-weight:500;">${h.ingredient}</div>
+      <div style="font-size:13px;color:var(--ink-mid);margin-top:1px;">${h.text}</div>
+      <div style="font-size:11px;color:var(--ink-light);margin-top:3px;">Heuristic estimate from top-5 weekly item sales.</div>
+    </div>
+  `).join('');
+}
+
 function renderBriceOrderRhythm(weekData) {
   const el = document.getElementById('brice-order-rhythm');
   if (!el) return;
@@ -2361,6 +2470,7 @@ async function loadBriceWeek() {
     if (!res.ok) {
       if (labelEl) labelEl.textContent = 'Square unavailable — spend data still works below';
       renderBriceSummaryNumbers(null);
+      renderBriceDepletionHints(null);
       renderBriceSpendList();
       return;
     }
@@ -2377,12 +2487,14 @@ async function loadBriceWeek() {
     renderBriceSummaryNumbers(body);
     renderBriceChart(body);
     renderBriceTopItems(body);
+    renderBriceDepletionHints(body);
     renderBriceOrderRhythm(body);
     renderBriceSpendList();
 
   } catch (err) {
     if (labelEl) labelEl.textContent = 'Sync failed — check connection';
     renderBriceSummaryNumbers(null);
+    renderBriceDepletionHints(null);
     renderBriceSpendList();
   } finally {
     if (btn) { btn.textContent = 'Sync Square'; btn.disabled = false; }
@@ -2403,12 +2515,58 @@ function initBrice() {
     renderBriceSummaryNumbers(cached);
     renderBriceChart(cached);
     renderBriceTopItems(cached);
+    renderBriceDepletionHints(cached);
     renderBriceOrderRhythm(cached);
   } else {
     renderBriceSummaryNumbers(null);
+    renderBriceDepletionHints(null);
     if (labelEl) labelEl.textContent = 'Tap Sync Square to load this week';
   }
   renderBriceSpendList();
+}
+
+function briceSetScanStatus(msg, tone = 'muted') {
+  const el = document.getElementById('bs-scan-status');
+  if (!el) return;
+  const colors = {
+    muted: 'var(--ink-light)',
+    ok: 'var(--green)',
+    warn: 'var(--amber)',
+    err: 'var(--red)',
+  };
+  el.style.display = 'block';
+  el.style.color = colors[tone] || colors.muted;
+  el.textContent = msg;
+}
+
+function briceScanInvoice() {
+  const input = document.getElementById('bs-invoice-file');
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
+async function briceHandleInvoiceFile(files) {
+  const file = files && files[0];
+  if (!file) return;
+  briceSetScanStatus('Scanning invoice…', 'muted');
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/invoice/scan', { method: 'POST', body: fd });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      briceSetScanStatus(body.message || 'Invoice scan failed.', 'err');
+      return;
+    }
+    const supplierEl = document.getElementById('bs-supplier');
+    const amountEl = document.getElementById('bs-amount');
+    if (supplierEl && body.supplier) supplierEl.value = body.supplier;
+    if (amountEl && body.amount) amountEl.value = String(body.amount);
+    briceSetScanStatus(`Read invoice · ${body.supplier || 'Supplier'} · $${body.amount || '0.00'}. Confirm then Add.`, 'ok');
+  } catch (err) {
+    briceSetScanStatus('Invoice scan unavailable. Enter manually.', 'warn');
+  }
 }
 
 if (typeof window !== 'undefined') {
@@ -2416,6 +2574,8 @@ if (typeof window !== 'undefined') {
   window.loadBriceWeek = loadBriceWeek;
   window.briceAddSpend = briceAddSpend;
   window.briceRemoveSpend = briceRemoveSpend;
+  window.briceScanInvoice = briceScanInvoice;
+  window.briceHandleInvoiceFile = briceHandleInvoiceFile;
 }
 
 if (typeof window !== 'undefined') {
