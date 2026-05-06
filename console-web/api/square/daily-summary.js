@@ -81,7 +81,7 @@ function hourInTimeZone(isoDateTime, timeZone) {
   return Number.isFinite(value) ? value : null;
 }
 
-async function squareFetch(path, token, body) {
+async function squarePost(path, token, body) {
   const res = await fetch(`${SQUARE_BASE}${path}`, {
     method: 'POST',
     headers: {
@@ -90,6 +90,30 @@ async function squareFetch(path, token, body) {
       'Square-Version': '2024-12-18',
     },
     body: JSON.stringify(body),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const message = data?.errors?.[0]?.detail || 'Square API error';
+    const error = new Error(message);
+    error.status = res.status;
+    error.square = data;
+    throw error;
+  }
+  return data;
+}
+
+async function squareGet(path, token, params) {
+  const query = new URLSearchParams();
+  Object.entries(params || {}).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') query.set(k, String(v));
+  });
+  const res = await fetch(`${SQUARE_BASE}${path}?${query.toString()}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Square-Version': '2024-12-18',
+    },
   });
 
   const data = await res.json().catch(() => ({}));
@@ -128,7 +152,7 @@ async function fetchOrdersSummary(token, locationId, dateIso) {
       limit: 200,
       cursor,
     };
-    const data = await squareFetch('/orders/search', token, payload);
+    const data = await squarePost('/orders/search', token, payload);
     const chunk = Array.isArray(data.orders) ? data.orders : [];
     orders.push(...chunk);
     cursor = data.cursor;
@@ -143,7 +167,7 @@ async function fetchPaymentsSummary(token, locationId, dateIso) {
   const payments = [];
 
   do {
-    const payload = {
+    const params = {
       location_id: locationId,
       begin_time: start,
       end_time: end,
@@ -151,7 +175,7 @@ async function fetchPaymentsSummary(token, locationId, dateIso) {
       limit: 100,
       cursor,
     };
-    const data = await squareFetch('/payments/search', token, payload);
+    const data = await squareGet('/payments', token, params);
     const chunk = Array.isArray(data.payments) ? data.payments : [];
     payments.push(...chunk);
     cursor = data.cursor;
