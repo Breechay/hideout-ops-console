@@ -84,6 +84,357 @@ function initToday() {
   renderCadenceLock();
   clearSquareSyncStatus();
   maybeAutoSquareToday();
+  renderRequiredQueue();
+}
+
+// ── REQUIRED TODAY QUEUE ──
+// Queue state lives at S.ui.queue — a single object, no new tables.
+// Each item writes into existing S structures on save.
+
+const ANCHOR_ITEMS = [
+  { key: 'bananas',      label: 'Bananas' },
+  { key: 'oatMilk',     label: 'Oat milk' },
+  { key: 'salmon',      label: 'Salmon' },
+  { key: 'bread',       label: 'Bread' },
+  { key: 'acai',        label: 'Açaí base' },
+  { key: 'granola',     label: 'Granola' },
+  { key: 'peanutButter',label: 'Peanut butter' },
+];
+
+const SUPPLIER_OPTIONS = ['Costco', 'Zak', "Perl'a", 'Restaurant Depot', 'Instacart/Sprouts', 'Other'];
+
+function getTodayQueueKey() {
+  return new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+}
+
+function getQueue() {
+  if (!S.ui.queue || typeof S.ui.queue !== 'object') S.ui.queue = {};
+  const todayKey = getTodayQueueKey();
+  if (!S.ui.queue[todayKey] || typeof S.ui.queue[todayKey] !== 'object') {
+    S.ui.queue[todayKey] = {};
+  }
+  return S.ui.queue[todayKey];
+}
+
+function saveQueue() {
+  // Prune old queue days (keep last 7)
+  if (S.ui.queue) {
+    const keys = Object.keys(S.ui.queue).sort().reverse();
+    keys.slice(7).forEach(k => delete S.ui.queue[k]);
+  }
+  save('app');
+}
+
+function isQueueItemDone(q, item) {
+  if (item === 'squareSync') {
+    // Resolve from existing log: today's log has a squareSyncedAt
+    const todayLog = S.logs[0];
+    if (todayLog && todayLog.squareSyncedAt) {
+      const sinceMs = Date.now() - Number(todayLog.squareSyncedAt);
+      return sinceMs < 8 * 60 * 60 * 1000; // synced within 8 hours
+    }
+    return false;
+  }
+  if (item === 'anchorInv') return !!(q.anchorInvSaved);
+  if (item === 'supplierSpend') return !!(q.supplierSpendSaved);
+  if (item === 'observation') return !!(q.observationSaved);
+  if (item === 'weeklyReview') {
+    const lastReview = S.reviews[0];
+    return !!(lastReview && daysSince(lastReview.savedAt) <= 8);
+  }
+  if (item === 'sundayDJ') {
+    return !!(S.sunday && (S.sunday.status === 'confirmed' || S.sunday.status === 'outreach'));
+  }
+  return false;
+}
+
+function queueItemVisible(item) {
+  if (item === 'sundayDJ') {
+    // Show Thu–Sun (days 4, 5, 6, 0)
+    const d = getMiamiNow().day;
+    return d === 4 || d === 5 || d === 6 || d === 0;
+  }
+  if (item === 'weeklyReview') {
+    // Show on Sun (day 0) or Mon (day 1) if not done
+    const d = getMiamiNow().day;
+    return (d === 0 || d === 1) && !isQueueItemDone(getQueue(), 'weeklyReview');
+  }
+  return true;
+}
+
+function renderRequiredQueue() {
+  const el = document.getElementById('required-today-queue');
+  if (!el) return;
+
+  const q = getQueue();
+  const items = [
+    { id: 'squareSync',    label: 'Square sync',             always: true },
+    { id: 'anchorInv',     label: 'Anchor inventory check',  always: true },
+    { id: 'supplierSpend', label: 'Supplier spend entry',    always: true },
+    { id: 'observation',   label: 'Operator observation',    always: true },
+    { id: 'weeklyReview',  label: 'Weekly review due',       always: false },
+    { id: 'sundayDJ',      label: 'Sunday DJ status',        always: false },
+  ];
+
+  const visible = items.filter(i => i.always || queueItemVisible(i.id));
+  const pending = visible.filter(i => !isQueueItemDone(q, i.id));
+  const allDone = pending.length === 0;
+
+  let headerColor = allDone ? 'var(--green)' : 'var(--ink)';
+  let headerText = allDone
+    ? 'Required today — done ✓'
+    : `Required today — ${pending.length} item${pending.length === 1 ? '' : 's'} remaining`;
+
+  let html = `<div style="border:1.5px solid var(--border);border-radius:8px;overflow:hidden;">
+    <div style="background:${allDone ? 'var(--green-light)' : 'var(--surface)'};padding:10px 14px 9px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
+      <span style="font-size:13px;letter-spacing:0.10em;text-transform:uppercase;font-weight:600;color:${headerColor};">${headerText}</span>
+    </div>`;
+
+  // ── 1. Square Sync ──
+  const syncDone = isQueueItemDone(q, 'squareSync');
+  html += renderQueueRow('squareSync', 'Square sync', syncDone, `
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="queueSyncSquare()" style="font-size:13px;">${syncDone ? 'Re-sync' : 'Sync now'}</button>
+      <span id="queue-square-status" style="font-size:13px;color:var(--ink-light);">${syncDone ? 'Synced ✓' : 'Not yet synced today'}</span>
+    </div>`);
+
+  // ── 2. Anchor Inventory ──
+  const invDone = isQueueItemDone(q, 'anchorInv');
+  const savedInv = q.anchorInv || {};
+  const invInputs = ANCHOR_ITEMS.map(a => {
+    const val = savedInv[a.key] || '';
+    const btnClass = (s) => s === val ? 'btn btn-sm' + (s === 'healthy' ? ' btn-g' : s === 'low' ? ' btn-a' : ' btn-c') : 'btn btn-sm btn-o';
+    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+      <span style="width:100px;font-size:13px;color:var(--ink);">${a.label}</span>
+      <button class="${btnClass('healthy')}" onclick="queueSetInv('${a.key}','healthy')" style="font-size:11px;padding:3px 8px;">Healthy</button>
+      <button class="${btnClass('low')}" onclick="queueSetInv('${a.key}','low')" style="font-size:11px;padding:3px 8px;">Low</button>
+      <button class="${btnClass('critical')}" onclick="queueSetInv('${a.key}','critical')" style="font-size:11px;padding:3px 8px;">Critical</button>
+    </div>`;
+  }).join('');
+  const allInvSet = ANCHOR_ITEMS.every(a => savedInv[a.key]);
+  html += renderQueueRow('anchorInv', 'Anchor inventory', invDone, `
+    <div style="margin-bottom:6px;">${invInputs}</div>
+    <button class="btn btn-sm${allInvSet ? '' : ' btn-o'}" onclick="queueSaveInv()" style="font-size:13px;">${invDone ? 'Saved ✓ · update' : 'Save inventory check'}</button>`);
+
+  // ── 3. Supplier Spend ──
+  const spendDone = isQueueItemDone(q, 'supplierSpend');
+  const savedSpend = q.supplierSpend || {};
+  const spendInputs = SUPPLIER_OPTIONS.map(s => {
+    const key = s.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const val = savedSpend[key] || '';
+    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+      <span style="width:110px;font-size:13px;color:var(--ink);">${s}</span>
+      <span style="font-size:13px;color:var(--ink-light);">$</span>
+      <input type="number" id="qspend-${key}" placeholder="0" value="${val}" style="width:80px;font-size:13px;padding:4px 7px;" oninput="queueUpdateSpend('${key}',this.value)">
+    </div>`;
+  }).join('');
+  html += renderQueueRow('supplierSpend', 'Supplier spend', spendDone, `
+    <div style="margin-bottom:6px;">${spendInputs}</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="queueSaveSpend()" style="font-size:13px;">${spendDone ? 'Saved ✓ · update' : 'Save spend'}</button>
+      <span style="font-size:12px;color:var(--ink-light);">Updates weekly spend + COGS context</span>
+    </div>`);
+
+  // ── 4. Operator Observation ──
+  const obsDone = isQueueItemDone(q, 'observation');
+  const savedObs = q.observation || '';
+  html += renderQueueRow('observation', 'Operator observation', obsDone, `
+    <input type="text" id="queue-obs-input" placeholder="e.g. Salmon moving faster than expected." value="${savedObs.replace(/"/g,'&quot;')}"
+      style="width:100%;font-size:14px;padding:6px 9px;margin-bottom:6px;"
+      onkeydown="if(event.key==='Enter')queueSaveObs()">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-sm" onclick="queueSaveObs()" style="font-size:13px;">${obsDone ? 'Saved ✓ · update' : 'Save observation'}</button>
+      <span style="font-size:12px;color:var(--ink-light);">One sentence only. Stored historically.</span>
+    </div>`);
+
+  // ── 5. Weekly Review (conditional) ──
+  if (queueItemVisible('weeklyReview')) {
+    const rvDone = isQueueItemDone(q, 'weeklyReview');
+    html += renderQueueRow('weeklyReview', 'Weekly review due', rvDone, `
+      <div style="font-size:13px;color:var(--ink-mid);margin-bottom:7px;">Complete this week's review before you close out.</div>
+      <button class="btn btn-sm" onclick="nav('review',null)" style="font-size:13px;">Go to Weekly Review →</button>`);
+  }
+
+  // ── 6. Sunday DJ (conditional) ──
+  if (queueItemVisible('sundayDJ')) {
+    const djDone = isQueueItemDone(q, 'sundayDJ');
+    const djStatus = S.sunday && S.sunday.status;
+    const djName = S.sunday && S.sunday.dj ? S.sunday.dj : '';
+    html += renderQueueRow('sundayDJ', 'Sunday DJ status', djDone, `
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="queue-dj-name" placeholder="@djhandle" value="${djName.replace(/"/g,'&quot;')}" style="width:130px;font-size:13px;padding:5px 8px;">
+        <button class="btn btn-sm btn-o" onclick="queueSetDJ('outreach')" style="font-size:12px;">Outreach sent</button>
+        <button class="btn btn-sm" onclick="queueSetDJ('confirmed')" style="font-size:12px;">Confirmed ✓</button>
+      </div>
+      ${djDone ? `<div style="font-size:12px;color:var(--green);margin-top:5px;">${djName ? djName + ' · ' : ''}${djStatus}</div>` : ''}`);
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderQueueRow(id, label, done, bodyHtml) {
+  const dotColor = done ? 'var(--green)' : 'var(--amber)';
+  const labelColor = done ? 'var(--ink-light)' : 'var(--ink)';
+  const expandKey = 'queue-expanded-' + id;
+  const isExpanded = !done || (sessionStorage.getItem(expandKey) === '1');
+
+  return `<div style="border-bottom:1px solid var(--border);padding:0;">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none;"
+      onclick="queueToggleExpand('${id}')">
+      <div style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;"></div>
+      <span style="font-size:14px;font-weight:${done ? '400' : '500'};color:${labelColor};flex:1;${done ? 'text-decoration:none;' : ''}">${label}</span>
+      ${done ? '<span class="badge bg" style="font-size:11px;">Done</span>' : ''}
+      <span style="font-size:12px;color:var(--ink-light);padding-left:4px;">${isExpanded ? '▲' : '▼'}</span>
+    </div>
+    <div id="queue-body-${id}" style="padding:${isExpanded ? '0 14px 12px' : '0'};display:${isExpanded ? 'block' : 'none'};">
+      ${bodyHtml}
+    </div>
+  </div>`;
+}
+
+function queueToggleExpand(id) {
+  const body = document.getElementById('queue-body-' + id);
+  const expandKey = 'queue-expanded-' + id;
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  if (isOpen) {
+    body.style.display = 'none';
+    body.style.padding = '0';
+    sessionStorage.setItem(expandKey, '0');
+  } else {
+    body.style.display = 'block';
+    body.style.padding = '0 14px 12px';
+    sessionStorage.setItem(expandKey, '1');
+  }
+  // Update arrow
+  const row = body.previousElementSibling;
+  if (row) {
+    const arrow = row.querySelector('span:last-child');
+    if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
+  }
+}
+
+function queueSyncSquare() {
+  syncSquareToday({ mode: 'manual' });
+  // Slight delay then re-render to pick up sync state
+  setTimeout(() => renderRequiredQueue(), 1800);
+}
+
+function queueSetInv(key, value) {
+  const q = getQueue();
+  if (!q.anchorInv) q.anchorInv = {};
+  q.anchorInv[key] = value;
+  saveQueue();
+  renderRequiredQueue();
+}
+
+function queueUpdateSpend(key, value) {
+  const q = getQueue();
+  if (!q.supplierSpendDraft) q.supplierSpendDraft = {};
+  q.supplierSpendDraft[key] = value;
+  // Don't persist draft on every keystroke — wait for Save
+}
+
+function queueSaveInv() {
+  const q = getQueue();
+  if (!q.anchorInv) { alert('Check at least one item first.'); return; }
+  const allSet = ANCHOR_ITEMS.every(a => q.anchorInv[a.key]);
+  if (!allSet) {
+    const missing = ANCHOR_ITEMS.filter(a => !q.anchorInv[a.key]).map(a => a.label).join(', ');
+    if (!confirm(`Not all items checked. Missing: ${missing}. Save anyway?`)) return;
+  }
+  q.anchorInvSaved = Date.now();
+  // Write into S.ui.anchorSafetyState for downstream risk logic
+  S.ui.anchorSafetyState = { ...q.anchorInv, savedAt: q.anchorInvSaved };
+  saveQueue();
+  renderRequiredQueue();
+}
+
+function queueSaveSpend() {
+  const q = getQueue();
+  // Read from DOM inputs
+  const draft = {};
+  let hasAny = false;
+  SUPPLIER_OPTIONS.forEach(s => {
+    const key = s.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const el = document.getElementById('qspend-' + key);
+    if (el) {
+      const val = parseFloat(el.value) || 0;
+      draft[key] = el.value || '';
+      if (val > 0) hasAny = true;
+    }
+  });
+  if (!hasAny) { alert('Enter at least one spend amount.'); return; }
+  q.supplierSpend = draft;
+  q.supplierSpendSaved = Date.now();
+
+  // ── Propagate into S.ui.inventorySpend (same structure calcWeeklySpend reads) ──
+  // Map queue supplier keys to existing spend field IDs
+  const queueToSpendMap = {
+    costco: 'costco',
+    zak: 'other',     // Zak the Baker → other column for now
+    perla: 'perla',
+    restaurantdepot: 'depot',
+    instacartsprouts: 'other',
+    other: 'other',
+  };
+
+  if (!S.ui.inventorySpend) S.ui.inventorySpend = {};
+
+  // Accumulate mapped values
+  const accumulated = { costco: 0, depot: 0, other: 0, amazon: 0, perla: 0 };
+  Object.entries(draft).forEach(([k, v]) => {
+    const target = queueToSpendMap[k] || 'other';
+    accumulated[target] = (accumulated[target] || 0) + (parseFloat(v) || 0);
+  });
+
+  // Only overwrite non-zero mappings to avoid clobbering amazon entries
+  if (accumulated.costco) S.ui.inventorySpend.costco = String(accumulated.costco);
+  if (accumulated.depot)  S.ui.inventorySpend.depot  = String(accumulated.depot);
+  if (accumulated.other)  S.ui.inventorySpend.other  = String(accumulated.other);
+  if (accumulated.perla)  S.ui.inventorySpend.perla  = String(accumulated.perla);
+
+  saveQueue();
+  renderRequiredQueue();
+  // Sync downstream spend result if Ops page is visible
+  const opsPage = document.getElementById('page-ops');
+  if (opsPage && opsPage.classList.contains('active')) calcWeeklySpend();
+}
+
+function queueSaveObs() {
+  const input = document.getElementById('queue-obs-input');
+  if (!input) return;
+  const txt = input.value.trim();
+  if (!txt) { alert('Enter a one-line observation first.'); return; }
+  const q = getQueue();
+  q.observation = txt;
+  q.observationSaved = Date.now();
+
+  // ── Propagate into S.notes — same store as Ops Notes ──
+  const d = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  // Prefix with [Queue] to distinguish queue entries
+  const noteText = '[Daily] ' + txt;
+  // Avoid duplicate if already saved today
+  if (!S.notes.length || S.notes[0].text !== noteText) {
+    S.notes.unshift({ date: d, text: noteText, source: 'queue' });
+    if (S.notes.length > 30) S.notes.pop();
+    save('notes');
+  }
+  saveQueue();
+  renderRequiredQueue();
+}
+
+function queueSetDJ(status) {
+  const input = document.getElementById('queue-dj-name');
+  const djName = input ? input.value.trim() : '';
+  const statusEl = document.getElementById('sun-status');
+  const djEl = document.getElementById('sun-dj');
+  if (statusEl) statusEl.value = status;
+  if (djEl) djEl.value = djName;
+  // Use existing saveSunday() — propagates to all downstream renders
+  saveSunday();
+  renderRequiredQueue();
 }
 
 function highlightRunbookDay() {
@@ -326,6 +677,7 @@ function rerenderTodayAfterSquareSave() {
   renderWeeklyLever();
   updatePaceLine();
   renderCadenceLock();
+  renderRequiredQueue();
 }
 
 async function syncSquareToday(opts = {}) {
@@ -1718,5 +2070,5 @@ function applyPersistedInventorySpend() {
 }
 
 if (typeof window !== 'undefined') {
-  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, getMiamiNow, isAfterCloseMiami, findTodayLogIndex, upsertSquareFacts, rerenderTodayAfterSquareSave, syncSquareToday, maybeAutoSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend });
+  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, getMiamiNow, isAfterCloseMiami, findTodayLogIndex, upsertSquareFacts, rerenderTodayAfterSquareSave, syncSquareToday, maybeAutoSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend, renderRequiredQueue, queueToggleExpand, queueSyncSquare, queueSetInv, queueUpdateSpend, queueSaveInv, queueSaveSpend, queueSaveObs, queueSetDJ });
 }
