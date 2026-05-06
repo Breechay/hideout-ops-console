@@ -477,16 +477,13 @@ html = html.replace(
   max-width:320px;
   display:flex;
   flex-direction:column;
-  overflow-y:auto;
-  overflow-x:hidden;
+  overflow:hidden;
   background-repeat:no-repeat;
   background-size:cover;
   background-position:center;
 }
 .sb-brand{
-  position:sticky;
-  top:0;
-  z-index:5;
+  flex:0 0 auto;
   background:transparent;
 }
 .sb-brand::after{
@@ -496,6 +493,14 @@ html = html.replace(
   background:linear-gradient(to bottom, rgba(18,16,14,0.64) 0%, rgba(18,16,14,0.38) 55%, rgba(18,16,14,0) 100%);
   pointer-events:none;
   z-index:-1;
+}
+.sb-nav{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:transparent;
+  padding-bottom:0.35rem;
 }
 .sb-sec{flex:0 0 auto;}
 .sb-foot{
