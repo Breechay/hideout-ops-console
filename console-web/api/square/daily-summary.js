@@ -1,5 +1,7 @@
 const SQUARE_BASE = 'https://connect.squareup.com/v2';
 const MIAMI_TZ = 'America/New_York';
+// TODO(phase-next): Add read-only Square customer/loyalty pulls so SMS captures and
+// loyalty signups can be prefilled from Square when supported by API access/scopes.
 
 function send(res, status, payload) {
   res.status(status).json(payload);

@@ -83,6 +83,7 @@ function initToday() {
   updatePaceLine();
   renderCadenceLock();
   clearSquareSyncStatus();
+  maybeAutoSquareToday();
 }
 
 function highlightRunbookDay() {
@@ -224,7 +225,14 @@ function setSquareSyncStatus(msg, tone = 'muted') {
 }
 
 function todayIsoDate() {
-  return new Date().toLocaleDateString('en-CA');
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const pick = t => parts.find(p => p.type === t)?.value || '';
+  return `${pick('year')}-${pick('month')}-${pick('day')}`;
 }
 
 function formatIsoDateToLabel(isoDate) {
@@ -234,8 +242,97 @@ function formatIsoDateToLabel(isoDate) {
   return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
-async function syncSquareToday() {
-  setSquareSyncStatus('Syncing Square...', 'muted');
+function getMiamiNow() {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const pick = t => parts.find(p => p.type === t)?.value || '';
+  const wk = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return {
+    day: wk[pick('weekday')] ?? new Date().getDay(),
+    hour: Number(pick('hour') || 0),
+    minute: Number(pick('minute') || 0),
+  };
+}
+
+function isAfterCloseMiami() {
+  const n = getMiamiNow();
+  const endHour = (n.day >= 3 && n.day <= 5) || n.day === 6 || n.day === 0 ? 17 : null;
+  if (endHour === null) return false;
+  return n.hour > endHour || (n.hour === endHour && n.minute >= 0);
+}
+
+function findTodayLogIndex(dateIso, dateLabel) {
+  return S.logs.findIndex(log => (log.dateIso && log.dateIso === dateIso) || log.date === dateLabel);
+}
+
+function upsertSquareFacts(summary, mode) {
+  const dateIso = summary.date || todayIsoDate();
+  const dateLabel = formatIsoDateToLabel(dateIso);
+  const idx = findTodayLogIndex(dateIso, dateLabel);
+  const rev = Number(summary.grossSales || 0);
+  const orders = String(summary.orderCount || 0);
+  const top = summary.topItems && summary.topItems[0] ? summary.topItems[0].name : '';
+  const nowTs = Date.now();
+
+  if (idx >= 0) {
+    const existing = S.logs[idx] || {};
+    S.logs[idx] = {
+      ...existing,
+      date: dateLabel,
+      dateIso,
+      rev,
+      orders,
+      top,
+      source: 'square',
+      squareSyncedAt: nowTs,
+      squareAutoSavedAt: mode === 'auto' ? nowTs : (existing.squareAutoSavedAt || ''),
+    };
+    save('logs');
+    return { mode: 'updated', preservedManual: !!((existing.contacts && existing.contacts.trim()) || (existing.loyalty && existing.loyalty.trim())) };
+  }
+
+  if (rev <= 0 && Number(summary.orderCount || 0) <= 0) {
+    return { mode: 'none', preservedManual: false };
+  }
+
+  S.logs.unshift({
+    date: dateLabel,
+    dateIso,
+    rev,
+    orders,
+    top,
+    contacts: '',
+    loyalty: '',
+    source: 'square',
+    squareSyncedAt: nowTs,
+    squareAutoSavedAt: mode === 'auto' ? nowTs : '',
+    loggedAt: nowTs,
+  });
+  if (S.logs.length > 40) S.logs.pop();
+  save('logs');
+  return { mode: 'created', preservedManual: false };
+}
+
+function rerenderTodayAfterSquareSave() {
+  renderLogHist('log-hist');
+  renderLogHist('pnl-log-hist');
+  updateWTD();
+  renderSundayBlock();
+  renderWeeklyLever();
+  updatePaceLine();
+  renderCadenceLock();
+}
+
+async function syncSquareToday(opts = {}) {
+  const mode = opts.mode || 'manual';
+  const quiet = opts.quiet === true;
+  const autoSaveEligible = opts.autoSaveEligible === true;
+  if (!quiet) setSquareSyncStatus('Syncing Square...', 'muted');
   const date = todayIsoDate();
   try {
     const res = await fetch('/api/square/daily-summary?date=' + encodeURIComponent(date), {
@@ -245,10 +342,10 @@ async function syncSquareToday() {
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
       const code = body && body.code ? body.code : 'SQUARE_ERROR';
-      if (code === 'TOKEN_MISSING') setSquareSyncStatus('Square token missing in server env.', 'err');
+      if (code === 'NO_SALES') setSquareSyncStatus('No Square sales yet.', 'muted');
+      else if (code === 'TOKEN_MISSING') setSquareSyncStatus('Square token missing in server env.', 'err');
       else if (code === 'LOCATION_MISSING') setSquareSyncStatus('Square location missing in server env.', 'err');
-      else if (code === 'NO_SALES') setSquareSyncStatus('No Square sales found for today.', 'warn');
-      else setSquareSyncStatus('Square sync failed. Check server logs.', 'err');
+      else setSquareSyncStatus('Square sync unavailable. Manual log still works.', 'warn');
       return;
     }
 
@@ -258,18 +355,48 @@ async function syncSquareToday() {
     document.getElementById('l-orders').value = String(summary.orderCount || 0);
     document.getElementById('l-topitem').value = summary.topItems && summary.topItems[0] ? summary.topItems[0].name : '';
 
-    const ticket = summary.averageTicket || 0;
-    const winMorning = summary.timeWindows && summary.timeWindows['07-10'] ? summary.timeWindows['07-10'].grossSales : 0;
-    const winSunday = summary.timeWindows && summary.timeWindows['10-15'] ? summary.timeWindows['10-15'].grossSales : 0;
-    setSquareSyncStatus(
-      'Square synced: $' + Math.round(summary.grossSales || 0) +
-      ' · ' + (summary.orderCount || 0) + ' orders · avg $' + ticket.toFixed(2) +
-      ' · 7-10 $' + Math.round(winMorning || 0) + ' · 10-3 $' + Math.round(winSunday || 0) +
-      '. Review then press Log.',
-      'ok'
-    );
+    const ticket = Number(summary.averageTicket || 0);
+    const gross = Math.round(summary.grossSales || 0);
+    const orders = Number(summary.orderCount || 0);
+
+    if (mode === 'auto' && autoSaveEligible) {
+      const upsert = upsertSquareFacts(summary, 'auto');
+      if (upsert.mode === 'none') {
+        setSquareSyncStatus('No Square sales yet.', 'muted');
+      } else {
+        rerenderTodayAfterSquareSave();
+        if (upsert.preservedManual) setSquareSyncStatus('Manual edits preserved', 'ok');
+        else setSquareSyncStatus('Saved from Square · $' + gross + ' · ' + orders + ' orders', 'ok');
+      }
+      return;
+    }
+
+    if (mode === 'auto') {
+      setSquareSyncStatus('Square ready · auto-save after close', 'muted');
+      return;
+    }
+
+    setSquareSyncStatus('Square synced · $' + gross + ' · ' + orders + ' orders · avg $' + ticket.toFixed(2), 'ok');
   } catch (err) {
-    setSquareSyncStatus('Network error while syncing Square.', 'err');
+    setSquareSyncStatus('Square sync unavailable. Manual log still works.', 'warn');
+  }
+}
+
+function maybeAutoSquareToday() {
+  const syncKey = 'h-square-auto-sync-done';
+  const saveKey = 'h-square-auto-save-done';
+  const alreadySynced = sessionStorage.getItem(syncKey) === '1';
+  const alreadySaved = sessionStorage.getItem(saveKey) === '1';
+  const afterClose = isAfterCloseMiami();
+  if (!alreadySynced) {
+    sessionStorage.setItem(syncKey, '1');
+    syncSquareToday({ mode: 'auto', quiet: true, autoSaveEligible: afterClose && !alreadySaved });
+    if (afterClose && !alreadySaved) sessionStorage.setItem(saveKey, '1');
+    return;
+  }
+  if (afterClose && !alreadySaved) {
+    sessionStorage.setItem(saveKey, '1');
+    syncSquareToday({ mode: 'auto', quiet: true, autoSaveEligible: true });
   }
 }
 
@@ -1161,6 +1288,11 @@ renderDJs();
 renderAnchors();
 renderInv();
 renderSavedNotes();
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') maybeAutoSquareToday();
+  });
+}
 
 // ── WEEKLY REVIEW ──
 function initReview() {
@@ -1586,5 +1718,5 @@ function applyPersistedInventorySpend() {
 }
 
 if (typeof window !== 'undefined') {
-  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, syncSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend });
+  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, getMiamiNow, isAfterCloseMiami, findTodayLogIndex, upsertSquareFacts, rerenderTodayAfterSquareSave, syncSquareToday, maybeAutoSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend });
 }

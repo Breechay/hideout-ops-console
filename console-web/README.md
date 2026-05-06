@@ -89,6 +89,12 @@ Error states surfaced in UI:
 - Square API failure (`SQUARE_API_ERROR`)
 - no sales found (`NO_SALES`)
 
+Next phase (not in this release):
+
+- Pull read-only Square customer/loyalty metrics (if API/scopes support it) to prefill
+  `SMS Captures` and `Loyalty Signups`.
+- Until then, those fields remain manual by design.
+
 ## Export / Import
 
 - **Export**Still builds the same `.json` shape with `logs`, `checks`, `djs`, `anchors`, `notes`, `sunday`, `reviews`, `monthlies`, `decisions` (weekly/monthly blobs match v16; **`monthlies` added** vs older exports — harmless for backwards compatibility).
