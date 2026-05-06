@@ -467,16 +467,59 @@ html = html.replace(
 .hideout-auth-alt{margin-top:8px;width:100%;}
 .hideout-auth-lbl{display:block;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-mid);}
 .hideout-auth-input{width:100%;margin:10px 0;font-size:16px;padding:12px;border:1px solid var(--border-mid);border-radius:6px;background:var(--surface);color:var(--ink);font-family:inherit;box-sizing:border-box;}
-/* Functional polish only (no structural redesign): sidebar behavior + slight scale trim */
-.shell{font-size:95%;}
-.sidebar{width:18%;min-width:220px;max-width:320px;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;}
-.sb-brand{position:sticky;top:0;z-index:3;background:transparent;}
+/* Layout/CSS polish only: sidebar masking + continuous texture + global scale trim */
+:root{--ui-scale:0.88;}
+.shell{font-size:calc(100% * var(--ui-scale));}
+.main{padding:2.15rem 2.85rem;}
+.sidebar{
+  width:18%;
+  min-width:220px;
+  max-width:320px;
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center;
+}
+.sb-brand{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:transparent;
+}
+.sb-brand::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom, rgba(18,16,14,0.64) 0%, rgba(18,16,14,0.38) 55%, rgba(18,16,14,0) 100%);
+  pointer-events:none;
+  z-index:-1;
+}
 .sb-sec{flex:0 0 auto;}
-.sb-foot{flex:0 0 auto;margin-top:0.7rem;padding-bottom:1rem;}
-.nb{font-size:14px;line-height:1.25;white-space:normal;word-break:break-word;}
+.sb-foot{
+  flex:0 0 auto;
+  margin-top:0.7rem;
+  padding-bottom:1rem;
+  background:transparent;
+  border-top:1px solid rgba(232,221,208,0.06);
+}
+.nb{font-size:14px;line-height:1.22;white-space:normal;word-break:break-word;}
+/* remove filled nav blocks; use edge/glow/text-weight only */
+.nb:hover{background:transparent !important;text-shadow:0 0 0.35px rgba(236,227,214,0.65);}
+.nb.active{
+  background:transparent !important;
+  border-left:2px solid rgba(236,227,214,0.58);
+  border-radius:0;
+  padding-left:10px;
+  font-weight:500;
+  color:rgba(236,227,214,0.98);
+  text-shadow:0 0 4px rgba(236,227,214,0.18);
+}
 /* quieter scrollbar */
 ::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-thumb{background:rgba(109,97,84,0.35);border-radius:4px;}
+::-webkit-scrollbar-thumb{background:rgba(109,97,84,0.30);border-radius:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 </style>`,
 );
