@@ -82,6 +82,7 @@ function initToday() {
   loadTodayLever();
   updatePaceLine();
   renderCadenceLock();
+  clearSquareSyncStatus();
 }
 
 function highlightRunbookDay() {
@@ -198,6 +199,78 @@ function logDay() {
   renderWeeklyLever();
   updatePaceLine();
   renderCadenceLock();
+}
+
+function clearSquareSyncStatus() {
+  const el = document.getElementById('square-sync-status');
+  if (!el) return;
+  el.style.display = 'none';
+  el.textContent = '';
+  el.style.color = 'var(--ink-light)';
+}
+
+function setSquareSyncStatus(msg, tone = 'muted') {
+  const el = document.getElementById('square-sync-status');
+  if (!el) return;
+  const tones = {
+    muted: 'var(--ink-light)',
+    ok: 'var(--green)',
+    warn: 'var(--amber)',
+    err: 'var(--red)',
+  };
+  el.style.display = 'block';
+  el.style.color = tones[tone] || tones.muted;
+  el.textContent = msg;
+}
+
+function todayIsoDate() {
+  return new Date().toLocaleDateString('en-CA');
+}
+
+function formatIsoDateToLabel(isoDate) {
+  if (!isoDate) return '';
+  const dt = new Date(isoDate + 'T00:00:00');
+  if (Number.isNaN(dt.getTime())) return isoDate;
+  return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+async function syncSquareToday() {
+  setSquareSyncStatus('Syncing Square...', 'muted');
+  const date = todayIsoDate();
+  try {
+    const res = await fetch('/api/square/daily-summary?date=' + encodeURIComponent(date), {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const code = body && body.code ? body.code : 'SQUARE_ERROR';
+      if (code === 'TOKEN_MISSING') setSquareSyncStatus('Square token missing in server env.', 'err');
+      else if (code === 'LOCATION_MISSING') setSquareSyncStatus('Square location missing in server env.', 'err');
+      else if (code === 'NO_SALES') setSquareSyncStatus('No Square sales found for today.', 'warn');
+      else setSquareSyncStatus('Square sync failed. Check server logs.', 'err');
+      return;
+    }
+
+    const summary = body.summary || {};
+    document.getElementById('l-date').value = formatIsoDateToLabel(summary.date || date);
+    document.getElementById('l-rev').value = String(Math.round(summary.grossSales || 0));
+    document.getElementById('l-orders').value = String(summary.orderCount || 0);
+    document.getElementById('l-topitem').value = summary.topItems && summary.topItems[0] ? summary.topItems[0].name : '';
+
+    const ticket = summary.averageTicket || 0;
+    const winMorning = summary.timeWindows && summary.timeWindows['07-10'] ? summary.timeWindows['07-10'].grossSales : 0;
+    const winSunday = summary.timeWindows && summary.timeWindows['10-15'] ? summary.timeWindows['10-15'].grossSales : 0;
+    setSquareSyncStatus(
+      'Square synced: $' + Math.round(summary.grossSales || 0) +
+      ' · ' + (summary.orderCount || 0) + ' orders · avg $' + ticket.toFixed(2) +
+      ' · 7-10 $' + Math.round(winMorning || 0) + ' · 10-3 $' + Math.round(winSunday || 0) +
+      '. Review then press Log.',
+      'ok'
+    );
+  } catch (err) {
+    setSquareSyncStatus('Network error while syncing Square.', 'err');
+  }
 }
 
 function saveTodayLever() {
@@ -1513,5 +1586,5 @@ function applyPersistedInventorySpend() {
 }
 
 if (typeof window !== 'undefined') {
-  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend });
+  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, syncSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend });
 }

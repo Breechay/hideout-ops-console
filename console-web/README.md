@@ -58,6 +58,37 @@ npm run preview   # optional: test dist locally
 4. Add env vars `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 5. Redeploy after env changes.
 
+## Square read-only sync (Phase 1)
+
+Add these Vercel project env vars (Production):
+
+- `SQUARE_ACCESS_TOKEN`
+- `SQUARE_LOCATION_ID`
+- `SQUARE_ENVIRONMENT=production`
+
+Server route:
+
+- `GET /api/square/daily-summary?date=YYYY-MM-DD`
+
+Behavior:
+
+- Read-only Square pull (no writes to Square)
+- Returns daily `grossSales`, `orderCount`, `averageTicket`, `topItems`, `salesByHour`
+- Includes `paymentMethodBreakdown` and `channelBreakdown` when available
+
+Today flow:
+
+- Click **Sync Square** on Today
+- Console prefills `Rev $`, `Orders`, `Top item`, and keeps manual confirmation
+- User still presses **Log**; no auto-submit
+
+Error states surfaced in UI:
+
+- missing token (`TOKEN_MISSING`)
+- missing location (`LOCATION_MISSING`)
+- Square API failure (`SQUARE_API_ERROR`)
+- no sales found (`NO_SALES`)
+
 ## Export / Import
 
 - **Export**Still builds the same `.json` shape with `logs`, `checks`, `djs`, `anchors`, `notes`, `sunday`, `reviews`, `monthlies`, `decisions` (weekly/monthly blobs match v16; **`monthlies` added** vs older exports — harmless for backwards compatibility).

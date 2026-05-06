@@ -415,8 +415,10 @@ table.dj tr:last-child td{border-bottom:none;}
           <input type="number" id="l-rev" placeholder="0" style="width:90px;font-size:15px;padding:6px 9px;">
           <div class="ig-lbl" style="min-width:50px;">Orders</div>
           <input type="number" id="l-orders" placeholder="0" style="width:65px;">
+          <button class="btn btn-o" onclick="syncSquareToday()" style="padding:6px 12px;">Sync Square</button>
           <button class="btn" onclick="logDay()" style="background:var(--ink);padding:6px 14px;">Log</button>
         </div>
+        <div id="square-sync-status" style="display:none;font-size:12px;margin-bottom:6px;color:var(--ink-light);"></div>
         <div class="ig" style="margin-bottom:2px;">
           <div class="ig-lbl">Date</div>
           <input type="text" id="l-date" style="width:105px;" placeholder="auto-fills today">
@@ -2238,6 +2240,7 @@ function initToday() {
   loadTodayLever();
   updatePaceLine();
   renderCadenceLock();
+  clearSquareSyncStatus();
 }
 
 function highlightRunbookDay() {
@@ -2354,6 +2357,78 @@ function logDay() {
   renderWeeklyLever();
   updatePaceLine();
   renderCadenceLock();
+}
+
+function clearSquareSyncStatus() {
+  const el = document.getElementById('square-sync-status');
+  if (!el) return;
+  el.style.display = 'none';
+  el.textContent = '';
+  el.style.color = 'var(--ink-light)';
+}
+
+function setSquareSyncStatus(msg, tone = 'muted') {
+  const el = document.getElementById('square-sync-status');
+  if (!el) return;
+  const tones = {
+    muted: 'var(--ink-light)',
+    ok: 'var(--green)',
+    warn: 'var(--amber)',
+    err: 'var(--red)',
+  };
+  el.style.display = 'block';
+  el.style.color = tones[tone] || tones.muted;
+  el.textContent = msg;
+}
+
+function todayIsoDate() {
+  return new Date().toLocaleDateString('en-CA');
+}
+
+function formatIsoDateToLabel(isoDate) {
+  if (!isoDate) return '';
+  const dt = new Date(isoDate + 'T00:00:00');
+  if (Number.isNaN(dt.getTime())) return isoDate;
+  return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+async function syncSquareToday() {
+  setSquareSyncStatus('Syncing Square...', 'muted');
+  const date = todayIsoDate();
+  try {
+    const res = await fetch('/api/square/daily-summary?date=' + encodeURIComponent(date), {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const code = body && body.code ? body.code : 'SQUARE_ERROR';
+      if (code === 'TOKEN_MISSING') setSquareSyncStatus('Square token missing in server env.', 'err');
+      else if (code === 'LOCATION_MISSING') setSquareSyncStatus('Square location missing in server env.', 'err');
+      else if (code === 'NO_SALES') setSquareSyncStatus('No Square sales found for today.', 'warn');
+      else setSquareSyncStatus('Square sync failed. Check server logs.', 'err');
+      return;
+    }
+
+    const summary = body.summary || {};
+    document.getElementById('l-date').value = formatIsoDateToLabel(summary.date || date);
+    document.getElementById('l-rev').value = String(Math.round(summary.grossSales || 0));
+    document.getElementById('l-orders').value = String(summary.orderCount || 0);
+    document.getElementById('l-topitem').value = summary.topItems && summary.topItems[0] ? summary.topItems[0].name : '';
+
+    const ticket = summary.averageTicket || 0;
+    const winMorning = summary.timeWindows && summary.timeWindows['07-10'] ? summary.timeWindows['07-10'].grossSales : 0;
+    const winSunday = summary.timeWindows && summary.timeWindows['10-15'] ? summary.timeWindows['10-15'].grossSales : 0;
+    setSquareSyncStatus(
+      'Square synced: $' + Math.round(summary.grossSales || 0) +
+      ' · ' + (summary.orderCount || 0) + ' orders · avg $' + ticket.toFixed(2) +
+      ' · 7-10 $' + Math.round(winMorning || 0) + ' · 10-3 $' + Math.round(winSunday || 0) +
+      '. Review then press Log.',
+      'ok'
+    );
+  } catch (err) {
+    setSquareSyncStatus('Network error while syncing Square.', 'err');
+  }
 }
 
 function saveTodayLever() {

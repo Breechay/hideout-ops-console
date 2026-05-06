@@ -494,8 +494,10 @@ table.dj tr:last-child td{border-bottom:none;}
           <input type="number" id="l-rev" placeholder="0" style="width:90px;font-size:15px;padding:6px 9px;">
           <div class="ig-lbl" style="min-width:50px;">Orders</div>
           <input type="number" id="l-orders" placeholder="0" style="width:65px;">
+          <button class="btn btn-o" onclick="syncSquareToday()" style="padding:6px 12px;">Sync Square</button>
           <button class="btn" onclick="logDay()" style="background:var(--ink);padding:6px 14px;">Log</button>
         </div>
+        <div id="square-sync-status" style="display:none;font-size:12px;margin-bottom:6px;color:var(--ink-light);"></div>
         <div class="ig" style="margin-bottom:2px;">
           <div class="ig-lbl">Date</div>
           <input type="text" id="l-date" style="width:105px;" placeholder="auto-fills today">
