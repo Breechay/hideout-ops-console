@@ -218,9 +218,9 @@ table.dj tr:last-child td{border-bottom:none;}
 .hideout-auth-gate{position:fixed;inset:0;z-index:999999;background:rgba(247,246,239,0.97);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit;}
 .hideout-auth-gate.hideout-hidden{display:none !important;}
 .hideout-auth-submit{margin-top:12px;width:100%;}
-.hideout-auth-alt{margin-top:8px;width:100%;}
 .hideout-auth-lbl{display:block;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-mid);}
 .hideout-auth-input{width:100%;margin:10px 0;font-size:16px;padding:12px;border:1px solid var(--border-mid);border-radius:6px;background:var(--surface);color:var(--ink);font-family:inherit;box-sizing:border-box;}
+.hideout-auth-card{width:100%;max-width:400px;}
 /* Layout/CSS polish only: sidebar masking + continuous texture + global scale trim */
 :root{--ui-scale:0.88;}
 .shell{font-size:calc(100% * var(--ui-scale));}
@@ -280,19 +280,194 @@ table.dj tr:last-child td{border-bottom:none;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-thumb{background:rgba(109,97,84,0.30);border-radius:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Shell: stack sidebar below, main on top */
+  .shell { flex-direction: column; }
+
+  /* Sidebar becomes bottom nav bar */
+  .sidebar {
+    width: 100% !important;
+    min-width: unset !important;
+    max-width: unset !important;
+    height: auto;
+    flex-direction: column;
+    order: 2;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--sidebar-bg, #1a1714) !important;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+  }
+
+  /* Hide brand/logo and footer on mobile */
+  .sb-brand, .sb-foot { display: none; }
+
+  /* Nav becomes horizontal scrolling row */
+  .sb-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .sb-nav::-webkit-scrollbar { display: none; }
+
+  .sb-sec {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .sb-sec-lbl { display: none; }
+
+  .nb {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+    min-width: 56px;
+    border-radius: 0;
+    line-height: 1.2;
+  }
+  .nb .ni {
+    font-size: 16px;
+    width: auto;
+    opacity: 0.7;
+  }
+  .nb.active {
+    border-left: none !important;
+    border-top: 2px solid rgba(236,227,214,0.7);
+    padding-left: 10px;
+    border-radius: 0;
+  }
+
+  /* Main content: full width, bottom padding for nav bar */
+  .main {
+    padding: 1rem 1rem 80px;
+    order: 1;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Page header */
+  .ph {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+  }
+  .ph-title { font-size: 22px; }
+  .ph-r { align-self: flex-start; }
+
+  /* Metric grids: stack to 1 or 2 col */
+  .mrow { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+
+  /* Revenue cards grid (3-col on today page) */
+  div[style*="grid-template-columns:1fr 1fr 1fr"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Metric values: slightly smaller */
+  .m-val { font-size: 24px; }
+
+  /* Cards: less padding */
+  .card { padding: 1rem; }
+
+  /* Input groups: stack vertically */
+  .ig { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .ig-lbl { min-width: unset; }
+  input[type="text"], input[type="number"], select {
+    font-size: 16px; /* Prevents iOS zoom */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Tables: make inventory scrollable, hide less important cols */
+  .inv-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.inv th:nth-child(4),
+  table.inv td:nth-child(4),
+  table.inv th:nth-child(7),
+  table.inv td:nth-child(7),
+  table.inv th:nth-child(8),
+  table.inv td:nth-child(8) { display: none; }
+
+  table.dj th:nth-child(3),
+  table.dj td:nth-child(3),
+  table.dj th:nth-child(5),
+  table.dj td:nth-child(5) { display: none; }
+
+  /* Close & Reset queue items: bigger tap targets */
+  #required-today-queue [style*="padding:10px 14px"] {
+    padding: 14px !important;
+    min-height: 48px;
+  }
+
+  /* Inventory quick-check buttons: larger touch targets */
+  .btn-sm { padding: 10px 14px; font-size: 14px; min-height: 44px; }
+  .btn { min-height: 44px; }
+
+  /* Brice chart: full width */
+  #brice-chart { gap: 3px; }
+
+  /* Spend form on Brice: stack */
+  #brice-spend-form {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+  }
+
+  /* Alert boxes */
+  .alert { font-size: 13px; }
+
+  /* Log entry rows */
+  .le { flex-direction: column; gap: 2px; font-size: 13px; }
+
+  /* Checklist items: bigger tap targets */
+  .ci { padding: 14px 0; }
+  .cb { width: 24px; height: 24px; flex-shrink: 0; }
+
+  /* Today lever select: full width */
+  #today-lever-choice { width: 100% !important; min-width: unset !important; }
+
+  /* Runbook rows */
+  .row { flex-direction: column; gap: 4px; }
+
+  /* Auth card: mobile friendly */
+  .hideout-auth-card { width: 100%; max-width: 380px; }
+}
+
+/* Extra small phones */
+@media (max-width: 390px) {
+  .nb { min-width: 48px; font-size: 9px; padding: 7px 8px; }
+  .main { padding: 0.8rem 0.8rem 76px; }
+  .m-val { font-size: 20px; }
+}
 </style>
 </head>
 <body>
 <div id="hideout-auth-gate" class="hideout-auth-gate hideout-hidden">
   <div class="hideout-auth-card card">
     <div class="ph-title" style="margin-bottom:6px;">Hideout Console</div>
-    <p style="font-size:14px;color:var(--ink-mid);margin-bottom:10px;">Sign in with the email on the allow list for this workspace.</p>
+    <p style="font-size:14px;color:var(--ink-mid);margin-bottom:16px;">Sign in to your workspace.</p>
     <label class="hideout-auth-lbl" for="auth-email">Email</label>
     <input type="email" id="auth-email" class="hideout-auth-input" autocomplete="email" placeholder="you@yourcafe.com"/>
-    <label class="hideout-auth-lbl" for="auth-password">Password (optional fallback)</label>
-    <input type="password" id="auth-password" class="hideout-auth-input" autocomplete="current-password" placeholder="Password"/>
-    <button type="button" class="btn hideout-auth-submit" id="auth-magic">Send magic link</button>
-    <button type="button" class="btn btn-o hideout-auth-alt" id="auth-password-login">Sign in</button>
+    <label class="hideout-auth-lbl" for="auth-password">Password</label>
+    <input type="password" id="auth-password" class="hideout-auth-input" autocomplete="current-password" placeholder="Password" id="auth-password"/>
+    <button type="button" class="btn hideout-auth-submit" id="auth-password-login">Sign in</button>
     <p id="auth-msg" style="font-size:13px;color:var(--ink-light);margin-top:8px;"></p>
   </div>
 </div>

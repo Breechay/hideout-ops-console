@@ -39,40 +39,26 @@ function wireMagicLink() {
   const emailEl = document.getElementById('auth-email');
   const passwordEl = document.getElementById('auth-password');
   const msgEl = document.getElementById('auth-msg');
-  document.getElementById('auth-magic')?.addEventListener('click', async () => {
-    const email = emailEl?.value?.trim().toLowerCase();
-    if (msgEl) msgEl.textContent = '';
-    if (!email) {
-      if (msgEl) msgEl.textContent = 'Enter your email.';
-      return;
-    }
-    const redirect = `${window.location.origin}${window.location.pathname}`;
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
-    if (error) {
-      if (msgEl) msgEl.textContent = error.message;
-      return;
-    }
-    if (msgEl) msgEl.textContent = 'Check email for your sign-in link.';
-  });
 
-  document.getElementById('auth-password-login')?.addEventListener('click', async () => {
+  async function doPasswordLogin() {
     const email = emailEl?.value?.trim().toLowerCase();
     const password = passwordEl?.value || '';
     if (msgEl) msgEl.textContent = '';
-    if (!email) {
-      if (msgEl) msgEl.textContent = 'Enter your email.';
-      return;
-    }
-    if (!password) {
-      if (msgEl) msgEl.textContent = 'Enter your password to use password sign-in.';
-      return;
-    }
+    if (!email) { if (msgEl) msgEl.textContent = 'Enter your email.'; return; }
+    if (!password) { if (msgEl) msgEl.textContent = 'Enter your password.'; return; }
+    if (msgEl) msgEl.textContent = 'Signing in…';
     const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      if (msgEl) msgEl.textContent = error.message;
-      return;
-    }
+    if (error) { if (msgEl) msgEl.textContent = error.message; return; }
     if (msgEl) msgEl.textContent = 'Signed in.';
+  }
+
+  document.getElementById('auth-password-login')?.addEventListener('click', doPasswordLogin);
+
+  // Enter key on either field triggers sign in
+  [emailEl, passwordEl].forEach(el => {
+    el?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doPasswordLogin();
+    });
   });
 }
 
