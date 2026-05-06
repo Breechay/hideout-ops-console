@@ -654,173 +654,67 @@ table.dj tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
-  <!-- Close & Reset — end-of-day flow. Answers: is tomorrow executable? -->
-  <div id="required-today-queue" style="margin-bottom:1.5rem;"></div>
+  <!-- Execution state — 4 things to know at a glance -->
+  <div id="today-execution-state" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem;">
+    <div class="metric" id="sc-today-metric" style="border-left:3px solid var(--ink-faint);">
+      <div class="m-lbl">Today</div>
+      <div class="m-val" id="sc-today">$—</div>
+      <div class="m-sub" id="sc-today-gap">not logged</div>
+    </div>
+    <div class="metric" id="sc-wtd-metric" style="border-left:3px solid var(--ink-faint);">
+      <div class="m-lbl">Week-to-date</div>
+      <div class="m-val" id="sc-wtd">$0</div>
+      <div class="m-sub" id="sc-wtd-gap" style="font-size:13px;">—</div>
+    </div>
+    <div class="metric" id="today-sunday-state" style="border-left:3px solid var(--ink-faint);">
+      <div class="m-lbl">Sunday slot</div>
+      <div class="m-val" id="today-sunday-val" style="font-size:20px;">—</div>
+      <div class="m-sub" id="today-sunday-sub">not set</div>
+    </div>
+    <div class="metric" id="today-square-state" style="border-left:3px solid var(--ink-faint);">
+      <div class="m-lbl">Square</div>
+      <div class="m-val" id="today-square-val" style="font-size:20px;">—</div>
+      <div class="m-sub" id="today-square-sub">not synced</div>
+    </div>
+  </div>
 
   <!-- Sunday slot — primary block -->
   <div id="sunday-block" style="margin-bottom:1.1rem;"></div>
 
-  <!-- One weekly lever -->
-  <div id="weekly-lever" style="margin-bottom:1.1rem;"></div>
-
-  <!-- Revenue row -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.25rem;">
-    <div class="metric" id="sc-today-metric">
-      <div class="m-lbl">Today · floor $500 · target $1,438</div>
-      <div class="m-val" id="sc-today">$—</div>
-      <div class="m-sub" id="sc-today-gap">not logged</div>
+  <!-- Log today -->
+  <div class="sl">Log today</div>
+  <div class="card" id="log-card" style="margin-bottom:1.1rem;">
+    <div class="ig" style="margin-bottom:4px;">
+      <div class="ig-lbl">Rev $</div>
+      <input type="number" id="l-rev" placeholder="0" style="width:90px;font-size:15px;padding:6px 9px;">
+      <div class="ig-lbl" style="min-width:50px;">Orders</div>
+      <input type="number" id="l-orders" placeholder="0" style="width:65px;">
+      <button class="btn btn-o" onclick="syncSquareToday()" style="padding:6px 12px;">Sync Square</button>
+      <button class="btn" onclick="logDay()" style="background:var(--ink);padding:6px 14px;">Log</button>
     </div>
-    <div class="metric" id="sc-wtd-metric">
-      <div class="m-lbl">Week-to-date</div>
-      <div class="m-val" id="sc-wtd">$0</div>
-      <div class="m-sub" id="sc-wtd-gap">$8,914 expansion north star</div>
-      <div class="prog" style="margin-top:6px;"><div class="prog-f d" id="wtd-bar" style="width:0%"></div></div>
+    <div id="square-sync-status" style="display:none;font-size:12px;margin-bottom:6px;color:var(--ink-light);"></div>
+    <div class="ig" style="margin-bottom:2px;">
+      <div class="ig-lbl">Date</div>
+      <input type="text" id="l-date" style="width:105px;" placeholder="auto-fills today">
+      <div class="ig-lbl" style="min-width:60px;">Top item</div>
+      <input type="text" id="l-topitem" placeholder="Erik's Addiction" style="flex:1;min-width:90px;">
     </div>
-    <div class="metric" id="sc-cogs-card">
-      <div class="m-lbl">COGS est.</div>
-      <div class="m-val" id="sc-cogs">—%</div>
-      <div class="m-sub">target ≤30%</div>
+    <div class="ig" style="margin-bottom:2px;">
+      <div class="ig-lbl">SMS captures</div>
+      <input type="number" id="l-contacts" placeholder="0" style="width:65px;">
+      <span style="font-size:13px;color:var(--ink-light);margin-left:4px;">new numbers today</span>
     </div>
+    <div class="ig" style="margin-bottom:2px;">
+      <div class="ig-lbl">Loyalty <span style="color:var(--ink-light);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;">manual</span></div>
+      <input type="number" id="l-loyalty" placeholder="0" style="width:65px;">
+      <span style="font-size:13px;color:var(--ink-light);margin-left:4px;">new members (leave blank if not tracked)</span>
+    </div>
+    <div style="font-size:12px;color:var(--ink-light);margin-top:5px;margin-bottom:6px;font-style:italic;">Square sync fills revenue + orders automatically after close.</div>
+    <div id="log-hist"></div>
   </div>
 
-  <div class="sl">Business reality — Jan to Apr 2026 (Square)</div>
-  <div class="card" style="margin-bottom:1.1rem;">
-    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px;">
-      <div>
-        <div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:5px;">4-month gross trend</div>
-        <div style="font-size:14px;color:var(--ink-mid);line-height:1.8;">
-          Jan <strong>$12,778</strong> → Feb <strong>$11,377</strong> (-11%) → Mar <strong>$13,531</strong> (+19%) → Apr <strong>$9,473</strong> (-30%).<br>
-          Baseline is unstable. Treat <strong>$10.5k/month gross</strong> as minimum survival floor while you build toward <strong>$8,914 structural target</strong> with repeatable margin.
-        </div>
-      </div>
-      <div>
-        <div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:5px;">Top revenue drivers (Jan-Apr)</div>
-        <div style="font-size:14px;color:var(--ink-mid);line-height:1.8;">
-          1) Erik's Addiction <strong>$7,486</strong><br>
-          2) Egg + Avocado Toast <strong>$6,394</strong><br>
-          3) Açaí Bowl <strong>$3,178</strong><br>
-          4) Wild Salmon Toast <strong>$2,801</strong><br>
-          5) Latte <strong>$2,783</strong>
-        </div>
-      </div>
-    </div>
-    <div style="background:var(--surface);border-radius:5px;padding:9px 11px;margin-top:10px;font-size:14px;color:var(--ink-mid);line-height:1.8;">
-      <strong style="color:var(--ink);">Weekly decision rules:</strong> If WTD pace projects below $10.5k, do not add complexity. Push bundle scripts, protect top 5 item availability, and tighten portions same day. If COGS is above 30% for 2 straight weeks, freeze new tests and run only margin repairs.
-    </div>
-  </div>
-  <div id="weekly-risk" style="margin-bottom:1.1rem;"></div>
-  <div id="capture-status" style="margin-bottom:1.1rem;"></div>
-  <div id="cadence-lock" style="margin-bottom:1.1rem;"></div>
-
-  <div class="sl">This week runbook</div>
-  <div class="card" style="margin-bottom:1.1rem;">
-    <div class="row" data-runbook-day="daily">
-      <div>
-        <div class="row-name">Daily (every open day)</div>
-        <div class="row-meta">Log rev, orders, SMS captures, loyalty signups. Complete one Today lever. Check Capture Status and tighten register ask if yellow/red.</div>
-      </div>
-      <span class="badge bn">Daily</span>
-    </div>
-    <div class="row" data-runbook-day="1">
-      <div>
-        <div class="row-name">Monday</div>
-        <div class="row-meta">COGS check. If above 30%, run one margin fix before any growth task.</div>
-      </div>
-      <span class="badge ba">Mon</span>
-    </div>
-    <div class="row" data-runbook-day="2">
-      <div>
-        <div class="row-name">Tuesday</div>
-        <div class="row-meta">Inventory audit and place orders. Protect top 5 items from stockouts.</div>
-      </div>
-      <span class="badge ba">Tue</span>
-    </div>
-    <div class="row" data-runbook-day="5">
-      <div>
-        <div class="row-name">Friday</div>
-        <div class="row-meta">Confirm Sunday DJ and post one IG story.</div>
-      </div>
-      <span class="badge ba">Fri</span>
-    </div>
-    <div class="row" data-runbook-day="6">
-      <div>
-        <div class="row-name">Saturday morning</div>
-        <div class="row-meta">Send SMS: Sunday 10-3 reminder with DJ callout.</div>
-      </div>
-      <span class="badge ba">Sat</span>
-    </div>
-    <div class="row" data-runbook-day="0">
-      <div>
-        <div class="row-name">Sunday service + close</div>
-        <div class="row-meta">Run slot clean. Say "same time next Sunday" to each departing guest. Save Weekly Review (numbers + Sunday Engine + one priority).</div>
-      </div>
-      <span class="badge br">Sun lock</span>
-    </div>
-  </div>
-
-  <div class="sl">Today's lever — pick one before logging</div>
-  <div class="card" style="margin-bottom:1.1rem;">
-    <div class="ig">
-      <div class="ig-lbl">Action</div>
-      <select id="today-lever-choice" style="flex:1;min-width:220px;" onchange="saveTodayLever()">
-        <option value="">— choose one —</option>
-        <option>Push bundle script on every order</option>
-        <option>Raise one item price live</option>
-        <option>Tighten one portion (salmon or avocado)</option>
-        <option>Collect 10 SMS numbers</option>
-      </select>
-    </div>
-    <div style="font-size:13px;color:var(--ink-light);margin-top:6px;">One lever only. Finish it before adding new tasks.</div>
-  </div>
-
-  <div class="sl">Top 5 operating rules</div>
-  <div class="card" style="margin-bottom:1.1rem;">
-    <div class="row"><div><div class="row-name">Never out of stock</div><div class="row-meta">Erik's Addiction · Egg + Avocado Toast · Açaí Bowl · Salmon Toast · Latte</div></div></div>
-    <div class="row"><div><div class="row-name">Always suggest one add-on</div><div class="row-meta">Default line: "Most people do the Bowl Set — bowl plus coffee."</div></div></div>
-    <div class="row"><div><div class="row-name">Always route through a bundle</div><div class="row-meta">Work Set · Bowl Set · Sunday Set.</div></div></div>
-    <div class="row"><div><div class="row-name">Portions fixed</div><div class="row-meta">No drift on salmon and avocado. If in doubt, weigh/standardize.</div></div></div>
-    <div class="row"><div><div class="row-name">No discounting</div><div class="row-meta">Protect pricing integrity and margin structure.</div></div></div>
-  </div>
-
-  <div class="two-col">
-    <div>
-      <div class="sl">Log today — required</div>
-      <div class="card" id="log-card">
-        <div class="ig" style="margin-bottom:4px;">
-          <div class="ig-lbl">Rev $</div>
-          <input type="number" id="l-rev" placeholder="0" style="width:90px;font-size:15px;padding:6px 9px;">
-          <div class="ig-lbl" style="min-width:50px;">Orders</div>
-          <input type="number" id="l-orders" placeholder="0" style="width:65px;">
-          <button class="btn btn-o" onclick="syncSquareToday()" style="padding:6px 12px;">Sync Square</button>
-          <button class="btn" onclick="logDay()" style="background:var(--ink);padding:6px 14px;">Log</button>
-        </div>
-        <div id="square-sync-status" style="display:none;font-size:12px;margin-bottom:6px;color:var(--ink-light);"></div>
-        <div class="ig" style="margin-bottom:2px;">
-          <div class="ig-lbl">Date</div>
-          <input type="text" id="l-date" style="width:105px;" placeholder="auto-fills today">
-          <div class="ig-lbl" style="min-width:60px;">Top item</div>
-          <input type="text" id="l-topitem" placeholder="Erik's Addiction" style="flex:1;min-width:90px;">
-        </div>
-        <div class="ig" style="margin-bottom:2px;">
-          <div class="ig-lbl">SMS captures</div>
-          <input type="number" id="l-contacts" placeholder="0" style="width:65px;">
-          <span style="font-size:13px;color:var(--ink-light);margin-left:4px;">new numbers collected today</span>
-        </div>
-        <div class="ig" style="margin-bottom:2px;">
-          <div class="ig-lbl">Loyalty signups <span style="color:var(--ink-light);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;">manual until Square sync</span></div>
-          <input type="number" id="l-loyalty" placeholder="0" style="width:65px;">
-          <span style="font-size:13px;color:var(--ink-light);margin-left:4px;">new members today (leave blank if not tracked manually)</span>
-        </div>
-        <div style="font-size:12px;color:var(--ink-light);margin-top:5px;margin-bottom:6px;font-style:italic;">If you don't log, you don't know if the business works.</div>
-        <div id="log-hist"></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="sl">This week's checklist</div>
-      <div class="card" id="week-checks-today"></div>
-    </div>
-  </div>
+  <!-- Close & Reset — end-of-day flow. Answers: is tomorrow executable? -->
+  <div id="required-today-queue" style="margin-bottom:1.5rem;"></div>
 
   <!-- Hidden Sunday slot inputs (still functional, driven from the block above) -->
   <div style="display:none;">
@@ -833,21 +727,19 @@ table.dj tr:last-child td{border-bottom:none;}
     <input type="text" id="sun-dj" placeholder="@handle" oninput="saveSunday()">
   </div>
 
-  <div class="sl" style="margin-top:1.25rem;">If you have downtime right now</div>
-  <div class="card" style="background:var(--surface);border-color:var(--border);">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;">
-      <div style="padding:10px 14px;border-right:1px solid var(--border);">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">5–10 min</div>
-        <div style="font-size:14px;color:var(--ink);line-height:1.9;">Log revenue<br>Check pace</div>
-      </div>
-      <div style="padding:10px 14px;border-right:1px solid var(--border);">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">10–20 min</div>
-        <div style="font-size:14px;color:var(--ink);line-height:1.9;">Text 1 DJ<br>Touch 1 anchor node</div>
-      </div>
-      <div style="padding:10px 14px;border-right:1px solid var(--border);">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">20–30 min</div>
-        <div style="font-size:14px;color:var(--ink);line-height:1.9;">Walk inventory<br>Think through COGS</div>
-      </div>
+  <!-- Hidden COGS card (still needed for weekly risk calculation) -->
+  <div style="display:none;">
+    <div id="sc-cogs-card"><span id="sc-cogs">—%</span></div>
+    <div id="weekly-lever"></div>
+    <div id="weekly-risk"></div>
+    <div id="capture-status"></div>
+    <div id="cadence-lock"></div>
+    <div id="week-checks-today"></div>
+    <div id="today-lever-choice-wrap"><select id="today-lever-choice" onchange="saveTodayLever()"><option value="">—</option><option>Push bundle script on every order</option><option>Raise one item price live</option><option>Tighten one portion (salmon or avocado)</option><option>Collect 10 SMS numbers</option></select></div>
+    <div class="prog"><div class="prog-f d" id="wtd-bar" style="width:0%"></div></div>
+  </div>
+
+</div>
       <div style="padding:10px 14px;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">All done</div>
         <div style="font-size:14px;color:var(--ink-mid);line-height:1.9;font-style:italic;">Stop.<br>Let the room work.</div>

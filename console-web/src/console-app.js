@@ -72,7 +72,6 @@ function initToday() {
   if (di && !di.value) {
     di.value = new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
   }
-  highlightRunbookDay();
   renderWeekChecks('week-checks-today');
   renderLogHist('log-hist');
   updateWTD();
@@ -86,6 +85,7 @@ function initToday() {
   clearSquareSyncStatus();
   maybeAutoSquareToday();
   renderRequiredQueue();
+  renderTodayExecutionState();
 }
 
 // ── CLOSE & RESET ──
@@ -461,6 +461,48 @@ function queueSetDJ(status) {
   renderRequiredQueue();
 }
 
+function renderTodayExecutionState() {
+  // Sunday card
+  const sundayVal = document.getElementById('today-sunday-val');
+  const sundaySub = document.getElementById('today-sunday-sub');
+  const sundayCard = document.getElementById('today-sunday-state');
+  if (sundayVal && S.sunday) {
+    const status = S.sunday.status;
+    const dj = S.sunday.dj || '';
+    if (status === 'confirmed') {
+      sundayVal.textContent = 'Confirmed';
+      sundaySub.textContent = dj || '10am–3pm';
+      if (sundayCard) sundayCard.style.borderLeft = '3px solid var(--green)';
+    } else if (status === 'outreach') {
+      sundayVal.textContent = 'Outreach sent';
+      sundaySub.textContent = dj || 'Waiting on confirmation';
+      if (sundayCard) sundayCard.style.borderLeft = '3px solid var(--amber)';
+    } else {
+      sundayVal.textContent = 'Not booked';
+      sundaySub.textContent = 'Needs booking';
+      if (sundayCard) sundayCard.style.borderLeft = '3px solid var(--red)';
+    }
+  }
+
+  // Square sync card
+  const squareVal = document.getElementById('today-square-val');
+  const squareSub = document.getElementById('today-square-sub');
+  const squareCard = document.getElementById('today-square-state');
+  if (squareVal) {
+    const todayLog = S.logs[0];
+    if (todayLog && todayLog.squareSyncedAt) {
+      const mins = Math.round((Date.now() - Number(todayLog.squareSyncedAt)) / 60000);
+      squareVal.textContent = 'Synced';
+      squareSub.textContent = mins < 60 ? `${mins}m ago` : `${Math.round(mins/60)}h ago`;
+      if (squareCard) squareCard.style.borderLeft = '3px solid var(--green)';
+    } else {
+      squareVal.textContent = 'Not synced';
+      squareSub.textContent = 'Tap Sync Square';
+      if (squareCard) squareCard.style.borderLeft = '3px solid var(--ink-faint)';
+    }
+  }
+}
+
 function highlightRunbookDay() {
   const rows = document.querySelectorAll('[data-runbook-day]');
   if (!rows.length) return;
@@ -724,6 +766,7 @@ function rerenderTodayAfterSquareSave() {
   updatePaceLine();
   renderCadenceLock();
   renderRequiredQueue();
+  renderTodayExecutionState();
 }
 
 async function syncSquareToday(opts = {}) {
@@ -1125,6 +1168,7 @@ function saveSunday() {
   renderSundayBlock();
   renderWeeklyRisk();
   updateSundayCard();
+  renderTodayExecutionState();
 }
 
 function updateSundayCard() {
@@ -2579,5 +2623,5 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof window !== 'undefined') {
-  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, getMiamiNow, isAfterCloseMiami, findTodayLogIndex, upsertSquareFacts, rerenderTodayAfterSquareSave, syncSquareToday, maybeAutoSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend, renderRequiredQueue, queueToggleExpand, queueSyncSquare, queueSetInv, queueUpdateSpend, queueSaveInv, queueSaveSpend, queueSkipSpend, queueSaveObs, queueSetDJ, initBrice, loadBriceWeek, briceAddSpend, briceRemoveSpend });
+  Object.assign(window, { save, nav, initStatus, initToday, highlightRunbookDay, daysSince, renderCadenceLock, renderWeekChecks, toggleCheck, logDay, clearSquareSyncStatus, setSquareSyncStatus, todayIsoDate, formatIsoDateToLabel, getMiamiNow, isAfterCloseMiami, findTodayLogIndex, upsertSquareFacts, rerenderTodayAfterSquareSave, syncSquareToday, maybeAutoSquareToday, saveTodayLever, loadTodayLever, suggestTodayLever, renderLogHist, updateWTD, updatePaceLine, renderSundayBlock, editSundaySlot, clearSundaySlot, renderWeeklyLever, renderWeeklyRisk, renderCaptureStatus, updateStatusCards, initSundaySlot, saveSunday, updateSundayCard, initWeek, resetWeekChecks, renderCalendar, initCOGS, toggleCOGSCheck, calcCOGS, calcCoffeeYield, resetDJForm, currentDJForm, addDJ, editDJ, renderDJs, removeDJ, addAnchor, renderAnchors, removeAnchor, initPnl, calcBE, renderInv, updateInvSummary, calcWeeklySpend, initOps, toggleOps, resetOps, saveNote, renderSavedNotes, initReview, saveReview, saveMonthly, renderMonthlyHist, renderReviewHist, renderPaceTracker, initDecisions, saveDecision, addDecision, updateDecisionStatus, renderDecisionsList, decisionCard, initDataPage, exportData, importData, generateSnapshot, copySnapshot, copyAdvisorPrompt, onInventoryHaveInput, applyPersistedInventorySpend, renderRequiredQueue, queueToggleExpand, queueSyncSquare, queueSetInv, queueUpdateSpend, queueSaveInv, queueSaveSpend, queueSkipSpend, queueSaveObs, queueSetDJ, initBrice, loadBriceWeek, briceAddSpend, briceRemoveSpend, renderTodayExecutionState });
 }
