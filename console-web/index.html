@@ -52,7 +52,7 @@ body{
   background:rgba(18,16,14,0.50);
   pointer-events:none;z-index:0;
 }
-.sb-brand{position:relative;z-index:1;}
+.sidebar>*{position:relative;z-index:1;}
 
 .sb-brand{padding:2rem 1.5rem 1.5rem;border-bottom:1px solid rgba(232,221,208,0.11);margin-bottom:1.2rem;text-align:center;}
 .sb-logo{width:88%;max-width:180px;display:block;margin:0 auto 16px;}
@@ -231,18 +231,26 @@ table.dj tr:last-child td{border-bottom:none;}
   max-width:320px;
   display:flex;
   flex-direction:column;
-  overflow:hidden;
+  overflow-y:auto;
+  overflow-x:hidden;
   background-repeat:no-repeat;
   background-size:cover;
   background-position:center;
 }
 .sb-brand{
-  position:relative;
-  z-index:1;
-  flex-shrink:0;
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:transparent;
 }
-
-
+.sb-brand::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom, rgba(18,16,14,0.64) 0%, rgba(18,16,14,0.38) 55%, rgba(18,16,14,0) 100%);
+  pointer-events:none;
+  z-index:-1;
+}
 .sb-sec{flex:0 0 auto;}
 .sb-foot{
   flex:0 0 auto;
@@ -267,18 +275,6 @@ table.dj tr:last-child td{border-bottom:none;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-thumb{background:rgba(109,97,84,0.30);border-radius:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-
-/* Scrollable nav area — sits between brand and foot */
-.sb-scroll{
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
-  min-height:0;
-}
-
-.sb-scroll::-webkit-scrollbar{width:3px;}
-.sb-scroll::-webkit-scrollbar-thumb{background:rgba(232,221,208,0.15);border-radius:2px;}
-
 </style>
 </head>
 <body>
@@ -308,7 +304,6 @@ table.dj tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
-  <div class="sb-scroll">
   <div class="sb-sec">
     <div class="sb-sec-lbl">Daily</div>
     <button class="nb active" onclick="nav('today',this)"><span class="ni">◉</span>Today</button>
@@ -345,7 +340,6 @@ table.dj tr:last-child td{border-bottom:none;}
     W–F 8am–5pm · Sa–Su 10am–5pm<br><br>
     Console v16.1
   </div>
-  </div><!-- /sb-scroll -->
 </aside>
 
 <!-- MAIN -->
