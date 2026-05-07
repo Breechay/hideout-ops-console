@@ -609,7 +609,8 @@ function logDay() {
   const dateIso = todayIsoDate();
   const synced = S.ui.squareTodaySummary || {};
   const hasSquareContext = synced.date === dateIso;
-  S.logs.unshift({
+  const existingIdx = findTodayLogIndex(dateIso, d);
+  const nextEntry = {
     date: d,
     dateIso,
     rev: r,
@@ -622,7 +623,25 @@ function logDay() {
     squareTopItems: hasSquareContext ? (synced.topItems || []) : [],
     squareSalesByHour: hasSquareContext ? (synced.salesByHour || []) : [],
     loggedAt: Date.now(),
-  });
+  };
+  if (existingIdx >= 0) {
+    const existing = S.logs[existingIdx] || {};
+    S.logs[existingIdx] = {
+      ...existing,
+      ...nextEntry,
+      source: hasSquareContext ? 'manual+square' : (existing.source || 'manual'),
+      // Keep Square context from either today's sync or prior saved square facts.
+      squareSyncedAt: hasSquareContext ? nextEntry.squareSyncedAt : (existing.squareSyncedAt || ''),
+      squareTopItems: hasSquareContext ? nextEntry.squareTopItems : (existing.squareTopItems || []),
+      squareSalesByHour: hasSquareContext ? nextEntry.squareSalesByHour : (existing.squareSalesByHour || []),
+    };
+    if (existingIdx > 0) {
+      const [updated] = S.logs.splice(existingIdx, 1);
+      S.logs.unshift(updated);
+    }
+  } else {
+    S.logs.unshift(nextEntry);
+  }
   if (S.logs.length > 40) S.logs.pop();
   save('logs');
   ['l-rev', 'l-orders', 'l-topitem', 'l-contacts', 'l-loyalty'].forEach(id => document.getElementById(id).value = '');
