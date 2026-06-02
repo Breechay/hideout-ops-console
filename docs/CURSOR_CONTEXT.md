@@ -7,6 +7,8 @@
 | Task | Canonical doc |
 |------|----------------|
 | Hideout identity — house, stewardship, conditions | `docs/HIDEOUT_HOUSE_DOCTRINE.md` |
+| **Who may shape Hideout** | `docs/COMPATIBLE_STEWARD_FRAMEWORK.md` |
+| **Atmosphere vs clutter** | `docs/ATMOSPHERE_GOVERNANCE.md` |
 | Hideout strategy, economics, experiments, partnerships, menu | `docs/HIDEOUT_OPERATING_BRAIN.md` |
 | Console feature / intelligence roadmap | `docs/OPERATOR_INTELLIGENCE_ROADMAP.md` |
 | Cross-repo operator orientation | `FORM-iOS/docs/BRICE_OS/BRICE_OPERATOR_KERNEL.md` (workspace spine) |

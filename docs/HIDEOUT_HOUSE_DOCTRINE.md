@@ -106,11 +106,9 @@ Phase 3 has two tracks:
 
 ## Compatible Steward
 
-A new category — not customer, employee, contractor, or tenant.
+A new category — not customer, employee, contractor, or tenant. **Selection criteria, evidence bar, and governance:** `COMPATIBLE_STEWARD_FRAMEWORK.md`.
 
-**Compatible steward:** someone who genuinely cares about the outcome, brings expertise the house lacks, contributes before being asked, adds signal without creating noise, and makes the house better than one person could alone.
-
-First clear example: **Matteo** (flowers, plants, horticulture, visual merchandising, garden thinking, different cultural lens and network).
+**Compatible steward (summary):** genuinely cares about the outcome, brings expertise the house lacks, contributes before being asked, adds signal without creating noise, makes the house better than one person could alone.
 
 The Medici effect is not *Brice explores every room.* It is: **the house contains more rooms than Brice could have built alone.**
 
@@ -138,27 +136,19 @@ The excitement is not novelty for its own sake. It is expertise you do not posse
 
 ---
 
-## Case Study: Matteo (Compatible Steward)
+## Case Study (illustrative only)
 
-The significance is not flowers. It is the **category**: first clear compatible steward.
-
-Matteo sees possibilities Brice does not. Brice has affinity for gardens, plants, atmosphere, beauty — affinity and expertise are different.
-
-A compatible steward brings horticulture instincts, floral design, plant stewardship, visual merchandising, garden thinking, a different cultural lens, a different social network, a different aesthetic vocabulary — and cares about the outcome without requiring authorship credit.
-
-This is not outsourcing the vision. Other rooms **come to the house**. The house itself becomes more interesting precisely where it stops being a perfect reflection of a single person.
-
-**Filter for any contributor or steward:** Does this increase atmosphere or increase inventory?
+One early candidate passed the framework in practice (flowers, horticulture, garden thinking). **Do not use individuals as the standard.** Use `COMPATIBLE_STEWARD_FRAMEWORK.md`.
 
 ---
 
 ## Atmosphere vs Inventory (Non-Negotiable)
 
-Hideout may become richer. It must not become cluttered.
+**Full design law:** `ATMOSPHERE_GOVERNANCE.md` — diagnostic tests, clutter failure mode, steward connection.
 
-The greatest risk is not diversity. The greatest risk is **accumulation**.
+> **Does this increase atmosphere or increase inventory?**
 
-Every contributor sees opportunities to add. Few people see opportunities to subtract.
+Atmosphere may grow. Inventory must stay constrained. The goal is **spaciousness**, not minimalism.
 
 | Atmosphere (may grow) | Inventory (must stay constrained) |
 |----------------------|-----------------------------------|
@@ -168,9 +158,7 @@ Every contributor sees opportunities to add. Few people see opportunities to sub
 | Meaningful gatherings | More visual noise |
 | Beauty, connection | Things competing for attention |
 
-The goal is not minimalism. The goal is **spaciousness**.
-
----
+*I love this, but it still has to feel calm* — governance, not resistance.
 
 ## Relationship to Four Modes
 
@@ -210,6 +198,9 @@ Non-predictable competence is the antidote, not random novelty.
 | Need | Document |
 |------|----------|
 | Identity + house doctrine | This file |
+| **Who shapes the house** | `COMPATIBLE_STEWARD_FRAMEWORK.md` |
+| **Atmosphere law** | `ATMOSPHERE_GOVERNANCE.md` |
+| Root OS (all projects) | `FORM-iOS/docs/BRICE_OS/ROOT_OPERATING_SYSTEM.md` |
 | Economics, menu, experiments | `HIDEOUT_OPERATING_BRAIN.md` |
 | Operator weekly orientation | `FORM-iOS/docs/BRICE_OS/BRICE_OPERATOR_PRODUCT_BRIEF.md` §9 |
 | Another room / audibility | `FORM-iOS/docs/BRICE_OS/ANOTHER_ROOM_LENS.md` |
