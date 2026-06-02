@@ -6,6 +6,7 @@
 
 | Task | Canonical doc |
 |------|----------------|
+| Hideout identity — house, stewardship, conditions | `docs/HIDEOUT_HOUSE_DOCTRINE.md` |
 | Hideout strategy, economics, experiments, partnerships, menu | `docs/HIDEOUT_OPERATING_BRAIN.md` |
 | Console feature / intelligence roadmap | `docs/OPERATOR_INTELLIGENCE_ROADMAP.md` |
 | Cross-repo operator orientation | `FORM-iOS/docs/BRICE_OS/BRICE_OPERATOR_KERNEL.md` (workspace spine) |
@@ -24,4 +25,4 @@
 
 ---
 
-*If this file disagrees with `HIDEOUT_OPERATING_BRAIN.md`, the brain wins — update this file.*
+*If this file disagrees with `HIDEOUT_HOUSE_DOCTRINE.md` or `HIDEOUT_OPERATING_BRAIN.md`, those docs win — update this file.*

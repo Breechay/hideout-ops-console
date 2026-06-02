@@ -2,6 +2,8 @@
 
 **Document role:** Source of truth for all Hideout strategy, economics, experiments, signage, menu, partnerships, and operating doctrine. This document is the strategic brain. INCREMENTS Hideout tab is the execution surface. These roles do not overlap.
 
+**Identity doctrine:** `HIDEOUT_HOUSE_DOCTRINE.md` — why Hideout exists, house metaphor, stewardship > authorship. Read that first for *what kind of place this is*. This file is *how it runs*.
+
 **Status:** Living document. Update when material things change.
 **Date:** May 2026
 
@@ -11,7 +13,7 @@
 
 **Name:** Hideout Miami
 **Location:** Edgewater, Miami — NE 22nd St (SkyView 22 building, second floor elevated outdoor patio corridor)
-**Type:** Neighborhood café. Outdoor patio. Natural light, open air.
+**Type:** Neighborhood infrastructure. Outdoor patio. Natural light, open air. Food and coffee are infrastructure — the product is conditions.
 **Rating:** 4.7 stars, 315 Google reviews
 **Price range:** $10–20
 **Age:** 6 years old
@@ -25,10 +27,10 @@
 
 ## Business Model — Four Modes, One Asset
 
-Hideout is four business modes sharing one asset. Not "a café with side projects."
+Hideout is four business modes sharing one asset. Not "a café with side projects." See `HIDEOUT_HOUSE_DOCTRINE.md` for the house model.
 
 **A. Transactional Hospitality**
-Classic café. Walk-in revenue, food/coffee, repeat customers. Brand and trust engine. Hospitality is the emotional center — the soul of the space. Without great hospitality the other three businesses weaken.
+Walk-in revenue, food/coffee, repeat customers. Daily infrastructure — consistent conditions, not the identity of the place. Without reliable hospitality the other three modes weaken, but hospitality serves the house; the house is not defined by the menu.
 
 **B. Neighborhood Infrastructure**
 Hideout as trusted neighborhood node. Watermarc residents, SkyView residents, concierge referrals, leasing relationships, dog walkers, park adjacency, local routine capture. Goal: become embedded in existing neighborhood flows, not generate generic awareness.
@@ -62,7 +64,7 @@ Not all revenue is equal. $150 from 12 frantic walk-ins at 11:30AM is not the sa
 | Low stress | Distribution (Jimmy model), neighborhood infrastructure referrals | Operator studio time, early morning stewardship |
 | High stress | Peak Fri/Sat hospitality, large walk-in batches | Dead hospitality hours with no customers |
 
-**Strategic sequence (locked):** Hospitality earns trust. Trust enables partnerships. Partnerships create clean recurring revenue.
+**Strategic sequence (locked):** Consistent conditions earn trust. Trust enables partnerships. Partnerships create clean recurring revenue. Walk-in hospitality is one condition layer — not the governing purpose.
 
 ---
 
@@ -329,13 +331,20 @@ A SKU qualifies for the partner menu only if it passes all six criteria: batchab
 
 **Positioning:** Hideout Partner Fuel — energy, coffee, and wellness supply for offices, buildings, studios, and events. Not a caterer. A neighborhood fuel supplier with a hospitality brand behind it.
 
-**Partnership priority sequence:**
+**Partnership priority sequence (two lenses — not a contradiction):**
+
+| Lens | #1 | Why |
+|------|-----|-----|
+| **Motion budget (May 2026 — injury)** | A Better You salon | Zero motion. Informal delivery already live. |
+| **Fastest first clean invoice (when mobility allows)** | Expansive Biscayne cold brew | Product-ready pickup model; professionals on Biscayne daily; highest conversion ROI per outreach hour. |
+
+**Operational order while injury limits mobility:**
 
 | Priority | Target | Why |
 |----------|--------|-----|
 | 1 — Warmest | A Better You salon | Zero motion. Already delivering informally. |
 | 2 — Same building | SkyView 22 concierge / leasing office | Elevator distance. 258 units. |
-| 3 — High ROI | Expansive Biscayne cold brew account | High caffeine need. Pre-order pickup model. |
+| 3 — High ROI | Expansive Biscayne cold brew account | Activate when outreach motion is trivial — not deferred strategically, only sequenced after adjacency. |
 | 4 — Warm, long | Watermarc | Warm relationship but institutional — converts slower. |
 | 5 — Volume | Jimmy Holmquist | Monthly trail events. Proof of concept. |
 | Defer | Aria on the Bay, Paraiso Bay, fitness studios | Require mobility. Revisit after top 3 producing. |
@@ -457,6 +466,20 @@ Run every Friday after close (8–10 min total). The question: which revenue sou
 | Other / misc | | | | |
 
 *Stress: 1 = zero chaos, 10 = frantic. Solo operator max sustainable = 4–5 average.*
+
+---
+
+## Digital execution — HideoutApp
+
+The native iOS app is the relationship capture layer for modes B (infrastructure) and C (recurring partnerships). It does not replace this document — it executes against it.
+
+| Doc | Repo | Role |
+|---|---|---|
+| `HIDEOUT_APP_STRATEGY.md` | HideoutApp | Product doctrine, relationship capture, anti-polishing trap |
+| `HIDEOUT_EXECUTION_CHECKLIST.md` | HideoutApp | Build status, photo shoot, Square/backend order |
+| `CURSOR.md` | HideoutApp | Agent/code context |
+
+**Post-Sunday relationship targets (app-enabled):** one office breakfast standing order, one formal EventRequest, Jimmy cold brew formalized in-app.
 
 ---
 
