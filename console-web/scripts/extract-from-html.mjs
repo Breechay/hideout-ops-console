@@ -537,7 +537,7 @@ html = html.replace(
     <div class="ph-title" style="margin-bottom:6px;">Hideout Console</div>
     <p style="font-size:14px;color:var(--ink-mid);margin-bottom:10px;">Sign in with the email on the allow list for this workspace.</p>
     <label class="hideout-auth-lbl" for="auth-email">Email</label>
-    <input type="email" id="auth-email" class="hideout-auth-input" autocomplete="email" placeholder="you@yourcafe.com"/>
+    <input type="email" id="auth-email" class="hideout-auth-input" autocomplete="email" placeholder="you@hideoutmiami.com"/>
     <label class="hideout-auth-lbl" for="auth-password">Password (optional fallback)</label>
     <input type="password" id="auth-password" class="hideout-auth-input" autocomplete="current-password" placeholder="Password"/>
     <button type="button" class="btn hideout-auth-submit" id="auth-magic">Send magic link</button>

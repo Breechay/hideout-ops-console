@@ -19,7 +19,7 @@
 **Age:** 6 years old
 **Owner/operator:** Brice Ikouebe
 **Commute:** 26th floor of same building. Internal elevator.
-**Origin:** Brice's apartment became a Miami athlete community hub. Hideout was created as the neutral base. Long runs started there at 5:30 AM.
+**Origin:** Brice's apartment became a Miami athlete community hub. Hideout was created as the neutral base. Long runs started there at 5:30 AM. **Today:** the house is stewarded — compatible contributors add rooms; Brice edits what belongs. See `HIDEOUT_HOUSE_DOCTRINE.md`.
 
 **Current situation (May 2026):** 30-day solo experiment began May 13. Loan decision June 13. This is a materially different business than the legacy staffed model. Do not use pre-May-13 averages to evaluate the new model.
 
@@ -185,7 +185,7 @@ Menu engineering problem, not a graphic design problem. The menu's job is to rou
 | Which items get signature treatment | Three only: Erik's Addiction, Brice's PB Bowl, Iced Breechay's Special. Scarcity preserves meaning. |
 | Visual marker | Thin 1px warm white/cream vertical rule to the left of named item names only. |
 | Named item name treatment | Slightly larger or heavier weight. Same typeface family. |
-| Descriptor line | 2–5 words. Function or person. "Owner's daily bowl." NOT marketing copy. |
+| Descriptor line | 2–5 words. Function, not founder. "Post-run bowl." NOT marketing copy. |
 | Section placement | Items stay within existing sections. No separate top section. |
 
 **Erik's Addiction modifier architecture — locked:**
@@ -329,7 +329,7 @@ A SKU qualifies for the partner menu only if it passes all six criteria: batchab
 | B — Conditional | Egg + Avocado Toast | v2 only — test packaging first |
 | B — Conditional | Watermelon Juice | v2 only — oxidation risk |
 
-**Positioning:** Hideout Partner Fuel — energy, coffee, and wellness supply for offices, buildings, studios, and events. Not a caterer. A neighborhood fuel supplier with a hospitality brand behind it.
+**Positioning:** Hideout Partner Fuel — energy, coffee, and wellness supply for offices, buildings, studios, and events. Not a caterer. A neighborhood fuel supplier with a trusted house behind it.
 
 **Partnership priority sequence (two lenses — not a contradiction):**
 
@@ -367,7 +367,7 @@ Model has shifted from "make the café busier" to "increase clean revenue densit
 ## Growth Systems — Locked (5-Agent Synthesis, May 2026)
 
 **System 1 — Watermarc Leave-Behind Card:** LOCKED. Print and deliver.
-FRONT: *Welcome to the neighborhood. HIDEOUT MIAMI · Coffee · Breakfast · Open-Air Patio · Your neighborhood café. A 2-minute walk from Watermarc.*
+FRONT: *Welcome to the neighborhood. HIDEOUT MIAMI · Coffee · Breakfast · Open-Air Patio · Edgewater terrace · A 2-minute walk from Watermarc.*
 BACK: *Enjoy a complimentary coffee or matcha with your first breakfast at Hideout. Show this card. Wed–Sun · 7AM–5PM · Code: WATERMARC*
 Format: Credit-card size. Thick matte stock, 16pt minimum. Complimentary drink with first breakfast — not standalone free coffee. Protects margin, anchors to full ticket.
 
@@ -430,7 +430,7 @@ Source: localsecrets.travel Instagram post, May 2026. 9,500 views · 127 likes �
 | Validated signal | Strategic implication |
 |-----------------|----------------------|
 | 'Best-kept secret' | Discovery is the gap — not product quality. People who find it love it. |
-| 'Passionate athlete / quality nutrition' | Founder identity is an asset. Should feel incidental, not a personal brand play. |
+| 'Passionate athlete / quality nutrition' | Operator context is incidental, not a personal brand play. |
 | 'Brunch like royalty without breaking the bank' | Premium feel at accessible price. Do not discount. |
 | 'Real food, natural ingredients, 100% authentic' | Ingredient transparency is a conversion driver. |
 
