@@ -376,7 +376,7 @@ Format: Credit-card size. Thick matte stock, 16pt minimum. Complimentary drink w
 - Weekly maintenance (12–15 min): respond to new reviews · upload 2–3 photos · post one GBP update · verify hours.
 - Photo priority: patio wide morning light (hero) → exterior/entrance → signature breakfast plate → espresso close-up → patio atmosphere with people.
 
-**System 3 — Physical Signage (Column Boards):** LOCKED. Two boards on the menu-column face. See Threshold Board Doctrine above.
+**System 3 — Physical Signage (Column Boards):** LOCKED. Two boards on the menu-column face. See Threshold Board Doctrine above. Print assets (menu PDF, background, column render): `print/menu-june-2026/`.
 
 **System 4 — Monday Content Loop:** One 20–30 second vertical clip per week. Fixed shot list. No decisions at execution.
 

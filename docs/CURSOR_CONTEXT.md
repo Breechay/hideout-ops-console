@@ -10,6 +10,7 @@
 | **Who may shape Hideout** | `docs/COMPATIBLE_STEWARD_FRAMEWORK.md` |
 | **Atmosphere vs clutter** | `docs/ATMOSPHERE_GOVERNANCE.md` |
 | Hideout strategy, economics, experiments, partnerships, menu | `docs/HIDEOUT_OPERATING_BRAIN.md` |
+| **Print menu + column boards** (PDF, bg, render) | `print/menu-june-2026/` |
 | Console feature / intelligence roadmap | `docs/OPERATOR_INTELLIGENCE_ROADMAP.md` |
 | Cross-repo operator orientation | `FORM-iOS/docs/BRICE_OS/BRICE_OPERATOR_KERNEL.md` (workspace spine) |
 
