@@ -7,6 +7,7 @@ Canonical print assets for the menu-column boards. Food inspector–approved men
 | `menu-june-2026-food-inspector-approved.pdf` | Center board — print-ready menu |
 | `menu-background.jpg` | Charcoal texture for board backgrounds |
 | `column-boards-render.png` | Full column mock — top board + menu + bottom board |
+| `menu-design-2026-05-28.png` | Design iteration (archived from local working folder) |
 
 **Column layout (top → bottom):**
 
