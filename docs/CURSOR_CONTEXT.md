@@ -11,6 +11,7 @@
 | **Atmosphere vs clutter** | `docs/ATMOSPHERE_GOVERNANCE.md` |
 | Hideout strategy, economics, experiments, partnerships, menu | `docs/HIDEOUT_OPERATING_BRAIN.md` |
 | **Print menu + column boards** (PDF, bg, render) | `print/menu-june-2026/` |
+| **Physical cards / QR / flyer design system** (Photoshop-ready) | `print/menu-june-2026/00_MASTER_ART_DIRECTION.md` → `placements/` + `prompts/` |
 | Console feature / intelligence roadmap | `docs/OPERATOR_INTELLIGENCE_ROADMAP.md` |
 | Cross-repo operator orientation | `FORM-iOS/docs/BRICE_OS/BRICE_OPERATOR_KERNEL.md` (workspace spine) |
 
