@@ -1,9 +1,11 @@
-# Piece 0 — Mini Menu Flyer
+# Piece 0 — Half-Sheet Hideout Flyer
 
-**Purpose:** This is Hideout — not "download the app."  
+**Purpose:** This is Hideout — not "download the app." May be the **most useful asset** in the system.  
 **Uses:** To-go bag insert, Watermarc back, office handout, Sunday takeaway  
-**Format:** 4" × 9" (third of letter) or 5.5" × 8.5" half-sheet, double-sided  
+**Format:** 5.5" × 8.5" half-sheet (preferred) or 4" × 9", double-sided  
 **Print run:** 200–500 · Soft-touch matte · CMYK 300 DPI
+
+**Note:** Overlaps with Piece 7 House Card for some contexts — flyer carries menu anchors; house card is universal identity.
 
 ---
 
@@ -45,26 +47,26 @@ Align item list with `menu-june-2026-food-inspector-approved.pdf` — this folde
 
 ---
 
-## Back — one action
+## Back — three sections + QR
 
 ```
 ┌─────────────────────────────┐
+│ START HERE                  │
+│ Erik's Addiction · Matcha   │
+│ Egg Toast                   │
 │                             │
-│   Order ahead.              │  ← Display italic, 32pt
-│   Skip the line.            │  ← DM Sans 14pt muted
+│ OFFICE BREAKFAST            │
+│ from $16/person             │
 │                             │
-│   [QR 1.5" caramel frame]   │  ← ?source=nfc
+│ SUNDAY MORNING              │
+│ 11–2                        │
 │                             │
-│   scan to order pickup      │
-│   hideoutmiami.com          │
-│                             │
-│  ─────────────────────────  │
-│                             │
-│  Office cold brew · $45/gal │
-│  Weekly breakfast · from $80│
-│  Ask us or scan above       │
+│ [QR caramel frame]          │
+│ hideoutmiami.com            │
 └─────────────────────────────┘
 ```
+
+**Front (hero):** Beautiful terrace or food image · hideout · Open-air terrace · Hours · QR
 
 **QR:** `https://hideoutmiami.com/app?source=nfc`
 

@@ -6,17 +6,19 @@ Maps print pieces to app deep links and deployment order.
 
 ---
 
-## Seven pieces
+## Eight pieces (+ menu boards)
 
 | # | Piece | File | Priority |
 |---|-------|------|----------|
-| 0 | Mini menu flyer | `03_MENU_FLYER_SYSTEM.md` | Core — bag insert |
+| 0 | Half-sheet flyer | `03_MENU_FLYER_SYSTEM.md` | Core — bag insert |
 | 1 | Counter NFC/QR | `placements/01_counter_nfc.md` | Week 1 unilateral |
 | 2 | SkyView lobby stand | `placements/02_skyview_lobby.md` | Week 1 unilateral |
 | 3 | Watermarc leave-behind | `placements/03_watermarc.md` | Relationship |
 | 4 | Salon counter | `placements/04_salon.md` | Relationship |
 | 5 | Sunday exit bridge | `placements/05_sunday_exit.md` | Print-and-hand |
 | 6 | Office B2B | `placements/06_office_b2b.md` | Relationship |
+| 7 | House card (universal) | `placements/07_house_card.md` | Core — anywhere |
+| — | Menu column boards | `04_MENU_BOARD_SYSTEM.md` | In-venue |
 
 ---
 

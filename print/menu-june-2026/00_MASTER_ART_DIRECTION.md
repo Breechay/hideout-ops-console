@@ -69,17 +69,26 @@ Spend time on **hierarchy, paper, typography, photography, QR placement, consist
 
 ---
 
-## The mini flyer (Piece 0)
+## Menu board = design system source
 
-Not "download the app." **This is Hideout.**
+The column menu mockup is becoming the visual OS for all print:
 
-One half-sheet / narrow flyer, many uses:
-- To-go bag insert
-- Watermarc leave-behind (back side)
-- Office handout
-- Sunday takeaway
+- Dark stone texture (darken existing bg 10–15%, soften texture, warm slightly)
+- Cream typography
+- One caramel accent
+- Food photography cutouts
+- Negative space
 
-See `03_MENU_FLYER_SYSTEM.md`.
+**Middle board:** two-column (Food | Drinks) for standing scan — see `04_MENU_BOARD_SYSTEM.md`. Top + bottom boards unchanged.
+
+## Piece 0 + Piece 7
+
+- **Half-sheet flyer** — menu anchors + office + Sunday + QR (`03_MENU_FLYER_SYSTEM.md`)
+- **House card** — universal 4×6 identity card (`placements/07_house_card.md`)
+
+## Family view test
+
+Before final print: lay all mockups side by side on one wall. Question: **Do these feel like they came from the same house?** Not whether any single card is perfect.
 
 ---
 
