@@ -9,6 +9,8 @@ alwaysApply: true
 
 Help the operator make the best next decision today. Prioritize action over explanation and reality over aesthetics.
 
+**Human tone (workspace default):** Decision copy stays plain and human — no framework theater. `FORM-iOS/docs/BRICE_OS/HUMAN_TONE_DEFAULT.md`.
+
 ## Doctrine
 
 - Console is an operator instrument, not analytics theater.
