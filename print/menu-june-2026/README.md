@@ -20,21 +20,23 @@ Column layout: Top board (First Time) → Menu PDF → Bottom board (Made With R
 
 ### 2. Physical distribution + flyer (neighborhood)
 
-**Start:** `00_MASTER_ART_DIRECTION.md`  
-**Execute:** `05_PHOTOSHOP_BUILD_GUIDE.md` + `placements/`
+**Copy (paste into Photoshop):** `COPY_FINAL.md`  
+**Execute (open this in Photoshop):** `PHOTOSHOP_EXECUTION_MANUAL.md`  
+**Layout doctrine:** `design-decisions/06_LAYOUT_DOCTRINE.md` — editorial single-column · menu two-column  
+**Art direction:** `design-decisions/00_MASTER_ART_DIRECTION.md`  
+**Default background:** `references/menu-background-family-grid.jpg`  
+**Setup:** `CURSOR_SETUP.md`  
+**Mockups:** `mockups/` — PNG concepts + `hideout_full_print_family.html`
 
-Seven pieces: mini flyer + 6 QR/NFC placements. One design language, six messages.
+Seven pieces: mini flyer + 6 QR/NFC placements + house card. One design language.
 
 ---
 
-## Read order (Photoshop day)
+## Photoshop day
 
-1. `00_MASTER_ART_DIRECTION.md`
-2. `01_BRAND_SYSTEM.md`
-3. `03_MENU_FLYER_SYSTEM.md` or `placements/02_skyview_lobby.md` (week 1)
-4. `prompts/chatgpt_mockups.md` → generate backgrounds
-5. `05_PHOTOSHOP_BUILD_GUIDE.md` → assemble
-6. `exports/` → print PDFs
+**One file:** `PHOTOSHOP_EXECUTION_MANUAL.md` — fonts, colors, sizes, copy, order, export.
+
+Background compare: `mockups/background-v4-comparison.jpg`
 
 ---
 

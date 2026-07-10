@@ -41,6 +41,15 @@ The mockup (`column-boards-render.png`) is closer to target than current single-
 
 ---
 
+## Layout doctrine (locked)
+
+**Two-column: menu middle board only.**  
+**Single-column: all placement cards + top/bottom column boards.**
+
+See `design-decisions/06_LAYOUT_DOCTRINE.md` — editorial vs navigation are different jobs.
+
+---
+
 ## Two-column middle board (decision: yes)
 
 **Not because it looks more "professional."** Because of how people scan at the door, in line, behind someone else.
@@ -73,11 +82,13 @@ Not five lines of ingredients. Hideout menu is small — use that advantage.
 
 ---
 
-## Single-column when to keep
+## Single-column when to keep (everything else)
 
-Single-column is more editorial and premium — correct for **reading** contexts. Wrong default for **standing scan** at peak window.
+Placement cards, lobby stand, Sunday exit, Watermarc, counter — **always single column.**
 
-If testing: photograph both at register during rush; watch where eyes land first.
+Single-column is editorial and premium — the house speaking. Correct for orientation. Wrong default for **standing scan** at peak window (middle board only).
+
+Do not port Food | Drinks layout to placement cards. Restaurant-menu aesthetics are not Hideout.
 
 ---
 

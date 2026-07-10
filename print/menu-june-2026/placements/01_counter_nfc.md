@@ -1,58 +1,39 @@
 # Placement 1 — Counter NFC / QR
 
 **Format:** 3.5" × 2" business card OR 4" × 6" tent card  
-**Location:** Register, tip area, pickup counter — register height  
+**Location:** Register, tip area, pickup counter  
 **QR:** `https://hideoutmiami.com/app?source=nfc`  
-**NFC:** NTAG215, same URL encoded  
-**Qty:** 50 cards + 10 NFC stickers  
-**Week 1:** Yes — unilateral
+**Qty:** 100  
+**Week 1:** Yes
 
 ---
 
-## Copy (final)
+## Copy (edited — final)
 
-**Headline A (regulars, at register):** Your usual — two taps.  
-**Headline B (entrance, first-timers):** Order before you walk over.
+| Level | Copy |
+|-------|------|
+| Logo | hideout |
+| **L1** | Your usual — two taps. |
+| — | [QR] |
 
-**Footer:** Wed–Fri 8–5 · Sat–Sun 10–5
+**Alt L1 (entrance):** Order before you walk over.
 
-No "download our app."
+**Removed:** hours · scan label · URL
 
 ---
 
-## Business card layout (horizontal)
+## Layout
 
 ```
 ┌──────────────────────────────────┐
-│ hideout          [QR caramel     │
-│                   border right]  │
+│ hideout          [QR]            │
 │ Your usual —                     │
 │ two taps.                        │
-│ Wed–Fri 8–5 · Sat–Sun 10–5       │
 └──────────────────────────────────┘
 ```
-
-## Tent card (4×6 vertical)
-
-```
-┌─────────────────┐
-│ hideout         │
-│ Your usual —    │  ← Display 28pt
-│ two taps.       │
-│ [QR 1.5" center]│
-│ scan to reorder │
-│ Wed–Fri 8–5     │
-└─────────────────┘
-```
-
----
-
-## AI background
-
-Prompt 2 — cold brew close-up (`prompts/`)
 
 ---
 
 ## Export
 
-`hideout-counter-card-3x2-v1.psd` · `hideout-counter-tent-4x6-v1.psd`
+`hideout-counter-card-3x2-v1.psd`

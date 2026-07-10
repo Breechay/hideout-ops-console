@@ -1,22 +1,26 @@
 # Placement 5 — Sunday Exit Bridge
 
-**Format:** 4" × 6" postcard, single-sided, matte  
-**Location:** Handed at Sunday Morning exit (11AM–2PM) — human handoff, not left on table  
+**Format:** 4" × 6" postcard, single-sided  
+**Location:** Handed at Sunday exit (11AM–2PM) — human handoff only  
 **QR:** `https://hideoutmiami.com/app?source=weekday`  
-**Qty:** 50–100 per month  
-**Tone:** Warm continuation, not promotion
+**Qty:** 50–100/month
 
 ---
 
-## Copy (final)
+## Copy (edited — final)
 
-**Headline:** Same house. Different room.  
-**Body:** Weekday pickup on the terrace — coffee, toast, signatures.  
-**Hours:** Wed–Fri 8–5 only (they know weekend hours)
+| Level | Copy |
+|-------|------|
+| **L1** | Same house. |
+| **L1** | Different room. |
+| — | [QR] |
+| Logo | hideout (small, bottom) |
 
-No "come back soon." No discount.
+**Removed:** weekday body paragraph · hours
 
-**Handoff line:** "If you want the terrace on a Wednesday, this opens the menu — no line."
+**You say:** "If you want the terrace on a Wednesday, this opens the menu — no line."
+
+**QR:** `weekday` only — not `village`.
 
 ---
 
@@ -24,33 +28,16 @@ No "come back soon." No discount.
 
 ```
 ┌────────────────────────┐
-│ Same house.            │  ← Display 38pt
+│                        │  ← empty top third
+│ Same house.            │
 │ Different room.        │
-│ ───── (caramel 50%)    │
-│ Weekday pickup         │
-│ on the terrace —       │
-│ coffee, toast,         │
-│ signatures.            │
-│ [QR 1.5"]              │
-│ Wed–Fri 8–5            │
-│ hideout (logo, small)  │
+│ ───── (caramel)        │
+│ [QR]                   │
+│ hideout                │
 └────────────────────────┘
 ```
 
----
-
-## App behavior (shipped)
-
-`?source=weekday` → Today tab + "Same house · weekday pickup."  
-Do **not** use `?source=village` on this card (that opens Sunday tab).
-
-**Metric:** Weekday orders within 7 days from users with `weekday` source.
-
----
-
-## AI background
-
-Prompt 4 — vinyl close-up
+Warm light overlay: ON (20–40%).
 
 ---
 

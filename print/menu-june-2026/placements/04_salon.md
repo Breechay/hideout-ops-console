@@ -1,22 +1,24 @@
-# Placement 4 — Salon Counter (A Better You)
+# Placement 4 — Salon Counter
 
-**Format:** 3" × 4" tent card, vertical, matte (no laminate — grease)  
-**Location:** Checkout counter, mirror station  
+**Format:** 3" × 4" tent card  
+**Location:** A Better You — checkout, mirror station  
 **QR:** `https://hideoutmiami.com/app?source=neighbor`  
-**Qty:** 25  
-**Week:** Relationship-initiated — staff buy-in required
+**Qty:** 25
 
 ---
 
-## Copy (final)
+## Copy (edited — final)
 
-**Headline:** Two minutes away.  
-**Body:** Terrace coffee + toast  
-**Micro:** order · pickup · done
+| Level | Copy |
+|-------|------|
+| **L1** | Two minutes away. |
+| — | [QR] |
 
-**Staff one-liner:** "Hideout is two minutes — terrace, really good cold brew. Scan if you want to order before you walk over."
+**Removed:** body · micro line · hours
 
-No hours on card — ambient only. Must read in under 3 seconds while paying.
+**Staff says:** "Hideout is two minutes — terrace, really good cold brew. Scan if you want to order before you walk over."
+
+Must read in under 3 seconds while paying.
 
 ---
 
@@ -24,13 +26,9 @@ No hours on card — ambient only. Must read in under 3 seconds while paying.
 
 ```
 ┌───────────────┐
-│ Two minutes   │  ← Display 26pt
+│ Two minutes   │
 │ away.         │
-│ Terrace       │
-│ coffee + toast│
-│ [QR 1.25"]    │
-│ order ·       │
-│ pickup · done │
+│ [QR]          │
 └───────────────┘
 ```
 

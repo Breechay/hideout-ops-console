@@ -1,21 +1,29 @@
-# Placement 6 — Office / B2B Catering
+# Placement 6 — Office / B2B
 
-**Format:** 4" × 6" vertical or 5.5" × 3.5" horizontal half-card  
-**Location:** Handed to office managers, Expansive, SkyView tenants  
+**Format:** 4" × 6" vertical  
+**Location:** Office managers, SkyView tenants  
 **QR:** `https://hideoutmiami.com/app?source=office`  
-**Qty:** 25  
-**Week:** Relationship-initiated
+**Qty:** 25
+
+**Functional piece** — prices stay. Everything else cut.
 
 ---
 
-## Copy (final)
+## Copy (edited — final)
 
-**Products:** Office breakfast · Gallon cold brew  
-**Prices:** From $16/person · $45/gallon · 48hr lead on bulk  
-**Detail:** Egg toast included · Terrace pickup  
-**Close:** Standing weekly orders welcome · ask us
+| Level | Copy |
+|-------|------|
+| Logo | hideout |
+| **L1** | Office breakfast. |
+| L2 | GALLON COLD BREW |
+| L3 mono | $16/person |
+| L3 mono | $45/gallon |
+| L3 mono | 48hr lead |
+| — | [QR] |
+| L3 | Weekly orders welcome. |
+| — | Blank line — handwrite number |
 
-Tone: infrastructure invoice, not catering brochure. Space at bottom for handwritten contact.
+**Removed:** included/toast lines · URL · duplicate product headers
 
 ---
 
@@ -24,29 +32,16 @@ Tone: infrastructure invoice, not catering brochure. Space at bottom for handwri
 ```
 ┌────────────────────────┐
 │ hideout                │
-│ Office breakfast       │
-│ Gallon cold brew       │
-│ ─────────────────────  │
-│ From $16/person        │  ← DM Mono
+│ Office breakfast.      │
+│ GALLON COLD BREW       │
+│ $16/person             │
 │ $45/gallon             │
-│ 48hr lead on bulk      │
-│ Egg toast included     │
-│ Terrace pickup         │
-│ [QR 1.25"]             │
-│ ─────────────────────  │
-│ Standing weekly orders │
-│ welcome · ask us       │
-│ Wed–Fri 8–5            │
+│ 48hr lead              │
+│ [QR]                   │
+│ Weekly orders welcome. │
+│ ___________________    │
 └────────────────────────┘
 ```
-
-**Metric:** One paid trial → weekly standing account.
-
----
-
-## AI background
-
-Prompt 6 — gallon containers
 
 ---
 

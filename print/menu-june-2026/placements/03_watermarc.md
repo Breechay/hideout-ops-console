@@ -1,57 +1,57 @@
 # Placement 3 — Watermarc Leave-Behind
 
-**Format:** 4" × 6" postcard, double-sided, soft-touch matte  
-**Location:** Leasing move-in packets, concierge desk, tour handoff  
+**Format:** 4" × 6" postcard, double-sided  
+**Location:** Move-in packets, concierge desk  
 **QR:** `https://hideoutmiami.com/app?source=watermarc`  
-**Qty:** 50  
-**Week:** Relationship-initiated — requires concierge conversation
+**Qty:** 50
 
 ---
 
-## Copy (final)
+## Copy (edited — final)
 
-**Front lead:** Welcome to the neighborhood.  
-**Front identity:** hideout (display)  
-**Front body:** Open-air terrace. Real ingredients. 2-minute walk.  
-**Back headline:** Order before you walk over.  
-**Back footer:** Cold brew by the gallon · offices & events · ask us
+### Front
+
+| Level | Copy |
+|-------|------|
+| **L1** | Welcome to the neighborhood. |
+| L3 | Open-air terrace. |
+| L3 | Coffee. Real food. |
+| L3 | Two minutes. |
+| L3 mono | 2nd floor · SkyView 22 |
+
+### Back
+
+| Level | Copy |
+|-------|------|
+| **L1** | Order before you walk over. |
+| — | [QR] |
+
+**Removed:** duplicate hideout headline · hours · B2B teaser · URL
+
+**Concierge says:** "Terrace café two minutes on the second floor — scan for pickup."
 
 ---
 
-## Front
+## Layout
 
+**Front**
 ```
 Welcome to the neighborhood.
-hideout
+──────── (caramel)
 Open-air terrace.
-Real ingredients.
-2-minute walk.
-─────────────────────
-2nd floor · SkyView 22 · Edgewater
+Coffee. Real food.
+Two minutes.
+2nd floor · SkyView 22
 ```
 
-## Back
-
+**Back**
 ```
-hideout
 Order before you walk over.
-[QR centered]
-Wed–Fri 8–5 · Sat–Sun 10–5
-─────────────────────
-Cold brew by the gallon · offices & events
-hideoutmiami.com
+[QR]
 ```
-
-**Concierge script:** "Terrace café two minutes away on the second floor — scan for pickup."
-
----
-
-## AI background
-
-Prompt 3 — quiet morning terrace
 
 ---
 
 ## Export
 
-`hideout-watermarc-card-4x6-v1.psd`
+`hideout-watermarc-4x6-FRONT-v1.psd` · `hideout-watermarc-4x6-BACK-v1.psd`

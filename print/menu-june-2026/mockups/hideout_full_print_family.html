@@ -1,0 +1,460 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .family-wrap {
+    background: #0E0C0A;
+    padding: 32px 24px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .family-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #B8A88A;
+    opacity: 0.55;
+    margin-bottom: 24px;
+  }
+
+  .row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+
+  .piece-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #B8A88A;
+    opacity: 0.45;
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* === BASE CARD === */
+  .card {
+    background-image:
+      radial-gradient(ellipse at 20% 30%, rgba(90,60,30,0.18) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+    background-color: #1C1A18;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(14,12,10,0.45);
+    pointer-events: none;
+  }
+
+  .card-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Text */
+  .wordmark {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: #F5ECD7;
+    text-transform: lowercase;
+    opacity: 0.7;
+  }
+
+  .display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    color: #F5ECD7;
+    line-height: 1.1;
+  }
+
+  .body-text {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    color: #B8A88A;
+    line-height: 1.5;
+  }
+
+  .cat-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 7.5px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #B8A88A;
+    opacity: 0.55;
+  }
+
+  .price {
+    font-family: 'DM Mono', monospace;
+    color: #F5ECD7;
+  }
+
+  .muted {
+    font-family: 'DM Mono', monospace;
+    color: #B8A88A;
+    opacity: 0.55;
+  }
+
+  .rule-caramel {
+    background: #C8852A;
+    height: 1.5px;
+  }
+
+  .rule-cream {
+    background: rgba(245,236,215,0.08);
+    height: 0.5px;
+  }
+
+  .qr-frame {
+    border: 2px solid #C8852A;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qr-inner {
+    font-family: 'DM Mono', monospace;
+    font-size: 6px;
+    color: #1C1A18;
+    text-align: center;
+    padding: 2px;
+    line-height: 1.3;
+    opacity: 0.7;
+  }
+
+  /* === P0 MINI FLYER === */
+  .p0 { width: 130px; }
+  .p0-front, .p0-back { padding: 14px 12px; }
+  .p0-front { border-bottom: 0.5px solid rgba(245,236,215,0.06); }
+
+  .menu-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 3px;
+  }
+
+  /* === P1 COUNTER CARD === */
+  .p1 { width: 170px; height: 96px; }
+  .p1 .card-inner { padding: 14px 14px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+
+  /* === P2 LOBBY STAND === */
+  .p2 { width: 140px; height: 196px; }
+  .p2 .card-inner { padding: 18px 16px; height: 100%; display: flex; flex-direction: column; }
+
+  /* === P3 WATERMARC === */
+  .p3 { width: 150px; }
+  .p3-front, .p3-back { padding: 16px 14px; }
+  .p3-front { border-bottom: 0.5px solid rgba(245,236,215,0.06); }
+
+  /* === P4 SALON === */
+  .p4 { width: 110px; height: 148px; }
+  .p4 .card-inner { padding: 14px 12px; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: space-between; }
+
+  /* === P5 SUNDAY === */
+  .p5 { width: 150px; height: 180px; }
+  .p5 .card-inner { padding: 18px 14px; height: 100%; display: flex; flex-direction: column; }
+
+  /* === P6 OFFICE === */
+  .p6 { width: 140px; height: 196px; }
+  .p6 .card-inner { padding: 14px 12px; height: 100%; display: flex; flex-direction: column; }
+
+  /* === HOUSE CARD === */
+  .p7 { width: 170px; height: 96px; }
+  .p7 .card-inner { padding: 14px 14px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+
+  /* COLUMN BOARD PREVIEW */
+  .board-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  .board-piece {
+    background-color: #1C1A18;
+    border-radius: 6px;
+    padding: 16px;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(80,50,20,0.15) 0%, transparent 70%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .board-piece::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(10,8,6,0.45);
+  }
+
+  .board-inner { position: relative; z-index: 1; }
+</style>
+
+<div class="family-wrap">
+  <div class="family-label">Hideout Miami · Physical Print Family · June 2026</div>
+
+  <!-- ROW 1: COUNTER CARD + LOBBY STAND + WATERMARC (both sides) -->
+  <div class="row" style="align-items:flex-start; flex-wrap:wrap; gap:20px;">
+
+    <!-- P1 Counter card -->
+    <div>
+      <div class="card p1">
+        <div class="card-inner" style="padding:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div class="wordmark" style="margin-bottom:8px;">hideout</div>
+              <div class="display" style="font-size:18px; line-height:1.1;">Your usual —<br>two taps.</div>
+            </div>
+            <div>
+              <div class="qr-frame" style="width:34px; height:34px; border-radius:2px; margin-top:2px;">
+                <div class="qr-inner">QR<br>nfc</div>
+              </div>
+              <div style="font-family:'DM Mono',monospace; font-size:6px; color:#B8A88A; opacity:0.5; text-align:center; margin-top:3px;">scan</div>
+            </div>
+          </div>
+          <div class="muted" style="font-size:7.5px; letter-spacing:0.03em;">Wed–Fri 8–5 · Sat–Sun 10–5</div>
+        </div>
+      </div>
+      <div class="piece-label">1 · Counter card · 3.5×2"</div>
+    </div>
+
+    <!-- P2 Lobby stand -->
+    <div>
+      <div class="card p2">
+        <div class="card-inner">
+          <div class="wordmark" style="margin-bottom:16px;">hideout</div>
+          <div class="display" style="font-size:30px; margin-bottom:8px; flex:1;">Same<br>building.</div>
+          <div class="body-text" style="font-size:9.5px; margin-bottom:12px;">Terrace in<br>2 minutes.</div>
+          <div class="body-text" style="font-size:8.5px; margin-bottom:12px; opacity:0.7;">Coffee · toast · signatures</div>
+          <div style="display:flex; justify-content:center; margin-bottom:8px;">
+            <div class="qr-frame" style="width:40px; height:40px; border-radius:2px;">
+              <div class="qr-inner">QR<br>skyview</div>
+            </div>
+          </div>
+          <div style="font-family:'DM Sans',sans-serif; font-size:7.5px; color:#B8A88A; text-align:center; margin-bottom:8px;">Order before you walk over</div>
+          <div class="rule-cream"></div>
+          <div class="muted" style="font-size:7px; margin-top:6px;">Wed–Fri 8–5 · Sat–Sun 10–5</div>
+        </div>
+      </div>
+      <div class="piece-label">2 · Lobby stand · 5×7"</div>
+    </div>
+
+    <!-- P3 Watermarc (both sides) -->
+    <div>
+      <div class="card p3">
+        <!-- Front -->
+        <div class="p3-front card-inner">
+          <div class="body-text" style="font-size:9px; margin-bottom:10px; opacity:0.75;">Welcome to the<br>neighborhood.</div>
+          <div class="display" style="font-size:26px; margin-bottom:10px;">hideout</div>
+          <div class="rule-caramel" style="width:50%; margin-bottom:10px;"></div>
+          <div class="body-text" style="font-size:9px; line-height:1.7;">Open-air terrace.<br>Real ingredients.<br>2-minute walk.</div>
+          <div class="rule-cream" style="margin:10px 0 8px;"></div>
+          <div class="muted" style="font-size:7px;">2nd floor · SkyView 22<br>Edgewater · Miami</div>
+        </div>
+        <!-- Back -->
+        <div class="p3-back card-inner" style="border-top: 0.5px solid rgba(245,236,215,0.06);">
+          <div class="wordmark" style="margin-bottom:10px;">hideout</div>
+          <div class="display" style="font-size:17px; margin-bottom:10px;">Order before<br>you walk over.</div>
+          <div style="display:flex; justify-content:center; margin-bottom:8px;">
+            <div class="qr-frame" style="width:36px; height:36px; border-radius:2px;">
+              <div class="qr-inner">QR<br>wmc</div>
+            </div>
+          </div>
+          <div class="body-text" style="font-size:8px; margin-bottom:8px;">Wed–Fri 8–5<br>Sat–Sun 10–5</div>
+          <div class="rule-cream" style="margin-bottom:7px;"></div>
+          <div class="body-text" style="font-size:7.5px; opacity:0.65;">Cold brew by the gallon<br>office breakfast welcome</div>
+        </div>
+      </div>
+      <div class="piece-label">3 · Watermarc · 4×6" (both sides)</div>
+    </div>
+
+  </div>
+
+  <!-- ROW 2: SALON + SUNDAY + OFFICE + HOUSE CARD -->
+  <div class="row" style="flex-wrap:wrap; gap:20px;">
+
+    <!-- P4 Salon -->
+    <div>
+      <div class="card p4">
+        <div class="card-inner">
+          <div class="display" style="font-size:20px; text-align:center; margin-bottom:8px;">Two minutes<br>away.</div>
+          <div class="body-text" style="font-size:8.5px; margin-bottom:10px; opacity:0.75;">Terrace coffee<br>+ toast</div>
+          <div class="qr-frame" style="width:36px; height:36px; border-radius:2px; margin: 0 auto 6px;">
+            <div class="qr-inner">QR<br>nbr</div>
+          </div>
+          <div style="font-family:'DM Sans',sans-serif; font-size:7px; color:#B8A88A; opacity:0.6;">order · pickup · done</div>
+        </div>
+      </div>
+      <div class="piece-label">4 · Salon card · 3×4"</div>
+    </div>
+
+    <!-- P5 Sunday exit -->
+    <div>
+      <div class="card p5">
+        <div class="card-inner" style="padding:18px 14px;">
+          <div style="flex:1; display:flex; align-items:center;">
+            <div>
+              <div class="display" style="font-size:24px; margin-bottom:6px;">Same house.<br>Different room.</div>
+              <div class="rule-caramel" style="width:38%; margin-bottom:12px;"></div>
+              <div class="body-text" style="font-size:8.5px; line-height:1.65; margin-bottom:12px; opacity:0.75;">Weekday pickup<br>on the terrace —<br>coffee, toast,<br>signatures.</div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-start; margin-bottom:8px;">
+            <div class="qr-frame" style="width:36px; height:36px; border-radius:2px;">
+              <div class="qr-inner">QR<br>wkday</div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div class="muted" style="font-size:7.5px;">Wed–Fri 8–5</div>
+            <div class="wordmark">hideout</div>
+          </div>
+        </div>
+      </div>
+      <div class="piece-label">5 · Sunday exit · 4×6"</div>
+    </div>
+
+    <!-- P6 Office -->
+    <div>
+      <div class="card p6">
+        <div class="card-inner" style="padding:12px;">
+          <div class="wordmark" style="text-align:center; margin-bottom:8px;">hideout</div>
+          <div class="rule-cream" style="margin-bottom:10px;"></div>
+          <div class="body-text" style="font-size:10px; font-weight:500; color:#F5ECD7; margin-bottom:2px;">Office breakfast</div>
+          <div class="body-text" style="font-size:10px; font-weight:500; color:#F5ECD7; margin-bottom:10px;">Gallon cold brew</div>
+          <div class="rule-cream" style="margin-bottom:10px;"></div>
+          <div style="margin-bottom:4px;">
+            <span class="price" style="font-size:16px;">$16</span><span class="body-text" style="font-size:8px;">/person</span>
+          </div>
+          <div style="margin-bottom:8px;">
+            <span class="price" style="font-size:16px;">$45</span><span class="body-text" style="font-size:8px;">/gallon</span>
+          </div>
+          <div class="body-text" style="font-size:8px; margin-bottom:10px; opacity:0.65;">48hr lead · terrace pickup<br>Egg toast included</div>
+          <div style="display:flex; justify-content:center; margin-bottom:8px;">
+            <div class="qr-frame" style="width:32px; height:32px; border-radius:2px;">
+              <div class="qr-inner">QR<br>off</div>
+            </div>
+          </div>
+          <div class="rule-cream" style="margin-bottom:6px;"></div>
+          <div class="body-text" style="font-size:7.5px; opacity:0.6;">Standing weekly orders welcome</div>
+          <div style="margin-top:8px; border-top: 0.5px solid rgba(245,236,215,0.12); padding-top:6px;">
+            <div style="border-bottom: 0.5px solid rgba(245,236,215,0.2); padding-bottom:4px; width:70%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="piece-label">6 · Office card · 4×6"</div>
+    </div>
+
+    <!-- P7 House card -->
+    <div>
+      <div class="card p7">
+        <div class="card-inner">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div class="wordmark" style="margin-bottom:8px;">hideout</div>
+              <div class="body-text" style="font-size:8px; line-height:1.6; opacity:0.75;">Open-air terrace.<br>Coffee. Real food.<br>Sunday mornings.</div>
+            </div>
+            <div>
+              <div class="qr-frame" style="width:34px; height:34px; border-radius:2px; margin-top:2px;">
+                <div class="qr-inner">QR<br>nfc</div>
+              </div>
+            </div>
+          </div>
+          <div class="rule-cream" style="margin: 8px 0 7px;"></div>
+          <div class="muted" style="font-size:7.5px; letter-spacing:0.03em;">Wed–Fri 8–5 · Sat–Sun 10–5 · 2nd floor SkyView 22</div>
+        </div>
+      </div>
+      <div class="piece-label">7 · House card · 3.5×2" universal</div>
+    </div>
+
+  </div>
+
+  <!-- ROW 3: MINI FLYER -->
+  <div class="row">
+    <div>
+      <div class="card p0" style="width:260px;">
+        <div style="display:flex;">
+          <!-- Front: menu -->
+          <div style="flex:1; padding:14px 12px; border-right: 0.5px solid rgba(245,236,215,0.06); position:relative; z-index:1;">
+            <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:10px;">
+              <div class="wordmark">hideout</div>
+            </div>
+            <div class="rule-cream" style="margin-bottom:10px;"></div>
+            <div class="cat-label" style="margin-bottom:5px;">Signatures</div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Erik's Addiction</span><span class="price" style="font-size:8px;">11</span></div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Iced Breechay's</span><span class="price" style="font-size:8px;">8/11</span></div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Brice's PB Bowl</span><span class="price" style="font-size:8px;">15</span></div>
+            <div class="menu-item-row" style="margin-bottom:8px;"><span class="body-text" style="font-size:8px;">Açaí Bowl</span><span class="price" style="font-size:8px;">16</span></div>
+            <div class="rule-cream" style="margin-bottom:8px;"></div>
+            <div class="cat-label" style="margin-bottom:5px;">Toasts</div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Egg + Avocado</span><span class="price" style="font-size:8px;">9</span></div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Wild Caught Salmon</span><span class="price" style="font-size:8px;">14</span></div>
+            <div class="menu-item-row" style="margin-bottom:8px;"><span class="body-text" style="font-size:8px;">Roasted Chicken</span><span class="price" style="font-size:8px;">12</span></div>
+            <div class="rule-cream" style="margin-bottom:8px;"></div>
+            <div class="cat-label" style="margin-bottom:5px;">Coffee & Drinks</div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Espresso · Americano</span><span class="price" style="font-size:8px;">4</span></div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Latte · Cappuccino</span><span class="price" style="font-size:8px;">6</span></div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Matcha Latte</span><span class="price" style="font-size:8px;">7</span></div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Cold Brew</span><span class="price" style="font-size:8px;">6</span></div>
+            <div class="menu-item-row" style="margin-bottom:8px;"><span class="body-text" style="font-size:8px;">Shroom Coffee</span><span class="price" style="font-size:8px;">10</span></div>
+            <div class="rule-cream" style="margin-bottom:8px;"></div>
+            <div class="cat-label" style="margin-bottom:5px;">Sides</div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Healer Shot</span><span class="price" style="font-size:8px;">5</span></div>
+            <div class="menu-item-row"><span class="body-text" style="font-size:8px;">Banana Bread</span><span class="price" style="font-size:8px;">5</span></div>
+            <div class="menu-item-row" style="margin-bottom:8px;"><span class="body-text" style="font-size:8px;">Watermelon Juice</span><span class="price" style="font-size:8px;">6</span></div>
+            <div class="rule-caramel" style="margin-bottom:6px;"></div>
+            <div class="muted" style="font-size:7px;">Wed–Fri 8–5 · Sat–Sun 10–5</div>
+            <div class="muted" style="font-size:7px;">2nd floor · SkyView 22</div>
+          </div>
+          <!-- Back: action -->
+          <div style="flex:1; padding:14px 12px; display:flex; flex-direction:column; justify-content:center; text-align:left; position:relative; z-index:1;">
+            <div class="display" style="font-size:18px; margin-bottom:8px; line-height:1.15;">Order ahead.<br>Skip the line.</div>
+            <div class="rule-caramel" style="width:40%; margin-bottom:14px;"></div>
+            <div style="display:flex; justify-content:center; margin-bottom:10px;">
+              <div class="qr-frame" style="width:44px; height:44px; border-radius:2px;">
+                <div class="qr-inner">scan<br>to order</div>
+              </div>
+            </div>
+            <div style="font-family:'DM Sans',sans-serif; font-size:7.5px; color:#B8A88A; text-align:center; margin-bottom:12px; opacity:0.7;">scan to order pickup</div>
+            <div class="rule-cream" style="margin-bottom:8px;"></div>
+            <div class="body-text" style="font-size:7.5px; opacity:0.65; line-height:1.6;">Cold brew by the<br>gallon · office<br>breakfast weekly</div>
+            <div class="muted" style="font-size:7px; margin-top:8px;">hideoutmiami.com</div>
+          </div>
+        </div>
+      </div>
+      <div class="piece-label">0 · Mini flyer · 4×9" or 5.5×8.5" (both sides)</div>
+    </div>
+
+    <!-- darker bg comparison -->
+    <div style="display:flex; flex-direction:column; gap:12px; margin-left:8px;">
+      <div>
+        <div style="background:#1C1A18; border-radius:6px; width:80px; height:40px; display:flex; align-items:center; justify-content:center;">
+          <span class="display" style="font-size:11px; color:#F5ECD7;">hideout</span>
+        </div>
+        <div class="piece-label">Current bg</div>
+      </div>
+      <div>
+        <div style="background:#14120F; border-radius:6px; width:80px; height:40px; display:flex; align-items:center; justify-content:center; background-image: radial-gradient(ellipse at 30% 30%, rgba(70,45,15,0.2) 0%, transparent 70%);">
+          <span class="display" style="font-size:11px; color:#F5ECD7;">hideout</span>
+        </div>
+        <div class="piece-label">Darkened +15%</div>
+      </div>
+      <div style="font-family:'DM Sans',sans-serif; font-size:7.5px; color:#B8A88A; opacity:0.55; max-width:80px; line-height:1.5;">Text floats more. Texture stays.</div>
+    </div>
+
+  </div>
+
+</div>

@@ -1,61 +1,41 @@
-# Piece 7 — Hideout House Card (Universal)
+# Piece 7 — House Card (Universal)
 
-**Not a placement trigger — the Swiss Army knife piece.**
-
-**Format:** 4" × 6" postcard, double-sided, soft-touch matte  
-**QR:** `https://hideoutmiami.com/app?source=neighbor` (or `nfc` if counter-adjacent)  
-**Qty:** 100–200  
-**Uses:** Bag insert fallback · handout · Watermarc backup · office leave-behind · Sunday takeaway
+**Format:** 4" × 6" double-sided  
+**QR:** `?source=neighbor` or `?source=nfc`  
+**Qty:** 100–200
 
 ---
 
-## Why this exists
+## Copy (edited — final)
 
-Six placements are **context-specific**. House card is **identity-specific** — works anywhere you need "what is Hideout?" without a building or Sunday frame.
+### Front
 
----
+| Level | Copy |
+|-------|------|
+| Logo | hideout |
+| L3 | Open-air terrace. |
+| L3 | Coffee. Real food. |
+| — | [QR] |
 
-## Front
+### Back
 
-```
-┌────────────────────────┐
-│                        │
-│ hideout                │  ← Display 40pt
-│                        │
-│ Open-air terrace.      │  ← DM Sans 14pt muted
-│ Coffee. Real food.     │
-│ Sunday mornings.       │
-│                        │
-│ [QR 1.5" caramel frame]│
-│                        │
-│ hideoutmiami.com       │
-└────────────────────────┘
-```
+| Level | Copy |
+|-------|------|
+| L3 mono | Wed–Fri 8–5 |
+| L3 mono | Sat–Sun 10–5 |
+| L3 mono | 2nd floor · SkyView 22 |
+
+**Removed:** Sunday mornings · URL · app CTA · office teaser · city line
 
 ---
 
-## Back
+## Layout
 
-```
-┌────────────────────────┐
-│ Wed–Fri 8–5           │
-│ Sat–Sun 10–5          │
-│ 2nd floor · SkyView 22│
-│ Edgewater · Miami     │
-│                        │
-│ Order ahead in the app. │
-│                        │
-│ ─────────────────────  │
-│ Office breakfast ·     │
-│ gallon cold brew ·     │
-│ ask us                 │
-└────────────────────────┘
-```
-
-**Copy rule:** No hype. Observable facts only.
+**Front:** logo + 2 lines + QR  
+**Back:** hours block only (3 lines)
 
 ---
 
 ## Export
 
-`hideout-house-card-4x6-v1.psd`
+`hideout-house-card-4x6-FRONT-v1.psd` · `hideout-house-card-4x6-BACK-v1.psd`

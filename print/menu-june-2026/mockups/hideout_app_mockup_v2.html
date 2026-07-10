@@ -1,0 +1,219 @@
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono&display=swap" rel="stylesheet">
+<h2 class="sr-only">Hideout app interactive mockup — tap the tab bar to navigate between Today, Order, Rewards, Catering, Sunday, and Account screens</h2>
+<div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 0 1rem;gap:16px">
+<div style="background:var(--color-background-secondary);border-radius:20px;padding:24px 28px 20px;display:inline-flex;flex-direction:column;align-items:center;gap:20px">
+
+<div id="phone" style="width:375px;height:756px;background:#1C1A18;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;border:1px solid #3A3632">
+
+<div style="height:44px;flex-shrink:0;background:#1C1A18;padding:0 28px;display:flex;align-items:center;justify-content:space-between">
+<span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#F5ECD7">9:41</span>
+<div style="display:flex;gap:6px;align-items:center"><i class="ti ti-wifi" aria-hidden="true" style="font-size:13px;color:#F5ECD7"></i><i class="ti ti-battery-2" aria-hidden="true" style="font-size:13px;color:#F5ECD7"></i></div>
+</div>
+
+<div id="screens" style="flex:1;position:relative;overflow:hidden">
+
+<div id="scr-today" style="position:absolute;inset:0;overflow-y:auto;opacity:1;transition:opacity 200ms ease-out">
+<div style="padding:20px 20px 6px"><span style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:34px;color:#F5ECD7;letter-spacing:-0.02em;line-height:1">hideout</span></div>
+<div style="padding:4px 20px 14px;display:flex;align-items:center;gap:8px"><div style="width:7px;height:7px;border-radius:50%;background:#3A5A3A;flex-shrink:0"></div><span style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A">Open until 3PM</span></div>
+<div style="margin:0 20px 14px;background:#242220;border-radius:16px;overflow:hidden">
+<div style="height:190px;background:linear-gradient(155deg,#4D3318 0%,#2E1D0A 55%,#1A1005 100%);position:relative">
+<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(36,34,32,.9) 100%)"></div>
+<div style="position:absolute;bottom:14px;left:16px;right:16px">
+<div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#C8852A;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">Today's special</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;color:#F5ECD7">Erik's Addiction</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#B8A88A;margin-top:2px">Almond butter · banana · cacao nibs · oat milk</div>
+</div></div>
+<div style="padding:12px 14px"><div style="height:48px;background:#C8852A;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#1C1A18">Reorder — Erik's Addiction</span></div></div>
+</div>
+<div style="margin:0 20px 14px;background:rgba(61,90,62,.12);border-radius:16px;padding:16px;border:.5px solid rgba(61,90,62,.28)">
+<div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#3D5A3E;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Every Sunday · 11AM–2PM</div>
+<div style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:24px;color:#F5ECD7;margin-bottom:4px;line-height:1.2">DJ Marcos</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#B8A88A;margin-bottom:14px">House and ambient. Patio open.</div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A">Free. Always.</span>
+<span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#C8852A;cursor:pointer">Bring someone →</span>
+</div></div>
+<div style="padding:0 20px 24px"><span style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A">240 pts · 1 reward available</span></div>
+</div>
+
+<div id="scr-order" style="position:absolute;inset:0;overflow-y:auto;opacity:0;transition:opacity 200ms ease-out;pointer-events:none">
+<div style="padding:20px 20px 10px"><span style="font-family:'DM Sans',sans-serif;font-size:18px;font-weight:500;color:#F5ECD7">Order</span></div>
+<div style="display:flex;padding:0 20px;border-bottom:.5px solid #3A3632;margin-bottom:12px;gap:0">
+<span onclick="setCategory('smoothies')" id="ctab-smoothies" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#F5ECD7;cursor:pointer;padding-bottom:10px;margin-right:18px;border-bottom:2px solid #F5ECD7">Smoothies</span>
+<span onclick="setCategory('toasts')" id="ctab-toasts" style="font-family:'DM Sans',sans-serif;font-size:13px;color:#B8A88A;cursor:pointer;padding-bottom:10px;margin-right:18px">Toasts</span>
+<span onclick="setCategory('coffee')" id="ctab-coffee" style="font-family:'DM Sans',sans-serif;font-size:13px;color:#B8A88A;cursor:pointer;padding-bottom:10px;margin-right:18px">Coffee</span>
+<span onclick="setCategory('sides')" id="ctab-sides" style="font-family:'DM Sans',sans-serif;font-size:13px;color:#B8A88A;cursor:pointer;padding-bottom:10px">Sides</span>
+</div>
+<div id="menu-list" style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px"></div>
+</div>
+
+<div id="scr-rewards" style="position:absolute;inset:0;overflow-y:auto;opacity:0;transition:opacity 200ms ease-out;pointer-events:none;padding:24px 20px">
+<div style="font-family:'DM Sans',sans-serif;font-size:18px;font-weight:500;color:#F5ECD7;margin-bottom:28px">Rewards</div>
+<div style="text-align:center;padding:16px 0 28px">
+<div style="font-family:'DM Mono',monospace;font-size:56px;color:#F5ECD7;line-height:1">240</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-top:6px;letter-spacing:.02em">points</div>
+</div>
+<div style="height:3px;background:#3A3632;border-radius:2px;margin:0 0 10px;position:relative"><div style="position:absolute;inset:0;width:80%;background:#C8852A;border-radius:2px"></div></div>
+<div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-bottom:28px">60 pts to free drink</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#F5ECD7;margin-bottom:10px">Available rewards</div>
+<div style="background:#242220;border-radius:14px;padding:16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#F5ECD7;margin-bottom:3px">Free drink</div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A">Redeem at checkout or in store</div></div>
+<div style="height:34px;padding:0 14px;background:#C8852A;border-radius:8px;display:flex;align-items:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#1C1A18">Apply</span></div>
+</div>
+<div style="margin-top:20px;text-align:center;padding:12px;border:.5px solid #3A3632;border-radius:12px">
+<div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-bottom:8px">Show at counter to redeem</div>
+<div style="width:80px;height:80px;margin:0 auto;background:#F5ECD7;border-radius:6px;display:flex;align-items:center;justify-content:center"><i class="ti ti-qrcode" aria-hidden="true" style="font-size:52px;color:#1C1A18"></i></div>
+</div>
+</div>
+
+<div id="scr-catering" style="position:absolute;inset:0;overflow-y:auto;opacity:0;transition:opacity 200ms ease-out;pointer-events:none;padding:24px 20px">
+<div style="font-family:'DM Sans',sans-serif;font-size:18px;font-weight:500;color:#F5ECD7;margin-bottom:14px">Catering & Bulk</div>
+<div style="background:#242220;border-radius:14px;padding:16px;margin-bottom:12px;border-left:3px solid #C8852A;border-radius:0 14px 14px 0">
+<div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#B8A88A;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Your standing order</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#F5ECD7;margin-bottom:3px">Mondays · 8AM</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#B8A88A;margin-bottom:10px">12× Erik's Addiction</div>
+<span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#C8852A;cursor:pointer">Modify</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="background:#242220;border-radius:14px;overflow:hidden">
+<div style="height:110px;background:linear-gradient(135deg,#3D2A14,#1E1508)"></div>
+<div style="padding:14px"><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#F5ECD7;margin-bottom:3px">Erik's Addiction Box</div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-bottom:3px">6-piece or 12-piece</div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-bottom:12px">Pickup default · 24hr notice</div><div style="height:40px;background:#C8852A;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#1C1A18">Order</span></div></div>
+</div>
+<div style="background:#242220;border-radius:14px;overflow:hidden">
+<div style="height:110px;background:linear-gradient(135deg,#1A2A1A,#0E1A0E)"></div>
+<div style="padding:14px"><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#F5ECD7;margin-bottom:3px">Gallon Cold Brew</div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-bottom:12px">Preorder required · 48hr advance notice</div><div style="height:40px;border-radius:10px;border:.5px solid #3A3632;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#C8852A">Coming soon — Notify me</span></div></div>
+</div>
+<div style="background:#242220;border-radius:14px;overflow:hidden">
+<div style="height:110px;background:linear-gradient(135deg,#2A1A10,#3A2A1A)"></div>
+<div style="padding:14px"><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#F5ECD7;margin-bottom:3px">Office Breakfast Package</div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-bottom:12px">Min 5 persons · 24hr notice</div><div style="height:40px;background:#C8852A;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#1C1A18">Order</span></div></div>
+</div>
+</div>
+</div>
+
+<div id="scr-village" style="position:absolute;inset:0;overflow-y:auto;opacity:0;transition:opacity 200ms ease-out;pointer-events:none;padding:20px">
+<!-- Vinyl decorative element -->
+<div style="position:absolute;top:16px;right:16px;opacity:0.07;pointer-events:none">
+<i class="ti ti-vinyl" style="font-size:140px;color:#3D5A3E"></i>
+</div>
+<div style="background:rgba(61,90,62,.13);border-radius:20px;padding:28px 24px;border:.5px solid rgba(61,90,62,.28);margin-bottom:18px;min-height:370px;display:flex;flex-direction:column;justify-content:space-between;position:relative">
+<div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:22px">
+<i class="ti ti-vinyl" style="font-size:13px;color:#3D5A3E;opacity:0.8"></i>
+<div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#3D5A3E;letter-spacing:.08em;text-transform:uppercase">Every Sunday · 11AM–2PM</div>
+</div>
+<div style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:48px;color:#F5ECD7;line-height:1.05;margin-bottom:14px">DJ Marcos</div>
+<div style="font-family:'DM Sans',sans-serif;font-size:14px;color:#B8A88A;line-height:1.55">House and ambient. Patio open.<br>Come as you are.</div>
+</div>
+<div>
+<div style="height:.5px;background:rgba(61,90,62,.28);margin:24px 0 16px"></div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#B8A88A">Free. Always.</span>
+<span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#C8852A;cursor:pointer">Bring someone →</span>
+</div></div>
+</div>
+<div style="padding:0 4px 20px"><div style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:15px;color:#B8A88A;line-height:1.65">A free weekly Sunday gathering at Hideout Miami — same place, same time, every week. Music already in the room when you arrive. No agenda. No programming. No pressure.</div></div>
+</div>
+
+<div id="scr-account" style="position:absolute;inset:0;overflow-y:auto;opacity:0;transition:opacity 200ms ease-out;pointer-events:none;padding:24px 20px">
+<div style="font-family:'DM Sans',sans-serif;font-size:18px;font-weight:500;color:#F5ECD7;margin-bottom:18px">Account</div>
+<div style="background:#242220;border-radius:14px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px">
+<div style="width:44px;height:44px;border-radius:50%;background:#2E2B28;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#B8A88A">JM</span></div>
+<div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#F5ECD7">Jordan M.</div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A">Hideout Regular</div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:1px">
+<div style="background:#242220;border-radius:12px 12px 3px 3px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#F5ECD7">Notification preferences</span><i class="ti ti-chevron-right" aria-hidden="true" style="font-size:15px;color:#B8A88A"></i></div>
+<div style="background:#242220;border-radius:3px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#F5ECD7">Payment methods</span><i class="ti ti-chevron-right" aria-hidden="true" style="font-size:15px;color:#B8A88A"></i></div>
+<div style="background:#242220;border-radius:3px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#F5ECD7">Order history</span><i class="ti ti-chevron-right" aria-hidden="true" style="font-size:15px;color:#B8A88A"></i></div>
+<div style="background:#242220;border-radius:3px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#F5ECD7">Saved addresses</span><i class="ti ti-chevron-right" aria-hidden="true" style="font-size:15px;color:#B8A88A"></i></div>
+<div style="background:#242220;border-radius:3px 3px 12px 12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer"><span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#B8A88A">Support</span><i class="ti ti-chevron-right" aria-hidden="true" style="font-size:15px;color:#B8A88A"></i></div>
+</div>
+</div>
+
+</div>
+
+<div style="height:82px;flex-shrink:0;background:#1C1A18;border-top:.5px solid #3A3632;display:flex;align-items:flex-start;padding-top:8px">
+<div onclick="showTab('today')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer"><i id="ico-today" class="ti ti-sun" aria-hidden="true" style="font-size:22px;color:#C8852A"></i><span id="lbl-today" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#F5ECD7">Today</span></div>
+<div onclick="showTab('order')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer"><i id="ico-order" class="ti ti-basket" aria-hidden="true" style="font-size:22px;color:#B8A88A"></i><span id="lbl-order" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#B8A88A">Order</span></div>
+<div onclick="showTab('rewards')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer">
+<div style="position:relative;display:inline-flex"><i id="ico-rewards" class="ti ti-gift" aria-hidden="true" style="font-size:22px;color:#B8A88A"></i><div style="position:absolute;top:0;right:-2px;width:6px;height:6px;border-radius:50%;background:#C8852A"></div></div>
+<span id="lbl-rewards" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#B8A88A">Rewards</span>
+</div>
+<div onclick="showTab('catering')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer"><i id="ico-catering" class="ti ti-building-store" aria-hidden="true" style="font-size:22px;color:#B8A88A"></i><span id="lbl-catering" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#B8A88A">Catering</span></div>
+<div onclick="showTab('village')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer"><i id="ico-village" class="ti ti-vinyl" aria-hidden="true" style="font-size:22px;color:#B8A88A"></i><span id="lbl-village" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#B8A88A">Sunday</span></div>
+<div onclick="showTab('account')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer"><i id="ico-account" class="ti ti-user" aria-hidden="true" style="font-size:22px;color:#B8A88A"></i><span id="lbl-account" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#B8A88A">Account</span></div>
+</div>
+
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:0 8px">
+<span style="font-family:var(--font-sans);font-size:12px;color:var(--color-text-secondary)">Tap any tab to navigate</span>
+</div>
+</div>
+</div>
+
+<script>
+const TABS=['today','order','rewards','catering','village','account'];
+const menuData={
+  smoothies:[
+    {name:"Erik\u2019s Addiction",desc:"Almond butter \u00b7 banana \u00b7 cacao nibs \u00b7 oat milk",price:"$11",mods:true},
+    {name:"Iced Breechay\u2019s Special",desc:"Frozen coconut \u00b7 coconut milk \u00b7 maple syrup",price:"$8\u2009/\u2009$11",mods:false},
+    {name:"Brice\u2019s PB Bowl",desc:"Banana \u00b7 frozen coconut \u00b7 peanut butter \u00b7 oat milk \u00b7 granola",price:"$15",mods:false},
+    {name:"Acai Bowl",desc:"Acai \u00b7 chia seeds \u00b7 peanut butter \u00b7 banana \u00b7 granola",price:"$16",mods:false}
+  ],
+  toasts:[
+    {name:"Egg + Avocado Toast",desc:"Mashed avocado \u00b7 hard-boiled eggs \u00b7 olive oil \u00b7 sourdough",price:"$9",mods:true},
+    {name:"Wild Caught Salmon Toast",desc:"Smoked salmon \u00b7 arugula \u00b7 avocado mash \u00b7 teriyaki \u00b7 sourdough",price:"$14",mods:false},
+    {name:"Roasted Chicken Toast",desc:"Seasoned chicken \u00b7 spinach \u00b7 avocado mash \u00b7 balsamic \u00b7 sourdough",price:"$12",mods:true}
+  ],
+  coffee:[
+    {name:"Espresso",desc:"Double shot",price:"$4",mods:false},
+    {name:"Latte",desc:"Espresso \u00b7 steamed milk",price:"$6",mods:false},
+    {name:"Cold Brew",desc:"Slow-steeped \u00b7 naturally smooth",price:"$6",mods:false},
+    {name:"Matcha Latte",desc:"Ceremonial grade matcha \u00b7 smooth and balanced",price:"$7",mods:false},
+    {name:"Shroom Coffee",desc:"Functional mushroom blend \u00b7 double shot \u00b7 oat milk",price:"$10",mods:false}
+  ],
+  sides:[
+    {name:"Healer Shot",desc:"Ginger \u00b7 turmeric \u00b7 black pepper \u00b7 cayenne \u00b7 honey \u00b7 lemon",price:"$5",mods:false},
+    {name:"Vegan Banana Bread",desc:"Freshly baked",price:"$5",mods:false},
+    {name:"Watermelon Juice",desc:"Fresh pressed",price:"$6",mods:false}
+  ]
+};
+
+function renderMenu(cat){
+  const list=document.getElementById('menu-list');
+  if(!list)return;
+  const bgMap={smoothies:'linear-gradient(135deg,#3D2A14,#1E1508)',toasts:'linear-gradient(135deg,#3A2A18,#2A1C0C)',coffee:'linear-gradient(135deg,#2A1C10,#1A1208)',sides:'linear-gradient(135deg,#1A2A1A,#111A11)'};
+  const bg=bgMap[cat]||bgMap.smoothies;
+  list.innerHTML=menuData[cat].map(item=>`<div style="background:#242220;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start"><div style="flex:1;min-width:0"><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#F5ECD7">${item.name}</div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B8A88A;margin-top:3px;line-height:1.4">${item.desc}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:#F5ECD7;margin-top:8px">${item.price}</div>${item.mods?`<div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#C8852A;margin-top:3px">Customize</div>`:''}</div><div style="width:76px;height:76px;border-radius:8px;background:${bg};flex-shrink:0"></div></div>`).join('');
+}
+
+function setCategory(cat){
+  ['smoothies','toasts','coffee','sides'].forEach(c=>{
+    const el=document.getElementById('ctab-'+c);
+    if(!el)return;
+    if(c===cat){el.style.color='#F5ECD7';el.style.borderBottom='2px solid #F5ECD7';}
+    else{el.style.color='#B8A88A';el.style.borderBottom='none';}
+  });
+  renderMenu(cat);
+}
+
+function showTab(tab){
+  TABS.forEach(t=>{
+    const s=document.getElementById('scr-'+t);
+    if(s){s.style.opacity='0';s.style.pointerEvents='none';}
+    const ico=document.getElementById('ico-'+t);
+    const lbl=document.getElementById('lbl-'+t);
+    if(ico)ico.style.color='#B8A88A';
+    if(lbl)lbl.style.color='#B8A88A';
+  });
+  const target=document.getElementById('scr-'+tab);
+  if(target){target.style.opacity='1';target.style.pointerEvents='auto';}
+  const ico=document.getElementById('ico-'+tab);
+  const lbl=document.getElementById('lbl-'+tab);
+  if(ico)ico.style.color=tab==='village'?'#3D5A3E':'#C8852A';
+  if(lbl)lbl.style.color='#F5ECD7';
+}
+
+renderMenu('smoothies');
+</script>
